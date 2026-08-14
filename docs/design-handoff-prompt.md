@@ -60,7 +60,8 @@ Not an open marketplace: a bring-your-own-vendors coordination layer. The hospic
 
 - `wiki/facts/views-storyboard.md` — all 22 screens, rich descriptions
 - `wiki/facts/user-scenarios.md` — three walkthroughs with sample data
-- `wiki/facts/user-journeys.md` — per-persona journeys + dashboard artifacts
+- `wiki/facts/user-journeys.md` — per-persona journeys + dashboard artifacts + six connector journeys (approval loop, vendor onboarding, decline/reroute, live discharge, resupply, pickup-delayed escalation)
+- `docs/graph.html` — interactive system graph: every persona, view, engine part, and external system, with edges showing what feeds what (open in any browser, self-contained)
 - `wiki/facts/dme-catalog.md` — the ~25 equipment items with categories/flags
 - `wiki/facts/order-lifecycle.md` — six states + sample orders DME-10231…09803
 - `wiki/facts/personas.md` — sponsor-verbatim personas

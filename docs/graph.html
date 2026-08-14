@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DME System Graph</title>
+<style>
+  :root{
+    --ink:#24333F; --ink-soft:#55636D; --paper:#FBFAF8; --surface:#FFFFFF;
+    --line:#DEE2E5; --salmon:#EF7869; --burnt:#F4916C; --burnt-dark:#8F4B22;
+    --secondary:#425B76; --green:#71BA4F; --royal:#528DC1; --purple:#6956A4;
+    --red:#EB7870; --red-tint:#FBEAE9; --taupe:#FDEBDA;
+  }
+  *{box-sizing:border-box;margin:0}
+  body{background:var(--paper);color:var(--ink);font:15px/1.45 Inter,system-ui,sans-serif;padding:24px}
+  h1{font-family:Poppins,Inter,sans-serif;font-weight:800;font-size:22px}
+  p.sub{color:var(--ink-soft);margin:6px 0 14px;max-width:900px}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px;font-size:12px;color:var(--ink-soft)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+  #wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:10px;
+        box-shadow:0 1px 2px rgba(36,51,63,.06),0 8px 24px rgba(36,51,63,.06)}
+  svg{display:block}
+  .edge{fill:none;stroke:var(--line);stroke-width:1.5;transition:stroke .12s,opacity .12s}
+  .node rect{rx:8;stroke-width:1.5;cursor:pointer;transition:opacity .12s}
+  .node text{font:600 11.5px Inter,sans-serif;fill:var(--ink);pointer-events:none}
+  .node .tag{font:400 9.5px Inter,sans-serif;fill:var(--ink-soft)}
+  .colhead{font:800 11px Poppins,sans-serif;fill:var(--burnt-dark);letter-spacing:.08em;text-transform:uppercase}
+  .dim{opacity:.13}
+  .edge.hot{stroke:var(--salmon);stroke-width:2.5}
+  footer{margin-top:10px;font-size:12px;color:var(--ink-soft)}
+</style>
+</head>
+<body>
+<h1>BetterRX DME — System Graph</h1>
+<p class="sub">Every moving part and what feeds what. Hover (or tap) a node to light up its neighborhood; click to pin. Personas act through views; views read from and write to the engine; the event store is the heart — everything downstream (score, risk, billing clock, timeline) derives from events. Wiki: <code>wiki/facts/views-storyboard.md</code>, <code>wiki/facts/user-journeys.md</code>.</p>
+<div class="legend">
+  <span><i style="background:var(--taupe)"></i>Personas</span>
+  <span><i style="background:#EFF4F9"></i>Hospice views</span>
+  <span><i style="background:var(--red-tint)"></i>Engine (Supabase + agent)</span>
+  <span><i style="background:#EEF7EA"></i>Vendor surfaces (no login)</span>
+  <span><i style="background:#F1EFF7"></i>External systems</span>
+</div>
+<div id="wrap"><svg id="g" width="1460" height="1010"></svg></div>
+<footer>Self-contained file — no network needed. Generated 2026-08-14 from the wiki graph.</footer>
+<script>
+const COLS = [
+  {x:30,  w:180, head:"PERSONAS", fill:"#FDEBDA", stroke:"#F4916C"},
+  {x:290, w:230, head:"HOSPICE VIEWS", fill:"#EFF4F9", stroke:"#528DC1"},
+  {x:620, w:230, head:"ENGINE", fill:"#FBEAE9", stroke:"#EB7870"},
+  {x:950, w:220, head:"VENDOR SURFACES", fill:"#EEF7EA", stroke:"#71BA4F"},
+  {x:1240,w:190, head:"EXTERNAL", fill:"#F1EFF7", stroke:"#6956A4"},
+];
+// id, column, label, sublabel
+const NODES = [
+ ["an",0,"Admissions nurse","orders at intake"],
+ ["cm",0,"Case manager","field, phone, bedside"],
+ ["don",0,"DON","approves + reports"],
+ ["disp",0,"Vendor dispatcher","never logs in"],
+ ["drv",0,"Driver","forwarded link"],
+ ["fam",0,"Family","SMS only"],
+
+ ["today",1,"Today (per-role home)","view 2"],
+ ["ready",1,"Readiness board","view 7"],
+ ["flow",1,"New order flow + compare","views 5 — Amazon moment"],
+ ["pcard",1,"Patient equipment card","view 4"],
+ ["odet",1,"Order detail + timeline","view 6 — explainability"],
+ ["risk",1,"At-risk escalation sheet","view 8"],
+ ["bed",1,"Bedside status change","view 9 — 2:14 AM receipt"],
+ ["ptrack",1,"Pickup tracker","view 10"],
+ ["appr",1,"DON approvals queue","view 11"],
+ ["rept",1,"DON reports","view 12 — cost of care"],
+ ["vmgmt",1,"Vendor management","view 13 — invite"],
+ ["sett",1,"Settings / guardrails","view 14"],
+
+ ["events",2,"order_events store","the heart — append-only"],
+ ["life",2,"Order lifecycle","6 states + At Risk / Delayed"],
+ ["rules",2,"At-risk rules","deterministic, explainable"],
+ ["score",2,"Reliability + condition","transparent formula"],
+ ["bill",2,"Billing clock","notification timestamp"],
+ ["agent",2,"SMS agent","nudge ladder, hybrid parse"],
+ ["resup",2,"Resupply scheduler","deterministic intervals"],
+
+ ["run",3,"Magic-link run list","view 16 — forwardable"],
+ ["stop",3,"Stop cards","view 17/18 — GPS, POD, photo"],
+ ["rcard",3,"Vendor report card","view 19 — volume won"],
+ ["onb",3,"Onboarding accept","view 15 — 60 seconds"],
+
+ ["emr",4,"EMR (HCHB) ADT","admit / discharge / death"],
+ ["erx",4,"BetterRX eRx","newDmeOrder envelope"],
+ ["tw",4,"Twilio SMS","A2P risk — simulator first"],
+ ["flink",4,"Family status link","view 20 — stretch"],
+];
+const EDGES = [
+ ["an","today"],["an","ready"],["an","flow"],
+ ["cm","pcard"],["cm","flow"],["cm","bed"],["cm","ptrack"],["cm","risk"],["cm","odet"],
+ ["don","appr"],["don","rept"],["don","vmgmt"],["don","sett"],
+ ["disp","run"],["disp","rcard"],["disp","onb"],
+ ["drv","stop"],["fam","flink"],
+ ["flow","life"],["score","flow"],["flow","appr"],["appr","life"],
+ ["bed","bill"],["bed","agent"],["bed","life"],
+ ["rules","risk"],["risk","flow"],
+ ["events","odet"],["agent","odet"],
+ ["life","ptrack"],["life","ready"],["life","pcard"],["life","today"],
+ ["events","rept"],["bill","rept"],["score","rept"],
+ ["resup","pcard"],["resup","flow"],
+ ["vmgmt","onb"],["onb","flow"],
+ ["sett","rules"],["sett","appr"],
+ ["life","events"],["events","score"],["events","rules"],["events","bill"],
+ ["agent","run"],["run","stop"],["stop","events"],
+ ["score","rcard"],["events","rcard"],
+ ["emr","pcard"],["emr","life"],
+ ["erx","events"],["events","erx"],
+ ["agent","tw"],["tw","disp"],["agent","flink"],
+];
+const svg=document.getElementById("g"), NS="http://www.w3.org/2000/svg";
+const H=26, PAD=46, TOP=52;
+const byCol=COLS.map(()=>[]);
+NODES.forEach(n=>byCol[n[1]].push(n));
+const pos={};
+byCol.forEach((list,c)=>{
+  const total=1010-TOP-20, gap=Math.min(74,(total-list.length*H)/(list.length))
+  list.forEach((n,i)=>{ pos[n[0]]={x:COLS[c].x,y:TOP+PAD/2+i*(H+gap),c}; });
+});
+function el(t,a){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;}
+COLS.forEach(c=>{const t=el("text",{x:c.x,y:34,class:"colhead"});t.textContent=c.head;svg.appendChild(t);});
+const adj={}; NODES.forEach(n=>adj[n[0]]=new Set());
+const edgeEls=[];
+EDGES.forEach(([a,b])=>{
+  const A=pos[a],B=pos[b];if(!A||!B)return;
+  adj[a].add(b);adj[b].add(a);
+  const ax=A.x+COLS[A.c].w, ay=A.y+H/2, bx=B.x, by=B.y+H/2;
+  const sameCol=A.c===B.c;
+  let d;
+  if(sameCol){const x=A.x+COLS[A.c].w;d=`M${x},${ay} C${x+40},${ay} ${x+40},${by} ${x},${by}`;}
+  else if(A.c<B.c){const m=(ax+bx)/2;d=`M${ax},${ay} C${m},${ay} ${m},${by} ${bx},${by}`;}
+  else {const m=(A.x+B.x+COLS[B.c].w)/2;d=`M${A.x},${ay} C${m},${ay} ${m},${by} ${B.x+COLS[B.c].w},${by}`;}
+  const p=el("path",{d,class:"edge"});p.dataset.a=a;p.dataset.b=b;
+  svg.appendChild(p);edgeEls.push(p);
+});
+let pinned=null;
+function focus(id){
+  document.querySelectorAll(".node").forEach(g=>{
+    g.classList.toggle("dim", id && g.dataset.id!==id && !adj[id].has(g.dataset.id));
+  });
+  edgeEls.forEach(p=>{
+    const hot=id&&(p.dataset.a===id||p.dataset.b===id);
+    p.classList.toggle("hot",!!hot);
+    p.classList.toggle("dim",id&&!hot);
+  });
+}
+NODES.forEach(n=>{
+  const [id,c,label,tag]=n,P=pos[id],col=COLS[c];
+  const g=el("g",{class:"node","data-id":id});
+  g.appendChild(el("rect",{x:P.x,y:P.y,width:col.w,height:H+ (tag?14:0),fill:col.fill,stroke:col.stroke}));
+  const t=el("text",{x:P.x+10,y:P.y+17});t.textContent=label;g.appendChild(t);
+  if(tag){const s=el("text",{x:P.x+10,y:P.y+30,class:"tag"});s.textContent=tag;g.appendChild(s);}
+  g.addEventListener("mouseenter",()=>{if(!pinned)focus(id);});
+  g.addEventListener("mouseleave",()=>{if(!pinned)focus(null);});
+  g.addEventListener("click",e=>{e.stopPropagation();pinned=pinned===id?null:id;focus(pinned);});
+  svg.appendChild(g);
+});
+document.body.addEventListener("click",()=>{pinned=null;focus(null);});
+</script>
+</body>
+</html>

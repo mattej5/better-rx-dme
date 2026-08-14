@@ -49,4 +49,13 @@ Journey: SMS arrives → taps magic link → today's run list → confirms deliv
 - Per-stop card — address, equipment, signature + photo capture
 - **Report card page** — reliability score, order volume won this month, proof-pack archive for billing ([[vendor-value-prop]] — score as revenue asset)
 
-Related: [[pitch-plan]], [[0002-demo-spine]], [personas.md](personas.md)
+## Connector journeys (cross-persona and edge flows — added 2026-08-14 after due-diligence pass)
+
+- **DON approval loop.** Order exceeds cost threshold → nurse sees "awaiting approval" chip → DON approvals queue (price vs alternative) → approve/deny with reason → nurse notified, order proceeds or returns. Crosses nurse↔DON.
+- **Vendor onboarding.** Hospice admin invites (name + dispatch phone) → magic link → vendor confirms hours/coverage/equipment categories on one screen → appears in compare view. The whole "how vendors join" answer ([[views-storyboard]] view 15).
+- **Vendor declines / reroute.** Vendor declines with reason (feeds score honestly) → agent auto-offers to next-best vendor from compare ranking → nurse one-tap confirms the switch. The multi-vendor safety net in action.
+- **Live discharge.** Same pickup mechanics as death (notify → clock → schedule → photo), different copy and tone — patient is alive and may return to hospice later. Death and discharge are distinct status changes ([[user-scenarios]]).
+- **Resupply loop.** Consumable interval due → reminder on patient equipment card → one-tap reorder → normal delivery flow, no pickup. Deterministic ([[dme-catalog]]).
+- **Pickup Delayed escalation.** 24h amber / 48h red (`[assumed]`) → agent re-nudges vendor → "family has called" pressure flag → surfaces on DON reports. What happens when the happy path fails.
+
+Related: [[pitch-plan]], [[0002-demo-spine]], [[views-storyboard]], [personas.md](personas.md)
