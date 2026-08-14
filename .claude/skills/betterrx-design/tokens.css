@@ -1,0 +1,168 @@
+/* BetterRX design tokens
+   Measured from betterrx.com (live computed styles) and from the bounty brief
+   BetterRX authored: docs/bounty/original/dme-hackathon-bounty-brief.html
+   Not invented. See SKILL.md for usage rules and the contrast trap. */
+
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap");
+
+:root{
+  /* Ink and paper */
+  --ink:#24333F;
+  --ink-soft:#55636D;
+  --paper:#FBFAF8;
+  --paper-alt:#F7F6F5;
+  --surface:#FFFFFF;
+  --line:#DEE2E5;
+  --line-soft:rgba(36,51,63,0.08);
+
+  /* Brand */
+  --salmon:#EF7869;
+  --salmon-hover:#E86857;
+  --burnt:#F4916C;
+  --orange:#F8A76F;
+  --burnt-dark:#8F4B22;
+  --taupe:#FDEBDA;
+  --secondary:#425B76;
+  --secondary-hover:#374D65;
+
+  /* Status */
+  --royal:#528DC1;   --royal-tint:#EDF3F9;
+  --ocean:#43B3D0;   --ocean-tint:#E7F5F9;
+  --purple:#6956A4;  --purple-tint:#F1EDF7;
+  --green:#71BA4F;   --green-tint:#EEF6E9;
+  --red:#EB7870;     --red-tint:#FBEAE9;
+  --burnt-tint:#FDF1E9;
+
+  /* Effects */
+  --gradient:linear-gradient(120deg, var(--burnt), var(--orange));
+  --shadow:0 1px 2px rgba(36,51,63,0.06), 0 8px 24px rgba(36,51,63,0.06);
+
+  /* Radii */
+  --radius-btn:3px;
+  --radius-quote:8px;
+  --radius-card:10px;
+  --radius-badge:10px;
+
+  /* Type */
+  --font-display:"Poppins", system-ui, sans-serif;
+  --font-body:"Inter", system-ui, sans-serif;
+
+  /* Layout */
+  --max-width:1180px;
+  --gap:22px;
+}
+
+*{ box-sizing:border-box; }
+
+html,body{ margin:0; padding:0; }
+
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:15px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+
+h1,h2,h3,h4,h5{
+  font-family:var(--font-display);
+  font-weight:600;
+  color:var(--ink);
+  margin:0 0 .4em 0;
+}
+h1{ font-size:clamp(30px,4.2vw,48px); }
+h2{ font-size:clamp(24px,3vw,32px); }
+h3{ font-size:16.5px; }
+
+.wrap{ max-width:var(--max-width); margin:0 auto; padding:0 20px; }
+
+.eyebrow{
+  display:block;
+  font-family:var(--font-body);
+  font-size:12px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase;
+  color:var(--burnt); margin-bottom:10px;
+}
+
+.card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius-card);
+  padding:22px 24px;
+  box-shadow:var(--shadow);
+}
+
+.quote-card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-left:4px solid var(--burnt);
+  border-radius:var(--radius-quote);
+  padding:18px 20px;
+  box-shadow:var(--shadow);
+}
+.quote-card p{ font-size:15px; font-style:italic; margin:0 0 10px; }
+.quote-cite{
+  font-size:11.5px; font-weight:700; letter-spacing:.05em;
+  text-transform:uppercase; color:var(--ink-soft);
+}
+
+.btn{
+  font-family:var(--font-body);
+  font-weight:800; font-size:13px; text-transform:uppercase;
+  border:0; border-radius:var(--radius-btn);
+  padding:12px 20px; color:#fff; cursor:pointer;
+  transition:background .15s ease;
+}
+.btn:focus-visible{ outline:3px solid var(--royal); outline-offset:2px; }
+.btn-primary{ background:var(--salmon); }
+.btn-primary:hover{ background:var(--salmon-hover); }
+.btn-secondary{ background:var(--secondary); }
+.btn-secondary:hover{ background:var(--secondary-hover); }
+.btn-lg{ padding:16px 32px; font-size:16px; }
+
+.badge{
+  display:inline-block;
+  font-size:10.8px; font-weight:700;
+  letter-spacing:.05em; text-transform:uppercase;
+  padding:2px 8px; border-radius:var(--radius-badge);
+}
+.badge-ordered   { background:var(--royal-tint);  color:var(--royal); }
+.badge-dispatched{ background:var(--ocean-tint);  color:var(--ocean); }
+.badge-transit   { background:var(--burnt-tint);  color:var(--burnt-dark); }
+.badge-risk      { background:var(--red-tint);    color:var(--red); }
+.badge-delivered { background:var(--green-tint);  color:#4A7D33; }
+.badge-pickup    { background:var(--purple-tint); color:var(--purple); }
+
+/* At-risk row treatment, lifted from the brief's .life-stage.risk */
+.row-risk{ background:var(--red-tint); }
+.row-risk .row-title{ color:var(--red); }
+
+table.data{
+  width:100%; border-collapse:collapse;
+  background:var(--surface); box-shadow:var(--shadow);
+  border-radius:var(--radius-card); overflow:hidden;
+}
+table.data th{
+  background:var(--ink); color:#fff;
+  font-size:11px; letter-spacing:.06em; text-transform:uppercase;
+  font-weight:700; text-align:left; padding:14px 18px;
+}
+table.data td{
+  padding:14px 18px; font-size:14.3px;
+  border-bottom:1px solid var(--line-soft);
+}
+table.data tr:last-child td{ border-bottom:none; }
+
+.grid{ display:grid; gap:var(--gap); }
+.grid-2{ grid-template-columns:1fr 1fr; }
+.grid-3{ grid-template-columns:repeat(3,1fr); }
+
+@media (max-width:820px){
+  .grid-2,.grid-3{ grid-template-columns:1fr; }
+  .btn{ min-height:44px; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  *{ transition:none !important; animation:none !important; }
+}

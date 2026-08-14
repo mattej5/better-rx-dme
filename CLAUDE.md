@@ -47,6 +47,16 @@ Assume the user is non-technical and brand new. High nurse turnover means every 
 
 Full detail: `wiki/facts/personas.md`.
 
+## Design
+
+**Invoke the `betterrx-design` skill before building or restyling any UI.** It carries BetterRX's real brand tokens — measured from betterrx.com and from the bounty brief they authored, not invented — plus a ready-to-import `tokens.css`. UX is 15% of the rubric and showing the sponsor their own design language back is close to free points.
+
+Fast version: Poppins for headings, Inter for body. Salmon `#EF7869` brand, slate ink `#24333F`, warm paper `#FBFAF8` (never pure white). Buttons are `3px` radius, weight 800, uppercase. **Never set body text in salmon** — it's ~2.8:1 on white and fails AA. Build the phone layout first; the case manager orders from a patient's home.
+
+## Timing
+
+**Judging starts 2:00 PM Saturday, Aug 15.** That's the deadline, not 5:00 PM. See `wiki/facts/event-schedule.md` — it also flags an unresolved conflict between the Luma page and the kickoff briefing on Saturday's start time and venue.
+
 ## Working agreements for agents
 
 - **Capture everything.** Any new fact learned from a sponsor answer, a Slack reply, a teammate, or your own research goes into `wiki/facts/` as a short note with a source and a date. Non-obvious decisions go into `wiki/decisions/` as a numbered ADR. End-of-session summaries go into `wiki/sessions/`.

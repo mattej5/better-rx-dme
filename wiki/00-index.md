@@ -11,8 +11,13 @@ Second brain for this build. Start here. Every note carries a source tag: `[brie
 - [order-lifecycle.md](facts/order-lifecycle.md) — the six states and the sample order shapes
 - [competitive-landscape.md](facts/competitive-landscape.md) — how DME moves today, where the gaps are
 - [judging.md](facts/judging.md) — rubric, deliverables, logistics
+- [event-schedule.md](facts/event-schedule.md) — **judging starts 2:00 PM Saturday**; venue conflict flagged
 - [glossary.md](facts/glossary.md) — DME, CAHPS, IDT, ADT, DON, PPD, HCPCS
 - [open-questions.md](facts/open-questions.md) — unanswered; ask in Slack, don't guess
+
+## Skills
+
+- `.claude/skills/betterrx-design/` — **invoke `betterrx-design` before building any UI.** Real BetterRX tokens measured from betterrx.com and their own bounty brief. Ships `tokens.css` ready to import.
 
 ## Decisions
 
