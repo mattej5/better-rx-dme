@@ -55,7 +55,7 @@ Fast version: Poppins for headings, Inter for body. Salmon `#EF7869` brand, slat
 
 ## Timing
 
-**Judging starts 2:00 PM Saturday, Aug 15.** That's the deadline, not 5:00 PM. See `wiki/facts/event-schedule.md` — it also flags an unresolved conflict between the Luma page and the kickoff briefing on Saturday's start time and venue.
+**Judging starts 2:00 PM Saturday, Aug 15.** That's the deadline, not 5:00 PM. Saturday venue is the bill.com / DIBI building, Baker 915. Full schedule and backward plan: `wiki/facts/event-schedule.md`.
 
 ## Working agreements for agents
 

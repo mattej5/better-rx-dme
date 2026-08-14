@@ -2,14 +2,10 @@
 
 Source: `https://luma.com/aibuilderday2?tk=jKRCw9` — **AI Builder Day**, presented by JustBuild and the Startup State Initiative. Hosts: Tyler Jennings, Jacob Wright. `[luma]`
 
-## ⚠️ Conflict — resolve before Saturday morning
+## Venues
 
-| Source | Saturday start | Saturday venue |
-|---|---|---|
-| **Luma event page** `[luma]` | **8:00 AM**, building opens | **Reference Club, 13707 S 200 W** |
-| **Hackathon kickoff briefing** `[kickoff-logistics]` | **noon**, "do not arrive early" | **bill.com / DIBI building, Baker 915** |
-
-These do not agree on either time or place. The kickoff instruction was spoken later than the Luma page was written, so it is probably the correction — but **confirm in Slack or with the organizers tonight.** Showing up four hours late at the wrong building loses the bounty outright.
+- **Friday:** Pelion Venture Partners, 14761 Future Way #500, Draper, UT 84020
+- **Saturday: bill.com / DIBI building, Baker 915.** `[team]` Confirmed by Vin. The Luma page still lists Reference Club, 13707 S 200 W — that's stale, ignore it. R&R barbecue on site; kickoff said don't arrive early.
 
 ## Friday, August 14 — Learning day
 
@@ -30,7 +26,7 @@ Venue: **Pelion Venture Partners, 14761 Future Way #500, Draper, UT 84020**
 
 ## Saturday, August 15 — Hackathon
 
-Venue per Luma: **Reference Club, 13707 S 200 W** *(see conflict above)*
+Venue: **bill.com / DIBI building, Baker 915**
 
 | Time | |
 |---|---|
