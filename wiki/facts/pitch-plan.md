@@ -21,6 +21,7 @@
 
 - Facts from sponsor discovery quotes are the emotional ammunition — the fecal-matter wheelchair, "the DME doesn't consider themselves part of our org," the family calling twice. Use their own discovery back at them.
 - Show the sponsor their own design language ([betterrx-design skill]) and their own guardrails philosophy extended to DME.
+- Voice: BetterRX talks about what patients **deserve**. Use that word for the failure-recovery moments — "when the plan breaks, the patient still gets what they deserve." `[team]`
 - Every number on a slide carries its label: verified / sponsor discovery / assumed. The honesty IS the differentiation from other teams.
 - Pre-answer the two judge attacks: (a) "Qualis does this" → gap table rows 1/2/4/5; (b) "your score has no real data" → synthetic, labeled, accrues from real events day one.
 

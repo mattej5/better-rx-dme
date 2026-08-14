@@ -58,6 +58,7 @@
 - Order flow groups by these categories with plain names; E-code shown small (integration credibility, not nurse-facing vocabulary).
 - Serialized rentals (beds, concentrators, wheelchairs) get the full lifecycle incl. pickup + condition photo; consumables get delivery + resupply schedule, no pickup.
 - Oxygen items carry the hazmat badge on the vendor stop card.
+- **Oxygen tank resupply is a swap**: one stop = deliver full cylinders + retrieve empties. Model as a combined delivery+pickup stop card, not two events. `[team]`
 - Admission bundle preset: bed + mattress + concentrator + commode + walker — one-tap "typical admission" order (guardrails-lite candidate).
 
 Related: [[user-journeys]], [[reverse-logistics-and-pickup]], [order-lifecycle.md](order-lifecycle.md)
