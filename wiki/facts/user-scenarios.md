@@ -75,6 +75,8 @@ Real-world flows that illustrate how our product solves the core problems. These
 
 **This scenario appears in the brief as DME-09911 (Pickup Triggered) and DME-09803 (Pickup Delayed).** Handling both states is required. `[order-lifecycle]`
 
+> **Alignment note (Vin/Claude, 2026-08-14):** sponsor's stated preference makes the **nurse-initiated bedside trigger the primary path** and the EMR status change the redundant fallback — BetterRX saw the EMR-only path fail in production ([constraints-and-assumptions.md](constraints-and-assumptions.md)). Demo shows the bedside button first (see [[views-storyboard]] view 9), with this EMR-driven flow as the automatic backstop. Also: the timestamped vendor notification stops the rental billing clock — that's the money moment ([[reverse-logistics-and-pickup]]).
+
 ---
 
 ## The Three Decision Factors (How the UX Proves It)

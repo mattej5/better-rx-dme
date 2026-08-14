@@ -13,6 +13,7 @@ Second brain for this build. Start here. Every note carries a source tag: `[brie
 - [why-deliveries-fail.md](facts/why-deliveries-fail.md) — causal chain, CAHPS truth (no equipment item; Q6 is the anchor), SMS precedents, rules-vs-LLM evidence
 - [dme-catalog.md](facts/dme-catalog.md) — the ~25 items to seed, by category, with E-codes + hazmat/serialized flags
 - [views-storyboard.md](facts/views-storyboard.md) — all 22 screens incl. the boring ones; input for Claude Design
+- [user-scenarios.md](facts/user-scenarios.md) — Tony's concrete scenario walkthroughs (ordering, at-risk, pickup)
 - [personas.md](facts/personas.md) — admissions nurse, case manager, DON, vendor dispatcher
 - [constraints-and-assumptions.md](facts/constraints-and-assumptions.md) — hard rules, and what we're assuming with no data
 - [integration-and-data.md](facts/integration-and-data.md) — eRx event payloads, EMRs, HCPCS codes, public datasets
