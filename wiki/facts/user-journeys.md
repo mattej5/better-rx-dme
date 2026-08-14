@@ -56,7 +56,7 @@ Journey: SMS arrives → taps magic link → today's run list → confirms deliv
 - **Vendor declines / reroute.** Vendor declines with reason (feeds score honestly) → agent auto-offers to next-best vendor from compare ranking → nurse one-tap confirms the switch. The multi-vendor safety net in action.
 - **Live discharge.** Same pickup mechanics as death (notify → clock → schedule → photo), different copy and tone — patient is alive and may return to hospice later. Death and discharge are distinct status changes ([[user-scenarios]]).
 - **Resupply loop.** Consumable interval due → reminder on patient equipment card → one-tap reorder → normal delivery flow, no pickup. Deterministic ([[dme-catalog]]).
-- **Pickup Delayed escalation.** 24h amber / 48h red (`[assumed]`) → agent re-nudges vendor → "family has called" pressure flag → surfaces on DON reports. What happens when the happy path fails.
+- **Pickup Delayed escalation.** 24h amber / 48h red (`[assumed]`) → agent re-nudges vendor → "family has called" pressure flag → surfaces on DON reports as a **worked recovery queue** (ranked list with next action per item, CHEP pattern — [[vendor-value-prop]]), not a passive dashboard. What happens when the happy path fails.
 - **Urgency escalation.** Patient status change (condition worsens) shifts an order's needed-by date earlier → all open orders re-run the at-risk rules against the new deadline → nurse sees which orders just went amber. High-risk items (high-cost OR time-critical like oxygen) carry a risk-adjusted lead-time buffer — flagged earlier than routine items. `[team]` second planning transcript.
 
 Related: [[pitch-plan]], [[0002-demo-spine]], [[views-storyboard]], [personas.md](personas.md)

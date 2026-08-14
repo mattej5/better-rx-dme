@@ -6,6 +6,8 @@ Research pass 2026-08-14. Tag `[research]`. Framing rule for the pitch: say **"w
 
 Hospice-specific DME management. Existence verified via Axxess's own help docs, HCHB partner page, NPHI preferred-vendor announcement (2022), named hospice customers. 12 EMR integrations incl. HCHB, Axxess, WellSky, MatrixCare. Claims: mobile nurse ordering (DME+), multi-vendor selection, real-time order visibility, window-elapsed delivery flagging, **auto pickup trigger on discharge**. `[research]`
 
+**The reframe that survives Qualis (use this, not "no software exists"):** Qualis's own copy says their answer to vendor non-compliance is a managed-service layer — *"if a vendor doesn't confirm an order, the management team follows up"* — i.e. **humans chasing vendors by phone**. Our differentiation: *we replace the phone call with a protocol (SMS/magic-link + nudge ladder) and turn the exhaust into a reliability score.* Also on the field: Wynne Systems and Rental Result sell HME/DME tracking into hospice (weak existence detail — don't cite on stage without checking). `[research]`
+
 Consequences:
 - **"Multi-vendor selection" and "mobile ordering" are DEAD as differentiators.** Struck from [competitive-landscape.md](competitive-landscape.md) angles.
 - The Axxess→Qualis integration is a documented **one-way push** (EMR pushes patient events out; no delivery status back into the EMR). Third-party sourced — our strongest documented gap.
