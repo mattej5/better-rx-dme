@@ -12,6 +12,8 @@ Date: 2026-08-14 · Status: accepted · `[team]`
 
 Dropped: A2A agent-to-agent concept (no clean baseline story — Vin flagged the dud risk himself).
 
+**Amendment 2026-08-14 PM (last-30-days sweep, [[last-30-days-2026-08]]):** A2A stays un-built, upgraded from "dropped" to **"answered on the architecture slide."** In-window evidence: MCP consolidating (major spec revision 2026-07-28), A2A adoption pre-dates window with no healthcare vertical, zero production agent-to-agent B2B anywhere in healthcare/logistics. A2A is transport, not inference — nothing for the AI-ROI baseline to beat. The honest story: our magic-link JSON contract is already the machine interface; a vendor's agent can POST the same payload a dispatcher answers by SMS. One slide line, ~20 min. Conditional thin endpoint only if core demo green by ~8 PM; never a two-sided A2A demo (both agents ours = self-dealing theater).
+
 ## Why
 
 - Rubric explicitly rewards "rules-based is better here" honesty and punishes LLM-as-lookup-table.
