@@ -48,13 +48,16 @@ Full descriptions in repo `wiki/facts/views-storyboard.md`; concrete walkthrough
 ## Key demo moments the design must land
 
 - Vendor compare: Vendor A $200 in-stock 24h ✓ / Vendor B $180 but misses deadline / Vendor C out of stock (sample data in user-scenarios.md).
+- Condition capture: after delivery, nurse gets ONE tap — "Any problems with this equipment? None / Dirty / Damaged / Not working" (anything but None opens optional photo). This feeds the condition score; design it friction-free.
+- Urgency escalation: a patient status change shifts deadlines earlier and flips open orders amber — the Today view and order cards need this "just went at-risk" state variant.
+- Oxygen swap stop: one combined stop card = deliver full cylinders + retrieve empties (plus the hazmat badge). A variant of the stop card, not two stops.
 - Sample order DME-10305: CPAP, STAT, ETA 5:10 PM vs discharge 4:30 PM → At Risk.
 - Sample order DME-09803: bed, pickup triggered 4 days ago, family called twice → Pickup Delayed.
 - The 2:14 AM receipt (billing clock stop) — the pitch cold-open.
 
 ## Positioning context (shapes copy, not layout)
 
-Not an open marketplace: a bring-your-own-vendors coordination layer. The hospice invites its contracted vendors; compare/score happens within that list. Reliability score is a flywheel ("good vendors win more orders"), not a punishment — vendor-facing copy must read as opportunity, not surveillance.
+Not an open marketplace: a bring-your-own-vendors coordination layer, framed as the **DME add-on to the BetterRX marketplace** — it should feel like a native BetterRX module, not a standalone product. The hospice invites its contracted vendors; compare/score happens within that list. Reliability score is a flywheel ("good vendors win more orders"), not a punishment — vendor-facing copy must read as opportunity, not surveillance. Voice note: BetterRX talks about what patients **deserve** — use that word in failure-recovery copy. Notifications are email in the demo (Resend simulates SMS) but design them as SMS-shaped message threads.
 
 ## Repo resources
 
@@ -63,6 +66,7 @@ Not an open marketplace: a bring-your-own-vendors coordination layer. The hospic
 - `wiki/facts/user-journeys.md` — per-persona journeys + dashboard artifacts + six connector journeys (approval loop, vendor onboarding, decline/reroute, live discharge, resupply, pickup-delayed escalation)
 - `docs/graph.html` — interactive system graph: every persona, view, engine part, and external system, with edges showing what feeds what (open in any browser, self-contained)
 - `wiki/facts/dme-catalog.md` — the ~25 equipment items with categories/flags
+- `wiki/facts/vendor-scoring.md` — every variable in both vendor scores + the one-tap condition capture UX
 - `wiki/facts/order-lifecycle.md` — six states + sample orders DME-10231…09803
 - `wiki/facts/personas.md` — sponsor-verbatim personas
 - `.claude/skills/betterrx-design/SKILL.md` + `tokens.css` — full design system with provenance
