@@ -32,6 +32,8 @@ At kickoff, unprompted: *"I've gotten to see DMEs and DME technology. I haven't 
 
 ## Differentiation angles worth considering
 
+> **2026-08-14 update:** verified product research in [competitor-products.md](competitor-products.md) **kills two of these** — multi-vendor selection and mobile nurse ordering are both shipped by Qualis. Use the surviving-whitespace table there, with "no public evidence that..." framing. `[research]`
+
 Not decisions, just the surface area the sponsor left open. `[assumed]`
 
 - **Price + ETA + stock visible at the moment of ordering** (the Amazon comparison the sponsor made himself) against today's fax-and-hope

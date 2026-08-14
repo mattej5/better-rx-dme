@@ -24,6 +24,6 @@ These were asked by other teams and the sponsor said no. Recorded so nobody re-a
 
 ## Internal, don't ask the sponsor
 
-- [ ] **GitHub remote for this repo** — Vin mentioned a repo but no URL has landed yet. Local git is initialized; remote is unset.
+- [x] **GitHub remote** — set: github.com/mattej5/better-rx-dme (2026-08-14)
 - [ ] Nathaniel's last name and contact, for the team roster.
 - [ ] Which of us presents the 5-minute pitch.
