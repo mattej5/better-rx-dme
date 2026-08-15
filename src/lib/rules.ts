@@ -162,9 +162,6 @@ function latestRiskEvent(events: OrderEvent[], rule: RuleId): OrderEvent | undef
   return undefined;
 }
 
-function riskReason(event: OrderEvent | undefined): string | null {
-  return stringValue(eventPayload(event).reason);
-}
 
 function riskDecisions(
   order: OrderRow,
@@ -382,9 +379,10 @@ export async function runRules(orderId: string): Promise<RulesRunResult> {
     const decision = decisions.get(rule);
     if (!decision) continue;
     const previous = latestRiskEvent(context.events, rule);
-    const previousReason = riskReason(previous);
     if (decision.flag) {
-      if (previous?.type === "at_risk_flagged" && previousReason === decision.flag.reason) continue;
+      // Same rule already flagged and uncleared: do not re-append just because the
+      // elapsed-time numbers in the reason ticked forward. One flag per episode.
+      if (previous?.type === "at_risk_flagged") continue;
       await appendEvent(orderId, "at_risk_flagged", {
         reason: decision.flag.reason,
         rule: decision.flag.rule,
