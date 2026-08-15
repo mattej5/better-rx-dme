@@ -2,6 +2,7 @@ import EmptyState from "@/components/empty-state";
 import PollRefresh from "@/components/poll-refresh";
 import { getSession } from "@/src/lib/role";
 import { formatUsd, perDayCents } from "@/src/lib/domain";
+import { SyntheticLabel } from "@/components/labels";
 import WideColumn from "../wide-column";
 import ApprovalCard from "./approval-card";
 import { loadApprovals } from "./data";
@@ -57,6 +58,9 @@ export default async function ApprovalsPage() {
         )}
       </div>
     </section>
+      <p className="mt-6 text-center">
+        <SyntheticLabel />
+      </p>
     </WideColumn>
   );
 }

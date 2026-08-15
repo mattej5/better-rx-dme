@@ -272,14 +272,16 @@ function riskDecisions(
     ? (deadline.getTime() - current.getTime()) / 3_600_000
     : null;
   const leadTimeFired = !pastDelivery && !eta && hoursToDeadline !== null && hoursToDeadline < requiredHours;
+  const deadlineWord = urgency === "admission" ? "arrival" : "discharge";
+  const urgencyPhrase = urgency === "admission" ? "an admission order" : `a ${urgency} order`;
   decisions.set("lead_time_buffer", {
     flag: leadTimeFired && deadline && hoursToDeadline !== null
       ? {
         rule: "lead_time_buffer",
         severity: "amber",
         reason: isHighRisk
-          ? `${label}, no ETA yet. ${hoursToDeadline >= 0 ? `${formatNumber(hoursToDeadline)} hours to the ${formatTime(deadline.toISOString())} discharge` : `The ${formatTime(deadline.toISOString())} discharge deadline was ${formatNumber(Math.abs(hoursToDeadline))} hours ago`}; this vendor typically needs ${formatNumber(leadHours)} hours plus a ${formatNumber(bufferHours)}-hour safety buffer for high-risk equipment.`
-          : `${label}, no ETA yet. ${hoursToDeadline >= 0 ? `${formatNumber(hoursToDeadline)} hours to the ${formatTime(deadline.toISOString())} discharge` : `The ${formatTime(deadline.toISOString())} discharge deadline was ${formatNumber(Math.abs(hoursToDeadline))} hours ago`}; this vendor typically needs ${formatNumber(leadHours)} hours for a ${urgency} order.`,
+          ? `${label}, no ETA yet. ${hoursToDeadline >= 0 ? `${hoursLabel(hoursToDeadline)} to the ${formatTime(deadline.toISOString())} ${deadlineWord}` : `The ${formatTime(deadline.toISOString())} ${deadlineWord} deadline was ${hoursLabel(Math.abs(hoursToDeadline))} ago`}; this vendor typically needs ${hoursLabel(leadHours)} plus a ${formatNumber(bufferHours)}-hour safety buffer for high-risk equipment.`
+          : `${label}, no ETA yet. ${hoursToDeadline >= 0 ? `${hoursLabel(hoursToDeadline)} to the ${formatTime(deadline.toISOString())} ${deadlineWord}` : `The ${formatTime(deadline.toISOString())} ${deadlineWord} deadline was ${hoursLabel(Math.abs(hoursToDeadline))} ago`}; this vendor typically needs ${hoursLabel(leadHours)} for ${urgencyPhrase}.`,
       }
       : undefined,
     clearReason: pastDelivery

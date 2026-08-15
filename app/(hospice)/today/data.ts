@@ -120,6 +120,10 @@ export async function loadToday(now: Date): Promise<TodayLoaded<TodayData>> {
     }
 
     const cards: OrderCard[] = orderRows.flatMap((order) => {
+      // A reordered order was superseded (replacement or backup reroute exists);
+      // it stays on the order detail with its chain links but leaves Today.
+      const orderEventsForFilter = byOrder.get(order.id) ?? [];
+      if (orderEventsForFilter.some((e) => e.type === "reordered")) return [];
       const patient = byPatient.get(order.patient_id);
       if (!patient) return [];
       const orderEvents = byOrder.get(order.id) ?? [];

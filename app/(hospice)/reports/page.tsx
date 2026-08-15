@@ -355,6 +355,9 @@ export default async function ReportsPage({
         <PpdTab data={result.data} />
       )}
     </section>
+      <p className="mt-6 text-center">
+        <SyntheticLabel />
+      </p>
     </WideColumn>
   );
 }
