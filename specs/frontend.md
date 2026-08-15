@@ -45,7 +45,7 @@ One `[token]` param, one lookup, four pages. `/v/[token]/welcome` is where an `i
 | # | Storyboard view | Route | Pri |
 |---|---|---|---|
 | 21 | Demo control panel | `/demo` | **P0** (build first, with view 4) |
-| 22 | Assumptions ledger | `/assumptions` | P2 (linked from every footer) |
+| 22 | Assumptions ledger | ~~`/assumptions`~~ **CUT as a UI page (Vin, design review 8/14 PM)** — ledger ships as `docs/ASSUMPTIONS.md` in the repo + pitch artifact. SYNTHETIC/ASSUMED tags stay in-app as plain labels, no link. | — |
 | 20 | Family status link (stretch) | `/f/[token]` | P2 |
 
 ### File layout
@@ -146,7 +146,7 @@ All under `components/`. Reuse aggressively — the whole app is nine primitives
 | `StopCard` | `variant: 'delivery' \| 'pickup' \| 'oxygen_swap'`, `hazmat: boolean`, compact (list) and full (detail) modes. |
 | `BigActionButton` | `size: 'lg' \| 'xl'`, min 64px tall at xl, `tone: 'primary' \| 'slate' \| 'quiet'`. 3px radius, weight 800, uppercase. Bedside screen uses xl. |
 | `ConditionAckSheet` | One tap: **None / Dirty / Damaged / Not working**. Anything but None opens an optional photo. Writes `condition_reported`. |
-| `SyntheticLabel` / `AssumedLabel` | Small uppercase tag, `--ink-soft`. Every score surface carries `SyntheticLabel`; every SLA window, threshold, and stock claim carries `AssumedLabel`. Both link to `/assumptions`. |
+| `SyntheticLabel` / `AssumedLabel` | Small uppercase tag, `--ink-soft`. Every score surface carries `SyntheticLabel`; every SLA window, threshold, and stock claim carries `AssumedLabel`. Plain labels, no link (ledger is a repo doc, not a page — design review 8/14 PM). |
 | `ApprovalInterstitial` | "Sent to your DON for approval" + price-vs-cheapest line + what happens next. Used after over-threshold order placement; the matching chip on the order is "Awaiting approval". |
 | `RiskBanner` | reason string, time-left, primary action. Red tint `#FBEAE9`, `--red` text. Used on 2.1, 2.3, `/today`, `/readiness`. |
 
@@ -170,6 +170,17 @@ Supporting (thin): `AppShell`, `PatientHeader`, `EquipmentRow`, `CategoryAccordi
 - **Vendor routes bypass all of it.** `/v/[token]/*` sits outside the `(hospice)` group, has its own layout, and never reads `brx_role`. Identity is the token row in `magic_links` (vendor + purpose + expiry). `/f/[token]` works the same way. So a judge can hold the vendor phone view and the hospice view side by side in two browsers with no session collision — that is the demo.
 
 ---
+
+## 5b. Design deltas to honor (from Claude Design "3d build handoff" frame, 8/14 PM)
+
+The designed canvas (claude.ai/design project "BetterRX DME P0 Screens") is the visual source of truth. Known deltas vs this spec — implement the DESIGN's version:
+1. Under-threshold orders get an "Order placed" confirmation screen (spec only defined `ApprovalInterstitial` for over-threshold).
+2. `VendorCompareCard` takes a `deadline` prop rendering the ETA-vs-deadline track (grafted from variant 1d into the 1c hero).
+3. Hospice nav is a bottom tab bar (Today / Patients / more), not header-only AppShell.
+4. Assumptions ledger is a repo doc, not a route (reflected above).
+5–7. Remaining deltas are enumerated in the canvas 3d handoff table — check it before building each screen; reconcile here if load-bearing.
+
+**Copy rules (pinned so build agents don't reintroduce marketing voice):** headlines name the thing, never perform it; no spec/meta language in UI; the app states facts, people supply feeling — no "deserve" in product copy (pitch only); no em-dash asides except data readouts; buttons = verb+object ≤3 words; stats without cheerleading.
 
 ## 6. Open questions
 
