@@ -43,7 +43,7 @@ export default async function HospiceLayout({
         </div>
       </header>
 
-      <main className="mx-auto max-w-[430px] px-5 pb-[84px] pt-5">{children}</main>
+      <main className="mx-auto max-w-[430px] px-5 pb-[104px] pt-5">{children}</main>
 
       <TabBar pendingApprovals={pendingApprovals} />
     </div>
