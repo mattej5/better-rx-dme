@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getSession } from "@/src/lib/role";
 import EmptyState from "@/components/empty-state";
 import EventTimeline from "@/components/event-timeline";
 import PollRefresh from "@/components/poll-refresh";
@@ -42,6 +43,7 @@ export default async function OrderDetailPage({
   params: Promise<{ orderId: string }>;
   searchParams: Promise<{ sheet?: string }>;
 }) {
+  const session = await getSession();
   const [{ orderId }, { sheet }, virtualNow] = await Promise.all([
     params,
     searchParams,
@@ -279,6 +281,7 @@ export default async function OrderDetailPage({
           reason={badge === "AT_RISK" ? (reason ?? "This order needs a decision.") : null}
           timeLeft={timeLeft}
           isPickup={pickup}
+          viewerIsDon={session?.role === "don"}
           backup={backup}
           currentPriceCents={order.price_cents}
         />

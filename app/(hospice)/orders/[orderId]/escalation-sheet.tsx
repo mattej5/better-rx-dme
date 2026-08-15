@@ -14,6 +14,8 @@ export type EscalationSheetProps = {
   timeLeft: string | null;
   /** Pickups are never rerouted — the owning vendor retrieves its own equipment. */
   isPickup: boolean;
+  /** The DON is the escalation point; do not offer escalating to themselves. */
+  viewerIsDon: boolean;
   backup: { name: string; monthlyPriceCents: number; leadTimeHours: number } | null;
   currentPriceCents: number | null;
 };
@@ -76,6 +78,7 @@ export default function EscalationSheet({
   reason,
   timeLeft,
   isPickup,
+  viewerIsDon,
   backup,
   currentPriceCents,
 }: EscalationSheetProps) {
@@ -134,13 +137,19 @@ export default function EscalationSheet({
             label="WAIT"
             note="Nothing changes. The order stays on the board and keeps updating."
           />
-          <ActionRow
-            tone="slate"
-            onClick={escalate}
-            disabled={pending}
-            label="ESCALATE TO DON"
-            note="Adds an escalation to this order's record for the Director of Nursing."
-          />
+          {viewerIsDon ? (
+            <p className="rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--paper-alt)] p-3 text-[13px] text-[var(--ink-soft)]">
+              This escalation ends with you. Pick an action below or call the vendor.
+            </p>
+          ) : (
+            <ActionRow
+              tone="slate"
+              onClick={escalate}
+              disabled={pending}
+              label="ESCALATE TO DON"
+              note="Adds an escalation to this order's record for the Director of Nursing."
+            />
+          )}
           {isPickup ? (
             <p className="rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--paper-alt)] p-3 text-[13px] text-[var(--ink-soft)]">
               Pickups are not rerouted. The owning vendor retrieves its own equipment.
