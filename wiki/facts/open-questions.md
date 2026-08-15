@@ -4,6 +4,10 @@ Things the brief, FAQ, and kickoff Q&A do **not** answer. Ask in the BetterRX Sl
 
 Remember: sponsors answer publicly to all teams. Anything we ask, every team gets. Weigh whether a question gives away our angle before asking it.
 
+## Open
+
+- Do hospices keep a referral queue / pending-admission list they'd want beside the roster? We shipped On service / Pickups / Past segments and skipped a waitlist view rather than invent workflow. [assumed: no standing waitlist; admissions land within hours-days of referral] (8/15, Vin product review)
+
 ## Confirmed unanswerable — don't bother asking
 
 These were asked by other teams and the sponsor said no. Recorded so nobody re-asks. `[faq]`

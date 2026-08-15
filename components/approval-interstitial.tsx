@@ -46,7 +46,7 @@ export default function ApprovalInterstitial({
             } than ${cheapestVendorName} at ${formatUsd(perDayCents(cheapestPrice))}/day.`}
       </p>
       <div className="mt-1">
-        <AssumedLabel>Assumed daily rate</AssumedLabel>
+        <AssumedLabel>Estimated as monthly price ÷ 30</AssumedLabel>
       </div>
 
       <div className="mt-4">

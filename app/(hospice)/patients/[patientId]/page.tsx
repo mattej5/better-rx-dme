@@ -92,7 +92,7 @@ export default async function PatientCardPage({
 
   for (const order of orders) {
     const orderEvents = events.get(order.id) ?? [];
-    const badge = deriveBadges(orderEvents)[0];
+    const badge = deriveBadges(orderEvents, { now: virtualNow })[0];
     const awaiting = awaitingApproval(orderEvents);
 
     if (badge === "AT_RISK") {

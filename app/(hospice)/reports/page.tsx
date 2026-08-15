@@ -59,6 +59,7 @@ function Tabs({ active }: { active: TabKey }) {
           <Link
             key={tab.key}
             href={`/reports?tab=${tab.key}`}
+            replace
             className="inline-flex min-h-[44px] shrink-0 items-center rounded-[var(--radius-btn)] border px-4 text-[13px] font-extrabold uppercase tracking-[0.04em]"
             style={
               on
@@ -95,7 +96,7 @@ function PpdTab({ data }: { data: ReportsData }) {
           label="Med PPD"
           value={formatUsd(data.medPpdCents)}
           sub={data.medPpdFromSettings ? "From settings" : "Seeded constant"}
-          note={<SyntheticLabel>Synthetic comparison</SyntheticLabel>}
+          note={<SyntheticLabel>Sample comparison</SyntheticLabel>}
         />
       </section>
 
@@ -174,7 +175,7 @@ function VendorRow({ vendor }: { vendor: VendorScorecard }) {
         </div>
       </div>
       <p className="mt-2">
-        <SyntheticLabel>Synthetic events</SyntheticLabel>
+        <SyntheticLabel>Sample data</SyntheticLabel>
       </p>
     </div>
   );

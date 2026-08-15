@@ -84,7 +84,7 @@ function cellFrom(
   recentIds: Set<string>,
 ): Cell {
   const { order } = card;
-  const badge = deriveBadges(card.events)[0];
+  const badge = deriveBadges(card.events, { now: at })[0];
   const eta = order.current_eta ?? order.target_at;
   const base = {
     hcpcs,

@@ -222,8 +222,8 @@ export async function loadReports(now: Date): Promise<ReportsLoaded<ReportsData>
         vendorId: v.id,
         name: v.name,
         orders: mine.length,
-        reliability: reliabilityScore(vendorEvents),
-        condition: conditionScore(vendorEvents),
+        reliability: reliabilityScore(vendorEvents, { now }),
+        condition: conditionScore(vendorEvents, { now }),
       };
     });
 

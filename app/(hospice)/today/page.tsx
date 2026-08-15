@@ -30,10 +30,10 @@ type Enriched = OrderCardData & {
   awaiting: boolean;
 };
 
-function enrich(data: TodayData): Enriched[] {
+function enrich(data: TodayData, at: Date): Enriched[] {
   return data.cards.map((card) => ({
     ...card,
-    badge: deriveBadges(card.events)[0],
+    badge: deriveBadges(card.events, { now: at })[0],
     awaiting: awaitingApproval(card.events),
   }));
 }
@@ -251,11 +251,7 @@ function CaseManagerStack({ cards, patients }: StackProps) {
   return (
     <Section title="Your patients">
       {rows.length === 0 ? (
-        <EmptyState
-          message="No patients with open equipment orders."
-          actionLabel="See patients"
-          actionHref="/patients"
-        />
+        <EmptyState message="No patients on service yet. They sync from the EMR at admission." />
       ) : (
         rows.map((row) => (
           <PatientRowLink
@@ -280,7 +276,7 @@ function DonStack({ cards }: StackProps) {
         <Tile
           label="At risk"
           value={String(atRisk)}
-          note={<SyntheticLabel>Synthetic events</SyntheticLabel>}
+          note={<SyntheticLabel>Sample data</SyntheticLabel>}
         />
         <Tile
           label="Open DME spend"
@@ -350,7 +346,7 @@ export default async function TodayPage() {
         </div>
       ) : (
         (() => {
-          const cards = enrich(result.data);
+          const cards = enrich(result.data, at);
           const attention = cards.filter((c) => c.badge);
           const amberCount = attention.filter((c) =>
             result.data.recentStatusChangeOrderIds.has(c.order.id),

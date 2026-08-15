@@ -122,7 +122,7 @@ export default function VendorCompareCard({
             {formatUsd(perDayCents(price))}
             <span className="text-[13px] font-medium">/day</span>
           </p>
-          <AssumedLabel>Assumed daily rate</AssumedLabel>
+          <AssumedLabel>Estimated as monthly price ÷ 30</AssumedLabel>
         </div>
       </div>
 
@@ -162,7 +162,7 @@ export default function VendorCompareCard({
       </div>
 
       <div className="mt-2">
-        <SyntheticLabel>Synthetic scores</SyntheticLabel>
+        <SyntheticLabel>Sample scores</SyntheticLabel>
       </div>
     </button>
   );

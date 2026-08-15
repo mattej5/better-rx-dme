@@ -314,7 +314,7 @@ export default function ComponentFixturesPage() {
         <div className="flex flex-wrap gap-3">
           <SyntheticLabel />
           <AssumedLabel />
-          <AssumedLabel>Assumed 4-hour window</AssumedLabel>
+          <AssumedLabel>Default 4-hour window</AssumedLabel>
         </div>
       </Section>
 

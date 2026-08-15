@@ -44,8 +44,10 @@ export function deriveStatus(events: Pick<OrderEvent, "type">[]): OrderStatus {
   return "ordered";
 }
 
+export type AppendEventOptions = { externalId?: string };
+
 export async function appendEvent<T extends EventType>(
-  orderId: string, type: T, payload: Payload<T>, actor: Actor
+  orderId: string, type: T, payload: Payload<T>, actor: Actor, opts?: AppendEventOptions
 ): Promise<OrderEvent> {
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error("Supabase is not configured");
@@ -55,6 +57,7 @@ export async function appendEvent<T extends EventType>(
   const inserted = await supabase.from("order_events").insert({
     order_id: orderId, type, payload, actor: actor.userName, actor_role: actor.role,
     created_at: (await now()).toISOString(),
+    ...(opts?.externalId ? { external_id: opts.externalId } : {}),
   }).select("*").single();
   if (inserted.error) throw inserted.error;
 

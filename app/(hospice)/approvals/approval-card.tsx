@@ -15,7 +15,7 @@ function AlternativeLine({ card }: { card: ApprovalCardData }) {
     : `${formatUsd(Math.abs(difference))}/day ${difference > 0 ? "more" : "less"} than ${card.alternative.vendorName}`;
   return (
     <p className="mt-2 text-[13px] text-ink-soft">
-      {comparison} <AssumedLabel>Assumed daily rate</AssumedLabel>
+      {comparison} <AssumedLabel>Estimated as monthly price ÷ 30</AssumedLabel>
     </p>
   );
 }

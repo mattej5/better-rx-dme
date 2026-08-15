@@ -1,96 +1,140 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { isRole, ROLE_FOCUS, ROLE_LABELS, setSession, type Role } from "@/src/lib/role";
 
-const PERSONAS: { role: Role; userName: string }[] = [
-  { role: "nurse", userName: "Maria R." },
-  { role: "case_manager", userName: "Priya N." },
-  { role: "don", userName: "Ellen T." },
+const MOMENTS: { num: string; title: string; body: string }[] = [
+  {
+    num: "01",
+    title: "Discharge readiness",
+    body: "Order at intake and see the delivery window before the patient moves.",
+  },
+  {
+    num: "02",
+    title: "Post-death pickup",
+    body: "Pickup starts from the record, not from a phone call the next morning.",
+  },
+  {
+    num: "03",
+    title: "Service failure",
+    body: "An order at risk shows the reason next to the flag, in plain words.",
+  },
 ];
 
-// STUB: fixed token until N6 issues real magic links.
-const VENDOR_DEMO_TOKEN = "demo-token";
+const TAGS = ["Sample data", "Demo build", "Not a production system"];
 
-async function choosePersona(formData: FormData) {
-  "use server";
-  const role = formData.get("role");
-  const userName = formData.get("userName");
-  if (typeof role !== "string" || !isRole(role)) return;
-  if (typeof userName !== "string" || userName.length === 0) return;
-  await setSession({ role, userName });
-  redirect("/today");
+function SignInButton({ large = false }: { large?: boolean }) {
+  return (
+    <Link
+      href="/signin"
+      className={
+        large
+          ? "inline-flex min-h-[52px] items-center justify-center px-8 text-[16px]"
+          : "inline-flex min-h-[44px] items-center justify-center px-5 text-[13px]"
+      }
+      style={{
+        background: "var(--salmon)",
+        color: "var(--ink)",
+        borderRadius: "var(--radius-btn)",
+        fontWeight: 800,
+        textTransform: "uppercase",
+        letterSpacing: "0.04em",
+      }}
+    >
+      Sign in
+    </Link>
+  );
 }
 
-export default function RoleSwitcher() {
+export default function Landing() {
   return (
-    <main className="mx-auto flex min-h-screen max-w-[430px] flex-col gap-5 px-5 pb-12 pt-12">
-      <header>
-        <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-ink-soft">
-          Desert Valley Hospice
-        </p>
-        <h1
-          className="mt-1 text-[26px] leading-tight"
-          style={{ fontFamily: "var(--font-display)", fontWeight: 700 }}
-        >
-          Choose a person
-        </h1>
-        <p className="mt-1 text-[14px] text-ink-soft">
-          Demo sign-in. No password.
-        </p>
+    <div className="min-h-screen">
+      <header className="border-b border-[var(--line)] bg-surface">
+        <div className="mx-auto flex max-w-[430px] items-center justify-between px-5 py-3 md:max-w-[900px]">
+          <span
+            className="text-[16px]"
+            style={{ fontFamily: "var(--font-display)", fontWeight: 700 }}
+          >
+            BetterRX DME
+          </span>
+          <SignInButton />
+        </div>
       </header>
 
-      <ul className="flex flex-col gap-3">
-        {PERSONAS.map((persona) => (
-          <li key={persona.role}>
-            <form action={choosePersona}>
-              <input type="hidden" name="role" value={persona.role} />
-              <input type="hidden" name="userName" value={persona.userName} />
-              <button
-                type="submit"
-                className="w-full rounded-[10px] border border-[var(--line)] bg-surface px-5 py-4 text-left transition-colors hover:bg-paper-alt"
-                style={{ boxShadow: "var(--shadow)" }}
-              >
+      <main className="mx-auto max-w-[430px] px-5 md:max-w-[900px]">
+        <section className="pb-12 pt-14 md:pt-20">
+          <span className="eyebrow">Hospice equipment</span>
+          <h1
+            className="text-[clamp(30px,7vw,48px)] leading-[1.12]"
+            style={{ fontFamily: "var(--font-display)", fontWeight: 700 }}
+          >
+            DME ordering and visibility for hospice teams
+          </h1>
+          <p className="mt-5 max-w-[620px] text-[17px] leading-[1.6] text-ink-soft">
+            Two moments sit outside the hospice EMR. Equipment that arrives late
+            for a discharge, and equipment still in a family&rsquo;s home after a
+            death.
+          </p>
+          <p className="mt-3 max-w-[620px] text-[17px] leading-[1.6] text-ink-soft">
+            This is one place to place the order, watch it move, and close it
+            out.
+          </p>
+
+          <div className="mt-8">
+            <SignInButton large />
+          </div>
+        </section>
+
+        <section
+          className="rounded-[10px] px-6 py-8 md:px-9"
+          style={{ background: "var(--taupe)" }}
+        >
+          <div className="grid gap-7 md:grid-cols-3 md:gap-8">
+            {MOMENTS.map((moment) => (
+              <div key={moment.num}>
                 <span
-                  className="block text-[17px]"
+                  className="block text-[22px] leading-none"
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    fontWeight: 700,
+                    color: "var(--burnt-dark)",
+                  }}
+                >
+                  {moment.num}
+                </span>
+                <h2
+                  className="mt-3 text-[17px] leading-tight"
                   style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}
                 >
-                  {persona.userName}
-                </span>
-                <span className="mt-0.5 block text-[13px] font-semibold uppercase tracking-[0.05em] text-ink-soft">
-                  {ROLE_LABELS[persona.role]}
-                </span>
-                <span className="mt-2 block text-[13px] text-ink-soft">
-                  {ROLE_FOCUS[persona.role]}
-                </span>
-              </button>
-            </form>
-          </li>
-        ))}
+                  {moment.title}
+                </h2>
+                <p className="mt-1.5 text-[14.5px] leading-[1.55] text-ink">
+                  {moment.body}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
 
-        <li>
-          <Link
-            href={`/v/${VENDOR_DEMO_TOKEN}`}
-            className="block rounded-[10px] border border-dashed border-[var(--line)] bg-paper-alt px-5 py-4"
-          >
+        <section className="quote-card my-12">
+          <p>
+            The hospice takes the call about the bed that never showed up, and
+            the call about the bed nobody came back for.
+          </p>
+          <span className="quote-cite">The coordination gap</span>
+        </section>
+      </main>
+
+      <footer className="border-t border-[var(--line)]">
+        <div className="mx-auto flex max-w-[430px] flex-wrap items-center gap-2 px-5 py-7 md:max-w-[900px]">
+          {TAGS.map((tag) => (
             <span
-              className="block text-[17px]"
-              style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}
+              key={tag}
+              className="badge"
+              style={{ background: "var(--paper-alt)", color: "var(--ink-soft)" }}
             >
-              Vendor demo
+              {tag}
             </span>
-            <span className="mt-0.5 block text-[13px] font-semibold uppercase tracking-[0.05em] text-ink-soft">
-              Magic link, no login
-            </span>
-            <span className="mt-2 block text-[13px] text-ink-soft">
-              The driver view a vendor opens from a text message.
-            </span>
-          </Link>
-        </li>
-      </ul>
-
-      <p className="text-[11px] font-bold uppercase tracking-[0.05em] text-ink-soft">
-        Synthetic data
-      </p>
-    </main>
+          ))}
+        </div>
+      </footer>
+    </div>
   );
 }
