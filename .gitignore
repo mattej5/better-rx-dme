@@ -20,3 +20,12 @@ venv/
 *.log
 .vscode/
 .idea/
+
+# next.js
+/.pnp
+.pnp.*
+/out/
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+*.pem

@@ -1,0 +1,24 @@
+@import "tailwindcss";
+@import "./tokens.css";
+
+:root {
+  --font-display: var(--font-poppins), system-ui, sans-serif;
+  --font-body: var(--font-inter), system-ui, sans-serif;
+}
+
+@theme inline {
+  --color-ink: #24333f;
+  --color-ink-soft: #55636d;
+  --color-paper: #fbfaf8;
+  --color-paper-alt: #f7f6f5;
+  --color-surface: #ffffff;
+  --color-salmon: #ef7869;
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+}
