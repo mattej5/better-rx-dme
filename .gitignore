@@ -29,3 +29,4 @@ venv/
 *.tsbuildinfo
 next-env.d.ts
 *.pem
+supabase/.temp/

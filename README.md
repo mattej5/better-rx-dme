@@ -38,6 +38,12 @@ wiki/             our second brain
 
 Task board lives in Notion: **Build Tasks**, under *AI Builder Day — Hackathon Tracker*.
 
+## Database
+
+Supabase Postgres, project `better-rx-dme` (ref `fwssbyjrrznzlrkswlcn`). **`specs/schema.sql` is canonical — Supabase is made to match the repo, never the reverse** (ADR 0005). Types: `src/types/db.ts` (generated). Server client: `src/lib/supabase.ts`. RLS is intentionally skipped (demo).
+
+Env vars (values in Vercel + `.env.local`, names only here): `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`, `GEMINI_API_KEY`, `ANTHROPIC_API_KEY`, `RESEND_API_KEY`.
+
 ## Non-negotiables
 
 - Synthetic data only. No real patient or hospice data, ever.
