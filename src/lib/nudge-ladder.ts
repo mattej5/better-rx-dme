@@ -227,7 +227,7 @@ function buildPlan(
         emits: ['message_sent'],
         requiresHumanConfirm: false,
         emitsOnHumanConfirm: [],
-        summary: `Friendly reminder sent to ${vendor} — still no confirmation.`,
+        summary: `Friendly reminder sent to ${vendor}. Still no confirmation.`,
       };
     case 2:
       return {
@@ -279,7 +279,7 @@ function buildPlan(
         emitsOnHumanConfirm: ['message_sent', 'reordered'],
         summary:
           `Still nothing from ${vendor}. ${backup} can take this. ` +
-          `Tap to send it over — nothing is cancelled until you do.`,
+          `Tap to send it over. Nothing is cancelled until you do.`,
       };
   }
 }

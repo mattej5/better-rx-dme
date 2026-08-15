@@ -120,7 +120,7 @@ function ScoreBlock({
       {!rated ? (
         <p className="mt-2 text-[13.5px] text-[var(--ink-soft)]">
           We publish a score after {MIN_ORDERS_FOR_SCORE} finished orders. You have{" "}
-          {result.n_orders}. Nothing is hidden — there just isn&rsquo;t enough to measure yet.
+          {result.n_orders}. Nothing is hidden, there just isn&rsquo;t enough to measure yet.
         </p>
       ) : null}
 
@@ -211,7 +211,7 @@ async function Card({ link, clock }: { link: ResolvedLink; clock: Date }) {
     <div className="flex flex-col gap-4">
       {card.source === "fixture" ? (
         <p className="text-[12px] text-[var(--ink-soft)]">
-          Sample history — this environment has no database connection.
+          Sample history. This environment has no database connection.
         </p>
       ) : null}
 
@@ -267,7 +267,7 @@ async function Card({ link, clock }: { link: ResolvedLink; clock: Date }) {
         </h2>
         <p className="text-[13px] text-[var(--ink-soft)]">
           Every delivery and pickup you signed off, with the photo and signature your
-          driver captured. Read-only — this is the record, not a report.
+          driver captured. Read-only. This is the record, not a report.
         </p>
         {card.proof.length === 0 ? (
           <p className="mt-3 text-[14px]">Nothing signed off yet.</p>

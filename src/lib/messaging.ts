@@ -183,6 +183,17 @@ function looksLikeEmail(address: string): boolean {
 }
 
 /**
+ * NANP 555-01XX is the reserved fictional range, and it is what the seed mints
+ * for synthetic vendors. Twilio rejects these with a 400, which would put a red
+ * "failed" line on a judge-visible timeline for a number that was never real.
+ * The address, not the config, is what makes this unsendable, so the decision
+ * belongs here with the rest of the transport rules.
+ */
+export function isUnroutableNumber(address: string): boolean {
+  return /^\+?1?\D*\d{3}\D*555\D*01\d{2}$/.test(address.trim());
+}
+
+/**
  * PURE. The whole transport decision, in one testable function. Call sites
  * never choose a transport; they state a channel and this picks the wire.
  */
@@ -200,6 +211,15 @@ export function selectTransport(
   }
 
   if (channel === 'sms') {
+    if (isUnroutableNumber(address)) {
+      return {
+        transport: 'log_only',
+        degraded: true,
+        reason:
+          'This vendor has a synthetic phone number from the reserved 555-01XX range, ' +
+          'so the message was recorded but not sent. A real number sends for real.',
+      };
+    }
     if (config.twilio) {
       return { transport: 'twilio', degraded: false, reason: 'Sent as SMS through Twilio.' };
     }

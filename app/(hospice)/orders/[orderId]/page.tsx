@@ -17,6 +17,7 @@ import {
   toTimeline,
 } from "../data";
 import EscalationSheet from "./escalation-sheet";
+import ReplacementButton from "./replacement-button";
 
 export const dynamic = "force-dynamic";
 
@@ -93,6 +94,25 @@ export default async function OrderDetailPage({
   const trigger = justFlagged
     ? [...events].reverse().find((e) => e.type === "patient_status_changed")
     : undefined;
+
+  // N11 entry point. Only a delivered order with an unresolved condition issue can
+  // be replaced; once a replacement exists the link above says so instead.
+  const conditionIssue = [...events]
+    .reverse()
+    .find((event) => {
+      if (event.type !== "condition_reported") return false;
+      const payload = event.payload as Record<string, unknown> | null;
+      const issue = typeof payload?.issue === "string" ? payload.issue : null;
+      return Boolean(issue) && issue !== "none";
+    });
+  const replaceable =
+    order.status === "delivered" && Boolean(conditionIssue) && !replacedByOrder;
+  const issueLabel =
+    (conditionIssue?.payload as Record<string, unknown> | null)?.issue === "dirty"
+      ? "dirty"
+      : (conditionIssue?.payload as Record<string, unknown> | null)?.issue === "damaged"
+        ? "damaged"
+        : "not working";
 
   const timeline = toTimeline(events, messages, vendorName, replacedByOrder?.orderNo ?? null);
   const patientName = patient ? `${patient.first_name} ${patient.last_name}` : "Patient";
@@ -182,6 +202,14 @@ export default async function OrderDetailPage({
             actionHref={`/orders/${order.id}?sheet=escalate`}
           />
         </div>
+      ) : null}
+
+      {replaceable ? (
+        <ReplacementButton
+          orderId={order.id}
+          conditionEventId={conditionIssue?.id}
+          issueLabel={issueLabel}
+        />
       ) : null}
 
       <div className="mt-6">

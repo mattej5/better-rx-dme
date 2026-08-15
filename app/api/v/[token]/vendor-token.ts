@@ -79,7 +79,7 @@ export const LINK_CLOSED: StopFailure = {
 export const NO_DATABASE: StopFailure = {
   status: 503,
   error: "no_database",
-  message: "Nothing was saved — this preview has no database connected.",
+  message: "Nothing was saved. This preview has no database connected.",
 };
 
 export async function resolveStop(

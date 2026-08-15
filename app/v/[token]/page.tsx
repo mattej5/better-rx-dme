@@ -173,7 +173,7 @@ async function Stops({ link, clock }: { link: ResolvedLink; clock: Date }) {
     <div className="flex flex-col gap-3">
       {source === "fixture" ? (
         <p className="text-[12px] text-[var(--ink-soft)]">
-          Sample stops — this environment has no database connection.
+          Sample stops. This environment has no database connection.
         </p>
       ) : null}
       {stops.map((stop) => (
@@ -216,7 +216,7 @@ export default async function VendorRunListPage({
       </p>
 
       <div className="mt-4">
-        <ShareBar hint="Send this link to whoever is driving. It keeps working — no login, no app." />
+        <ShareBar hint="Send this link to whoever is driving. It keeps working, no login, no app." />
       </div>
 
       <div className="mt-4">

@@ -335,7 +335,7 @@ export function fixtureOrders(now: Date): FixtureOrderRecord[] {
       ev(a.id, "at_risk_flagged", aFlagged, {
         rule: "eta_misses_deadline",
         severity: "red",
-        reason: `Delivery ETA ${hhmm(aEta)}, needed by ${hhmm(aTarget)} — misses by 45 minutes.`,
+        reason: `Delivery ETA ${hhmm(aEta)}, needed by ${hhmm(aTarget)}, misses by 45 minutes.`,
       }, "Rules engine", "system"),
     ],
     messages: [

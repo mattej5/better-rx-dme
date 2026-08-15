@@ -106,14 +106,26 @@ export function InboundSmsControl() {
         placeholder="Example: stuck behind an accident, maybe 2hrs"
         className="mt-1 w-full rounded border border-slate-400 bg-white p-2 text-sm"
       />
+      <label htmlFor="vendor-reply-order" className="mt-2 block text-sm font-semibold">
+        Order number (optional)
+      </label>
+      <input
+        id="vendor-reply-order"
+        name="orderNo"
+        placeholder="Leave blank for the newest order waiting on a vendor"
+        className="mt-1 w-full rounded border border-slate-400 bg-white p-2 text-sm"
+      />
       <button
         type="submit"
         disabled={pending}
         className="mt-2 rounded border border-slate-400 bg-white px-3 py-2 text-sm font-semibold"
       >
-        {pending ? 'Recording…' : 'Simulate inbound SMS (stub)'}
+        {pending ? 'Parsing…' : 'Simulate inbound SMS'}
       </button>
-      <p className="mt-2 text-xs text-slate-600">Parsing isn't landed yet; it arrives with the comms lane.</p>
+      <p className="mt-2 text-xs text-slate-600">
+        Deterministic first pass. A reply under 0.75 confidence is recorded and left for a nurse
+        rather than applied.
+      </p>
       <Result state={state} />
     </form>
   )

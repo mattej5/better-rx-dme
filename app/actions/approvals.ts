@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { loadSettings } from "../(hospice)/settings/data";
 import { awaitingApproval } from "@/src/lib/derive";
 import { appendEvent } from "@/src/lib/events";
+import { notifyVendor } from "@/src/lib/notify-vendor";
 import { getSession } from "@/src/lib/role";
 import type { Database } from "@/src/types/db";
 
@@ -94,8 +95,14 @@ export async function approveOrder(
         vendor_id: order.vendor_id,
         channel: "sms",
         nudge: false,
-        stub: "Message sending arrives with the comms lane",
       }, actor);
+      // sendMessage() appends the one message_sent event; we never write it here.
+      await notifyVendor({
+        orderId,
+        vendorId: order.vendor_id,
+        template: "vendor_notify",
+        actor,
+      });
     } catch {
       refresh(orderId);
       return { ok: true, message: "Approved. Vendor notification failed. Retry from the order page." };

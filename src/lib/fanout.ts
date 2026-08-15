@@ -136,12 +136,18 @@ export async function changePatientStatus(
       vendorOrders.set(order.vendor_id, order);
     }
   }
+  // notifyVendor() -> sendMessage() writes the message_sent event itself, so this
+  // loop appends nothing. One pickup message per vendor, per addendum #8
+  // (vendor-only; family comms are cut in v1).
   for (const order of vendorOrders.values()) {
-    await appendEvent(order.id, "message_sent", {
-      kind: "vendor_notice",
-      stub: "Message sending arrives with the comms lane",
-      message_id: null,
-    }, actor);
+    const { notifyVendor } = await import("./notify-vendor.ts");
+    await notifyVendor({
+      orderId: order.id,
+      vendorId: order.vendor_id as string,
+      template: "vendor_pickup",
+      actor,
+      notifiedAt: at,
+    });
   }
 
   return {

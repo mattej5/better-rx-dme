@@ -45,7 +45,7 @@ export async function submitOnboarding(
     return {
       ok: false,
       message:
-        "Nothing was saved — this environment has no database connection. Your answers are still on screen.",
+        "Nothing was saved. This environment has no database connection. Your answers are still on screen.",
     };
   }
 

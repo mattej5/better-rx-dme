@@ -5,7 +5,7 @@ type Closed = Exclude<ResolveResult["status"], "ok">;
 const COPY: Record<Closed, { title: string; body: string }> = {
   expired: {
     title: "This link has expired",
-    body: "Ask the hospice to send a new one. Nothing is lost — links time out after 72 hours.",
+    body: "Ask the hospice to send a new one. Nothing is lost, links time out after 72 hours.",
   },
   unknown: {
     title: "We couldn't find this link",

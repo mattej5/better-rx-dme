@@ -6,6 +6,7 @@ import { loadSettings } from "../(hospice)/settings/data";
 import { now } from "@/src/lib/clock";
 import { ORDER_URGENCIES, type OrderUrgency } from "@/src/lib/domain";
 import { appendEvent } from "@/src/lib/events";
+import { notifyVendor } from "@/src/lib/notify-vendor";
 import { getSession } from "@/src/lib/role";
 import { runRules } from "@/src/lib/rules";
 
@@ -135,8 +136,14 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
           vendor_id: input.vendorId,
           channel: "sms",
           nudge: false,
-          stub: "Message sending arrives with the comms lane",
         }, actor);
+        // sendMessage() appends the one message_sent event; we never write it here.
+        await notifyVendor({
+          orderId: inserted.data.id,
+          vendorId: input.vendorId,
+          template: "vendor_notify",
+          actor,
+        });
       }
 
       await runRules(inserted.data.id);

@@ -33,6 +33,49 @@ async function rerunRules(orderId: string) {
   }
 }
 
+/**
+ * N11's entry point. `requestReplacement()` owns the whole transaction (the
+ * no-charge follow-on order, the `reordered` event, the rules re-run); this
+ * action only supplies the named human it structurally requires, then sends the
+ * vendor the message for the replacement stop it just created.
+ */
+export async function requestReplacementOrder(
+  orderId: string,
+  conditionEventId?: number,
+): Promise<OrderActionState> {
+  const actor = await getSession();
+  if (!actor) return { ok: false, message: "Choose who you are first." };
+  if (!configured()) return { ok: false, message: NO_ENV };
+
+  try {
+    const { requestReplacement } = await import("@/src/lib/replacement");
+    const result = await requestReplacement({
+      orderId,
+      ...(conditionEventId ? { conditionEventId } : {}),
+      confirmation: { confirmedBy: actor },
+    });
+
+    if (result.vendorId) {
+      const { notifyVendor } = await import("@/src/lib/notify-vendor");
+      await notifyVendor({
+        orderId: result.replacementOrderId,
+        vendorId: result.vendorId,
+        template: "vendor_notify",
+        actor,
+      });
+    }
+
+    refresh(orderId);
+    revalidatePath(`/orders/${result.replacementOrderId}`);
+    return {
+      ok: true,
+      message: `Replacement ${result.replacementOrderNo} requested at no charge.`,
+    };
+  } catch {
+    return { ok: false, message: "We couldn't request a replacement. Try again." };
+  }
+}
+
 export async function escalateOrder(
   orderId: string,
   reason: string,
@@ -137,6 +180,22 @@ export async function reorderToBackup(orderId: string): Promise<OrderActionState
       },
       actor,
     );
+
+    // The backup vendor has to actually hear about it. sendMessage() writes the
+    // one message_sent event, so nothing is appended for it here.
+    await appendEvent(
+      newOrderId,
+      "vendor_notified",
+      { vendor_id: backup.vendorId, channel: "sms", nudge: false, kind: "escalation" },
+      actor,
+    );
+    const { notifyVendor } = await import("@/src/lib/notify-vendor");
+    await notifyVendor({
+      orderId: newOrderId,
+      vendorId: backup.vendorId,
+      template: "vendor_notify",
+      actor,
+    });
   } catch {
     return { ok: false, message: "We couldn't reorder from the backup vendor. Try again." };
   }

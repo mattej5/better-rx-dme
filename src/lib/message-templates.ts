@@ -271,7 +271,7 @@ const REGISTRY: Record<TemplateId, TemplateDef> = {
     requiredVars: ['item'],
     optionalVars: [],
     render: (v) => ({
-      subject: 'Equipment pickup — nothing needed from you',
+      subject: 'Equipment pickup, nothing needed from you',
       body:
         `We've asked the equipment company to pick up the ${v.item}. ` +
         `They'll call you to pick a time. You don't need to do anything.`,
