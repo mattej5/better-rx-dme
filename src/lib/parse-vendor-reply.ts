@@ -243,8 +243,35 @@ export function parseWithRegex(message: string, orderContext: OrderContext): Par
  * §3.4: fall through if pass 1 returned `unknown`, or if the message is longer
  * than 12 words and so any regex hit is more likely incidental than clean.
  */
+/**
+ * Short bare acknowledgments: the whole message is one of these tokens plus
+ * punctuation or an emoji, nothing else.
+ *
+ * These are the replies where pass 1 is BOTH confident and wrong, and the eval
+ * measures it: `"ok"` parses as confirm at 0.99 and `"no problem"` parses as
+ * decline at 0.95, both clear of the 0.75 action gate. "no problem" is the one
+ * that bites, because a vendor agreeing gets written as `vendor_declined`, and
+ * a decline is what unlocks the backup-vendor offer.
+ *
+ * The regexes themselves are deliberately NOT changed: `parseWithRegex()` is
+ * the named baseline the AI is measured against, dangerous errors included.
+ * What changes is the ROUTING above it, so the shipped pipeline never trusts
+ * pass 1 on a message this short and this ambiguous.
+ */
+const AMBIGUOUS_ACK_RE =
+  /^[\s\p{P}\p{S}️]*(ok|okay|k+|sure|no\s+problem|no\s+worries|no\s+issue|no\s+issues)[\s\p{P}\p{S}️]*$/iu;
+
+/** True when the reply is a bare ack that pass 1 must not be trusted on. */
+export function isAmbiguousAck(message: string): boolean {
+  return AMBIGUOUS_ACK_RE.test(message);
+}
+
 export function needsLlmFallback(message: string, regexResult: ParseResult): boolean {
-  return regexResult.intent === 'unknown' || wordCount(message) > CLEAN_MATCH_WORD_LIMIT;
+  return (
+    regexResult.intent === 'unknown' ||
+    isAmbiguousAck(message) ||
+    wordCount(message) > CLEAN_MATCH_WORD_LIMIT
+  );
 }
 
 // --- Pass 2: the LLM fallback ------------------------------------------------
@@ -594,5 +621,15 @@ export async function parseVendorReply(
   }
 
   const llmResult = await parseWithLlm(message, orderContext);
-  return llmResult ?? regexResult;
+  if (llmResult) return llmResult;
+
+  // No LLM available and the reply is a bare ack. Falling back to the regex
+  // answer here would reinstate exactly the confident misread the routing above
+  // exists to prevent, so it resolves to unknown instead: no state change, and
+  // the nurse confirms. Refusing to guess is the safe failure, not a regression.
+  if (isAmbiguousAck(message)) {
+    return { intent: 'unknown', confidence: 0, method: 'regex' };
+  }
+
+  return regexResult;
 }

@@ -47,23 +47,25 @@ who is this
 
 **Pass 1, regex.** Zero marginal cost, roughly 0.1 ms. Handles the structured majority: yes/no variants, `ETA 5:10 PM`, `in 45 min`, bare confirm plus time. Confidence 0.9 to 0.99.
 
-**Pass 2, LLM.** Fires only when pass 1 returns `unknown`, or when the message runs over 12 words with no clean match. Structured JSON output, grounded in that order's context, `effort: "low"`.
+**Pass 2, LLM.** Fires when pass 1 returns `unknown`, when the message runs over 12 words with no clean match, **or when the whole reply is a short bare acknowledgment** (`ok`, `okay`, `k`/`kk`, `sure`, `no problem`, `no worries`, `no issue(s)`, plus punctuation or an emoji). That third rule exists because of what the baseline does on exactly those strings, below. Structured JSON output, grounded in that order's context, `effort: "low"`.
 
 **The evidence that shaped this.** JAMIA Open, November 2025, 7,764 radiology reports: regex 89.20% vs LLM 87.69% (P=.56), with regex 18,404x faster on the corpus; the authors recommend a hybrid, deterministic for standardized fields and LLM for messy context `[research]`. We took that recommendation literally. We pay for the model only on the tail where it wins.
 
 **We report both numbers.** `npm run eval:parse` runs 24 fixtures (8 structured, 10 messy, 6 adversarial) through regex-only and through the hybrid, and prints:
 
 ```
-Regex baseline   11/24 (46%)   |  cost $0.00     |  0.8 ms total
-Hybrid           21/24 (88%)   |  cost $0.0000   |  30.7 s total
-LLM invoked on 14/24
+Regex baseline   11/24 (46%)   |  cost $0.00     |  0.9 ms total
+Hybrid           23/24 (96%)   |  cost $0.0000   |  94.4 s total
+LLM invoked on 16/24
 ```
 
-Measured on 2026-08-15 against the demo provider described below. The whole gain is in the messy bucket, which is the point: structured replies go 7/8 either way, and messy replies go from 0/10 on regex alone to 10/10 with the hybrid.
+Measured on 2026-08-15 against the demo provider described below. Structured replies go 7/8 either way. Messy replies go from 0/10 on regex alone to 10/10. Adversarial goes from 4/6 to 6/6.
 
 The runner exits 1 if the hybrid drops below 20/24, so a prompt edit cannot silently regress during the build.
 
-**Two adversarial cases still fail, and they fail on the regex side.** `"ok"` alone parses as confirm at 0.99 and `"no problem"` parses as decline at 0.95, both above the 0.75 action gate, so both would change order state on their own. The LLM never sees either one: `needsLlmFallback()` short-circuits on a confident short regex match, so pass 2 cannot correct pass 1 here. `"no problem"` is the one that bites, because a vendor agreeing reads as a decline, and a decline is what unlocks the backup-vendor offer. This is a property of the deterministic baseline, not of the model, and it is the strongest argument in the deck for why the regex tier alone is not a safe product.
+**The two adversarial cases the baseline gets wrong are the reason the routing exists.** `"ok"` alone parses as confirm at 0.99 and `"no problem"` parses as decline at 0.95, both above the 0.75 action gate, so the deterministic tier acting alone would change order state on both. `"no problem"` is the one that bites: a vendor agreeing gets written as `vendor_declined`, and a decline is what unlocks the backup-vendor offer, so a cheerful confirmation could trigger a reroute.
+
+We did not patch the regexes to hide this. `parseWithRegex()` is the named baseline the AI is measured against and it still scores 11/24 with those errors intact, because a baseline you quietly repair is not a baseline. What we changed is the routing above it: **the baseline's confident misreads are exactly why the product routes short bare acknowledgments past the deterministic tier**, so pass 1 is never trusted on them no matter how sure it is. With the LLM in the loop the shipped pipeline reads `"no problem"` as confirm at 0.80 and `"ok"` as unknown at 0.20, which is a nurse confirmation rather than a write. With no LLM key configured they resolve to `unknown` rather than falling back to the confident wrong answer: refusing to guess is the safe failure.
 
 **The eval measures generalization less than the score implies.** The few-shot examples in `PARSE_SYSTEM` teach the same rules the fixtures in `evals/vendor-replies.json` test. The rules were taught rather than the fixtures pasted, and the wording was varied deliberately, but the two were written by the same author in the same session and the overlap is real `[team]`.
 
