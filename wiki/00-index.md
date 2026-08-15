@@ -53,6 +53,6 @@ Second brain for this build. Start here. Every note carries a source tag: `[brie
 
 ## External
 
-- **Claude Design canvas (FINISHED — visual source of truth for all screens)**: project "BetterRX DME P0 Screens" — share link in team Slack (published web artifact). Frames: 1a/1b/1c P0 spine · 2a–2e DON/pickup/readiness/vendor · 3a/3c/3d role switcher, guardrails, BUILD HANDOFF table (screens → routes → components + spec deltas). Build agents: consult the 3d handoff frame before implementing any screen; spec deltas 1–7 are reconciled in `specs/frontend.md` §5b.
+- **Claude Design canvas (FINISHED — visual source of truth for all screens)**: https://claude.ai/code/artifact/5387f7cc-27a3-4153-a573-9d3ca62f87cc — fetchable by agents. Frames: 1a/1b/1c P0 spine · 2a–2e DON/pickup/readiness/vendor · 3a/3c/3d role switcher, guardrails, BUILD HANDOFF table (screens → routes → components + spec deltas). Build agents: consult the 3d handoff frame before implementing any screen; spec deltas 1–7 are reconciled in `specs/frontend.md` §5b. Frontend lane is Vin-managed — ask before restyling.
 - Kanban: Notion "Build Tasks" under *AI Builder Day — Hackathon Tracker*
 - Sponsor contact: Slack channel from BetterRX (Todd and Peter, primary POCs). Answers get posted publicly to all teams.

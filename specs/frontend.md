@@ -173,7 +173,7 @@ Supporting (thin): `AppShell`, `PatientHeader`, `EquipmentRow`, `CategoryAccordi
 
 ## 5b. Design deltas to honor (from Claude Design "3d build handoff" frame, 8/14 PM)
 
-The designed canvas (claude.ai/design project "BetterRX DME P0 Screens") is the visual source of truth. Known deltas vs this spec — implement the DESIGN's version:
+The designed canvas is the visual source of truth: **https://claude.ai/code/artifact/5387f7cc-27a3-4153-a573-9d3ca62f87cc** (published artifact — agents can fetch it; the 3d BUILD HANDOFF frame maps screens → routes → components). Known deltas vs this spec — implement the DESIGN's version:
 1. Under-threshold orders get an "Order placed" confirmation screen (spec only defined `ApprovalInterstitial` for over-threshold).
 2. `VendorCompareCard` takes a `deadline` prop rendering the ETA-vs-deadline track (grafted from variant 1d into the 1c hero).
 3. Hospice nav is a bottom tab bar (Today / Patients / more), not header-only AppShell.
