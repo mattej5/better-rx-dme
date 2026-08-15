@@ -113,8 +113,7 @@ export default function OnboardingForm(props: OnboardingFormProps) {
           from {zip}.
         </p>
         <p className="mt-2 text-[15px] text-[var(--ink-soft)]">
-          When a hospice orders something you carry, you get a text with a link. There is
-          no password and no app to install.
+          When a hospice orders something you carry, you get a text with a link.
         </p>
         <div className="mt-5">
           <Link

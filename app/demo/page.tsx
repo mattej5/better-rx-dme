@@ -4,8 +4,6 @@ import {
   ClockControls,
   DeathSimulationControl,
   InboundSmsControl,
-  ResetControl,
-  ScenarioControls,
 } from './demo-controls'
 
 type DemoData = {
@@ -122,22 +120,11 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
   )
 }
 
-function QrPlaceholder({ link }: { link: string }) {
+function RunListLink({ link }: { link: string }) {
   return (
     <div>
-      <svg
-        viewBox="0 0 21 21"
-        width="168"
-        height="168"
-        role="img"
-        aria-label="Run-list QR placeholder"
-        className="border border-slate-300 bg-white p-2"
-      >
-        <rect width="21" height="21" fill="white" />
-        <path fill="black" d="M1 1h7v7H1zM13 1h7v7h-7zM1 13h7v7H1zM3 3h3v3H3zM15 3h3v3h-3zM3 15h3v3H3zM10 2h1v3h-1zM9 7h4v2H9zM10 11h2v2h-2zM14 10h2v2h-2zM17 9h3v2h-3zM9 15h2v5H9zM12 14h3v2h-3zM14 17h2v3h-2zM17 13h3v2h-3zM18 17h2v3h-2z" />
-      </svg>
-      <p className="mt-2 text-xs font-semibold text-amber-800">Inline SVG placeholder; use the raw link below.</p>
-      <a href={link} className="mt-1 block break-all font-mono text-sm text-blue-700 underline">{link}</a>
+      <p className="mb-1 text-sm text-slate-600">Open this on the vendor phone, or paste it into a browser tab for the judges.</p>
+      <a href={link} className="block break-all font-mono text-sm text-blue-700 underline">{link}</a>
     </div>
   )
 }
@@ -155,7 +142,7 @@ export default async function DemoPage() {
     <main className="mx-auto min-h-screen max-w-5xl bg-slate-100 p-4 text-slate-900 sm:p-6">
       <header className="mb-4">
         <h1 className="text-2xl font-bold">Demo control panel</h1>
-        <p className="text-sm text-slate-600">Plain presenter utility board. Integration stubs are labeled.</p>
+        <p className="text-sm text-slate-600">Plain presenter utility board. Every control here hits the live app.</p>
       </header>
 
       {demoData.configurationMessage ? (
@@ -177,11 +164,10 @@ export default async function DemoPage() {
         </Card>
 
         <Card title="Reset">
-          <ResetControl />
-        </Card>
-
-        <Card title="Scenario jumps (stub)">
-          <ScenarioControls />
+          <p className="text-sm text-slate-600">
+            Manual: run <code className="font-mono">scripts/reset-demo.sql</code> in the Supabase editor, then reseed with{' '}
+            <code className="font-mono">scripts/seed.mjs</code>.
+          </p>
         </Card>
 
         <Card title="Patient death through eRx ingress">
@@ -217,7 +203,7 @@ export default async function DemoPage() {
         </Card>
 
         <Card title="Vendor run-list link">
-          {demoData.magicLink ? <QrPlaceholder link={demoData.magicLink} /> : <p className="text-sm">No magic links yet</p>}
+          {demoData.magicLink ? <RunListLink link={demoData.magicLink} /> : <p className="text-sm">No magic links yet</p>}
         </Card>
       </div>
     </main>

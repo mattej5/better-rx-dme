@@ -82,8 +82,8 @@ export default async function VendorWelcomePage({
         Set up your equipment list
       </h1>
       <p className="mt-1 text-[14px] text-[var(--ink-soft)]">
-        Two screens. Nothing to install, no password. Hospices see what you stock and
-        only send you orders you can fill.
+        Check the items you stock and set your service area. Hospices will only send
+        you orders you can fill.
       </p>
 
       <div className="mt-5">
