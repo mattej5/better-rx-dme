@@ -7,6 +7,8 @@
 > curl -s -X POST https://better-rx-dme.vercel.app/api/erx/events -H 'content-type: application/json' -d '{"meta":{"eventType":"newOrUpdatePatient","source":"Axxess"},"account":{"identifiers":[{"id":"ACCT-001"}]},"patient":{"identifiers":[{"id":"PT-AX-70012","idType":"external_id"}]},"payload":{"patient":{"first_name":"Alma","last_name":"Reyes"}}}'
 > ```
 >
+> **Vendor-phone thread beat (added 8/15 PM):** /demo has a "Vendor phone" card listing orders with active threads. Staging: thread on the mirrored phone, /orders/[id] timeline on the projector. Rehearse two replies: "running late, maybe 45 min" (parses, updates ETA, agent acks) and a messy one (recorded, nothing changes, "a nurse will follow up"). After the pre-pitch reseed, place one Ridgeline order first so a thread exists. [team]
+>
 > **Eval numbers (added 8/15):** NEVER run `npm run eval:parse` live on stage: the hybrid pass makes 16 LLM calls and takes ~95 seconds, and the script does not read `.env.local`, so a bare run silently prints "not measured" instead of erroring. To reproduce the deck numbers beforehand: `set -a; . ./.env.local; set +a; env ANTHROPIC_BASE_URL=https://opencode.ai/zen/go PARSE_MODEL=minimax-m3 npm run eval:parse` — expect regex 11/24, hybrid 23/24. Quote the saved output in the pitch. [team]
 
 Source: `https://luma.com/aibuilderday2?tk=jKRCw9` — **AI Builder Day**, presented by JustBuild and the Startup State Initiative. Hosts: Tyler Jennings, Jacob Wright. `[luma]`
