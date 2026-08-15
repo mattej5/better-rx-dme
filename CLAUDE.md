@@ -63,6 +63,7 @@ Fast version: Poppins for headings, Inter for body. Salmon `#EF7869` brand, slat
 - **Cite the source.** Every claim in the wiki gets a source tag: `[brief]`, `[faq]`, `[kickoff-qa]`, `[landscape]`, `[team]`, or `[assumed]`. `[assumed]` is honorable; unlabeled guessing is not.
 - **Never invent sponsor answers.** If the brief, FAQ, and kickoff transcript don't cover it, write it in `wiki/facts/open-questions.md` and flag it for the Slack channel. Do not fill the gap with a plausible-sounding fact.
 - **Task board is Notion**, not this repo: "Build Tasks" under *AI Builder Day — Hackathon Tracker*. Columns: Backlog / Ready / In Progress / Blocked / Done. Every task carries a Definition of Done before it moves to Ready.
+- **Board protocol for agents (build phase):** before starting work, query the board for what's already **In Progress** — do not duplicate in-flight work, and prefer tasks in your own lane (title prefix V*/T*/N*). Move your card to **In Progress** when you start, **Blocked** (with a note naming the blocking card) when stuck, **Done** only when its Definition of Done is met. One card In Progress per agent at a time. Lane interfaces are pinned in `specs/00-contracts.md` — never re-implement another lane's seam (`derive.ts`, `sendMessage()`, `parseVendorReply()`).
 - **Prefer editing existing files** over creating new ones. Keep the wiki flat and short; a fact note is a paragraph, not an essay.
 - Do not add code comments unless the logic isn't self-evident. Don't over-engineer, it's a 24-hour build.
 
