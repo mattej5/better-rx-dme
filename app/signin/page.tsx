@@ -207,9 +207,6 @@ export default async function SignIn() {
                     >
                       {vendor.dispatcher} · {vendor.vendorName}
                     </span>
-                    <span className="mt-1 block text-[13px] text-ink-soft">
-                      Opens their magic link. No login.
-                    </span>
                   </span>
                 </Link>
               </li>
@@ -225,9 +222,6 @@ export default async function SignIn() {
                   style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}
                 >
                   Vendor demo
-                </span>
-                <span className="mt-1 block text-[13px] text-ink-soft">
-                  Opens their magic link. No login.
                 </span>
               </Link>
             </li>
