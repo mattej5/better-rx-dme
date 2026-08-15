@@ -9,9 +9,13 @@
     "lint": "eslint",
     "seed": "node scripts/seed.mjs",
     "test:derive": "tsx --test src/lib/derive.test.ts",
-    "test:billing": "tsx --test src/lib/billing.test.ts"
+    "test:billing": "tsx --test src/lib/billing.test.ts",
+    "eval:parse": "node scripts/eval-parse.ts",
+    "sms:test": "node --env-file-if-exists=.env.local scripts/send-test-sms.ts",
+    "tokens:parse-system": "node scripts/count-parse-system.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.117.1",
     "@supabase/supabase-js": "^2.112.3",
     "next": "16.3.1",
     "react": "19.2.8",

@@ -1,0 +1,460 @@
+{
+  "_convention": {
+    "purpose": "Fixtures for npm run eval:parse (specs/engine.md §6). Each case is run twice: regex-only (the baseline) and the full hybrid parser. The file is committed, so every value here is fixed — nothing is derived from the current date.",
+    "shape": "{ id, group, message, orderContext, expected: { intent, eta?, minConfidence } }",
+    "groups": {
+      "structured": "8 cases the regex pass should handle at zero cost.",
+      "messy": "10 cases where the LLM pass should beat regex.",
+      "adversarial": "6 cases that test restraint. A high-confidence wrong answer here is worse than an honest unknown."
+    },
+    "intent": "One of 'confirm' | 'decline' | 'eta' | 'delay' | 'question' | 'unknown' (specs/engine.md §3.4). No other values exist.",
+    "eta": "Two forms, one convention. ABSOLUTE: an ISO 8601 timestamp with the America/Denver offset (-06:00, MDT in August), on the same calendar date as orderContext.neededBy unless the message names a different day. Used when the message states a clock time. RELATIVE: a marker of the form +Nm or +Nh, meaning N minutes or N hours after the moment the reply is received. Used when the message states a duration. Absolute times get a +/-5 minute match tolerance.",
+    "etaAbsent": "No eta key means no ETA should be extracted. A parse that invents a time fails the case, even if the intent is right. This applies to messages that name a day but no time (messy/bed-other-truck, messy/o2-hazmat-monday).",
+    "minConfidence": "The floor a parse must clear to count as a pass, 0 to 1. The runtime action gate is 0.75 (specs/engine.md §3.4): below it, no state change, the parse goes to the nurse as 'we read this as X, please confirm'. Cases where the vendor stated something plainly are floored at or above that gate. Genuinely hedged messages are floored below it — the correct intent at honest low confidence is a pass, because routing to a human is the right outcome.",
+    "minConfidenceZero": "Every case expecting 'unknown' has minConfidence 0. The test is not that the parser is confident, it is that it does not confidently return anything else. A high-confidence non-unknown result on these six is a FAIL.",
+    "timezone": "America/Denver everywhere — single hospice timezone, pinned in specs/engine.md §7.4.",
+    "data": "Synthetic. Order numbers are a dedicated DME-204xx eval range and do not collide with the seeded demo orders. Vendor names match the seed roster in specs/data.md. No real patients, vendors, or addresses.",
+    "count": 24
+  },
+  "cases": [
+    {
+      "id": "structured/yes-plain",
+      "group": "structured",
+      "message": "YES",
+      "orderContext": {
+        "orderId": "DME-20401",
+        "item": "Hospital bed (semi-electric)",
+        "patientArea": "Provo",
+        "neededBy": "2026-08-14T16:00:00-06:00",
+        "urgency": "admission",
+        "vendorName": "Ridgeline Medical Supply",
+        "timezone": "America/Denver"
+      },
+      "expected": {
+        "intent": "confirm",
+        "minConfidence": 0.9
+      }
+    },
+    {
+      "id": "structured/yes-3pm",
+      "group": "structured",
+      "message": "yes 3pm",
+      "orderContext": {
+        "orderId": "DME-20402",
+        "item": "Oxygen concentrator",
+        "patientArea": "Orem",
+        "neededBy": "2026-08-14T17:00:00-06:00",
+        "urgency": "admission",
+        "vendorName": "Ridgeline Medical Supply",
+        "timezone": "America/Denver"
+      },
+      "expected": {
+        "intent": "confirm",
+        "eta": "2026-08-14T15:00:00-06:00",
+        "minConfidence": 0.9
+      }
+    },
+    {
+      "id": "structured/y-single",
+      "group": "structured",
+      "message": "Y",
+      "orderContext": {
+        "orderId": "DME-20403",
+        "item": "Wheelchair",
+        "patientArea": "Springville",
+        "neededBy": "2026-08-15T12:00:00-06:00",
+        "urgency": "routine",
+        "vendorName": "ValueCare DME",
+        "timezone": "America/Denver"
+      },
+      "expected": {
+        "intent": "confirm",
+        "minConfidence": 0.9
+      }
+    },
+    {
+      "id": "structured/confirmed-eta-1430",
+      "group": "structured",
+      "message": "Confirmed, ETA 14:30",
+      "orderContext": {
+        "orderId": "DME-20404",
+        "item": "Alternating pressure mattress",
+        "patientArea": "Spanish Fork",
+        "neededBy": "2026-08-14T16:00:00-06:00",
+        "urgency": "routine",
+        "vendorName": "Ridgeline Medical Supply",
+        "timezone": "America/Denver"
+      },
+      "expected": {
+        "intent": "confirm",
+        "eta": "2026-08-14T14:30:00-06:00",
+        "minConfidence": 0.85
+      }
+    },
+    {
+      "id": "structured/no-plain",
+      "group": "structured",
+      "message": "NO",
+      "orderContext": {
+        "orderId": "DME-20405",
+        "item": "Patient lift",
+        "patientArea": "Payson",
+        "neededBy": "2026-08-14T18:00:00-06:00",
+        "urgency": "routine",
+        "vendorName": "ValueCare DME",
+        "timezone": "America/Denver"
+      },
+      "expected": {
+        "intent": "decline",
+        "minConfidence": 0.9
+      }
+    },
+    {
+      "id": "structured/cant-do-it",
+      "group": "structured",
+      "message": "can't do it",
+      "orderContext": {
+        "orderId": "DME-20406",
+        "item": "Portable oxygen cylinders",
+        "patientArea": "Lehi",
+        "neededBy": "2026-08-14T15:00:00-06:00",
+        "urgency": "stat",
+        "vendorName": "ValueCare DME",
+        "timezone": "America/Denver"
+      },
+      "expected": {
+        "intent": "decline",
+        "minConfidence": 0.85
+      }
+    },
+    {
+      "id": "structured/eta-510pm",
+      "group": "structured",
+      "message": "ETA 5:10 PM",
+      "orderContext": {
+        "orderId": "DME-20407",
+        "item": "Oxygen concentrator",
+        "patientArea": "Provo",
+        "neededBy": "2026-08-14T16:30:00-06:00",
+        "urgency": "stat",
+        "vendorName": "Gulf Coast Home Medical",
+        "timezone": "America/Denver"
+      },
+      "expected": {
+        "intent": "eta",
+        "eta": "2026-08-14T17:10:00-06:00",
+        "minConfidence": 0.85
+      }
+    },
+    {
+      "id": "structured/in-45-min",
+      "group": "structured",
+      "message": "in 45 min",
+      "orderContext": {
+        "orderId": "DME-20408",
+        "item": "Bedside commode",
+        "patientArea": "American Fork",
+        "neededBy": "2026-08-14T18:00:00-06:00",
+        "urgency": "routine",
+        "vendorName": "Ridgeline Medical Supply",
+        "timezone": "America/Denver"
+      },
+      "expected": {
+        "intent": "eta",
+        "eta": "+45m",
+        "minConfidence": 0.85
+      }
+    },
+    {
+      "id": "messy/i15-accident",
+      "group": "messy",
+      "message": "stuck behind an accident on I-15, maybe 2hrs",
+      "orderContext": {
+        "orderId": "DME-20409",
+        "item": "Hospital bed (semi-electric)",
+        "patientArea": "Lehi",
+        "neededBy": "2026-08-14T17:00:00-06:00",
+        "urgency": "admission",
+        "vendorName": "Gulf Coast Home Medical",
+        "timezone": "America/Denver"
+      },
+      "expected": {
+        "intent": "delay",
+        "eta": "+2h",
+        "minConfidence": 0.6
+      }
+    },
+    {
+      "id": "messy/bed-other-truck",
+      "group": "messy",
+      "message": "got it but the bed is on the other truck, tomorrow am ok?",
+      "orderContext": {
+        "orderId": "DME-20410",
+        "item": "Hospital bed (semi-electric)",
+        "patientArea": "Orem",
+        "neededBy": "2026-08-14T19:00:00-06:00",
+        "urgency": "admission",
+        "vendorName": "Ridgeline Medical Supply",
+        "timezone": "America/Denver"
+      },
+      "expected": {
+        "intent": "delay",
+        "minConfidence": 0.6
+      }
+    },
+    {
+      "id": "messy/driver-sick",
+      "group": "messy",
+      "message": "driver called in sick, can someone else take it",
+      "orderContext": {
+        "orderId": "DME-20411",
+        "item": "Patient lift",
+        "patientArea": "Pleasant Grove",
+        "neededBy": "2026-08-14T16:00:00-06:00",
+        "urgency": "routine",
+        "vendorName": "ValueCare DME",
+        "timezone": "America/Denver"
+      },
+      "expected": {
+        "intent": "decline",
+        "minConfidence": 0.6
+      }
+    },
+    {
+      "id": "messy/after-six",
+      "group": "messy",
+      "message": "we can do it but not till after 6",
+      "orderContext": {
+        "orderId": "DME-20412",
+        "item": "Wheelchair",
+        "patientArea": "Mapleton",
+        "neededBy": "2026-08-14T20:00:00-06:00",
+        "urgency": "routine",
+        "vendorName": "Ridgeline Medical Supply",
+        "timezone": "America/Denver"
+      },
+      "expected": {
+        "intent": "confirm",
+        "eta": "2026-08-14T18:00:00-06:00",
+        "minConfidence": 0.6
+      }
+    },
+    {
+      "id": "messy/yeah-no-problem",
+      "group": "messy",
+      "message": "yeah no problem",
+      "orderContext": {
+        "orderId": "DME-20413",
+        "item": "Overbed table",
+        "patientArea": "Salem",
+        "neededBy": "2026-08-15T14:00:00-06:00",
+        "urgency": "routine",
+        "vendorName": "Ridgeline Medical Supply",
+        "timezone": "America/Denver"
+      },
+      "expected": {
+        "intent": "confirm",
+        "minConfidence": 0.75
+      }
+    },
+    {
+      "id": "messy/kk",
+      "group": "messy",
+      "message": "kk",
+      "orderContext": {
+        "orderId": "DME-20414",
+        "item": "Walker",
+        "patientArea": "Provo",
+        "neededBy": "2026-08-15T11:00:00-06:00",
+        "urgency": "routine",
+        "vendorName": "Gulf Coast Home Medical",
+        "timezone": "America/Denver"
+      },
+      "expected": {
+        "intent": "confirm",
+        "minConfidence": 0.6
+      }
+    },
+    {
+      "id": "messy/which-house",
+      "group": "messy",
+      "message": "which house is it again",
+      "orderContext": {
+        "orderId": "DME-20415",
+        "item": "Suction machine",
+        "patientArea": "Springville",
+        "neededBy": "2026-08-14T17:30:00-06:00",
+        "urgency": "stat",
+        "vendorName": "Gulf Coast Home Medical",
+        "timezone": "America/Denver"
+      },
+      "expected": {
+        "intent": "question",
+        "minConfidence": 0.75
+      }
+    },
+    {
+      "id": "messy/o2-hazmat-monday",
+      "group": "messy",
+      "message": "O2 needs a hazmat driver, none till Monday",
+      "orderContext": {
+        "orderId": "DME-20416",
+        "item": "Portable oxygen cylinders",
+        "patientArea": "Payson",
+        "neededBy": "2026-08-14T18:00:00-06:00",
+        "urgency": "admission",
+        "vendorName": "ValueCare DME",
+        "timezone": "America/Denver"
+      },
+      "expected": {
+        "intent": "delay",
+        "minConfidence": 0.75
+      }
+    },
+    {
+      "id": "messy/sure-thing-hour",
+      "group": "messy",
+      "message": "sure thing boss 👍 bout an hour",
+      "orderContext": {
+        "orderId": "DME-20417",
+        "item": "Oxygen concentrator",
+        "patientArea": "Orem",
+        "neededBy": "2026-08-14T19:00:00-06:00",
+        "urgency": "stat",
+        "vendorName": "Gulf Coast Home Medical",
+        "timezone": "America/Denver"
+      },
+      "expected": {
+        "intent": "confirm",
+        "eta": "+1h",
+        "minConfidence": 0.75
+      }
+    },
+    {
+      "id": "messy/who-is-this",
+      "group": "messy",
+      "message": "who is this",
+      "orderContext": {
+        "orderId": "DME-20418",
+        "item": "Hospital bed (semi-electric)",
+        "patientArea": "Lehi",
+        "neededBy": "2026-08-15T10:00:00-06:00",
+        "urgency": "routine",
+        "vendorName": "ValueCare DME",
+        "timezone": "America/Denver"
+      },
+      "expected": {
+        "intent": "question",
+        "minConfidence": 0.75
+      }
+    },
+    {
+      "id": "adversarial/ok-alone",
+      "group": "adversarial",
+      "message": "ok",
+      "orderContext": {
+        "orderId": "DME-20419",
+        "item": "Wheelchair",
+        "patientArea": "Spanish Fork",
+        "neededBy": "2026-08-14T16:00:00-06:00",
+        "urgency": "routine",
+        "vendorName": "Ridgeline Medical Supply",
+        "timezone": "America/Denver"
+      },
+      "expected": {
+        "intent": "unknown",
+        "minConfidence": 0
+      }
+    },
+    {
+      "id": "adversarial/no-problem",
+      "group": "adversarial",
+      "message": "no problem",
+      "orderContext": {
+        "orderId": "DME-20420",
+        "item": "Bedside commode",
+        "patientArea": "Provo",
+        "neededBy": "2026-08-14T18:00:00-06:00",
+        "urgency": "routine",
+        "vendorName": "Ridgeline Medical Supply",
+        "timezone": "America/Denver"
+      },
+      "expected": {
+        "intent": "confirm",
+        "minConfidence": 0.6
+      }
+    },
+    {
+      "id": "adversarial/maybe",
+      "group": "adversarial",
+      "message": "maybe",
+      "orderContext": {
+        "orderId": "DME-20421",
+        "item": "Alternating pressure mattress",
+        "patientArea": "Orem",
+        "neededBy": "2026-08-15T13:00:00-06:00",
+        "urgency": "routine",
+        "vendorName": "ValueCare DME",
+        "timezone": "America/Denver"
+      },
+      "expected": {
+        "intent": "unknown",
+        "minConfidence": 0
+      }
+    },
+    {
+      "id": "adversarial/question-mark",
+      "group": "adversarial",
+      "message": "?",
+      "orderContext": {
+        "orderId": "DME-20422",
+        "item": "Oxygen concentrator",
+        "patientArea": "American Fork",
+        "neededBy": "2026-08-14T17:00:00-06:00",
+        "urgency": "stat",
+        "vendorName": "Gulf Coast Home Medical",
+        "timezone": "America/Denver"
+      },
+      "expected": {
+        "intent": "unknown",
+        "minConfidence": 0
+      }
+    },
+    {
+      "id": "adversarial/empty",
+      "group": "adversarial",
+      "message": "",
+      "orderContext": {
+        "orderId": "DME-20423",
+        "item": "Walker",
+        "patientArea": "Payson",
+        "neededBy": "2026-08-15T15:00:00-06:00",
+        "urgency": "routine",
+        "vendorName": "Ridgeline Medical Supply",
+        "timezone": "America/Denver"
+      },
+      "expected": {
+        "intent": "unknown",
+        "minConfidence": 0
+      }
+    },
+    {
+      "id": "adversarial/wrong-number",
+      "group": "adversarial",
+      "message": "you have the wrong number",
+      "orderContext": {
+        "orderId": "DME-20424",
+        "item": "Hospital bed (semi-electric)",
+        "patientArea": "Salem",
+        "neededBy": "2026-08-14T19:00:00-06:00",
+        "urgency": "admission",
+        "vendorName": "ValueCare DME",
+        "timezone": "America/Denver"
+      },
+      "expected": {
+        "intent": "unknown",
+        "minConfidence": 0
+      }
+    }
+  ]
+}

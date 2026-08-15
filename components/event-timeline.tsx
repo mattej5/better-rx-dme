@@ -7,15 +7,35 @@ function copyFor(type: string): string {
   return EVENT_COPY[type as EventType] ?? type;
 }
 
+/**
+ * An unknown event type already falls back to its raw string. A malformed timestamp
+ * falls back here too, rather than throwing out of Intl.DateTimeFormat — between the
+ * two, nothing the engine lane appends later can take the timeline down mid-demo.
+ */
+function whenFor(at: string): string {
+  if (!at || Number.isNaN(Date.parse(at))) return at || "Time unknown";
+  try {
+    return formatDayTime(at);
+  } catch {
+    return at;
+  }
+}
+
 export type EventTimelineProps = {
   events: TimelineEvent[];
   /** Event id to highlight — the causal row a judge should see. */
   highlightId?: string | number;
+  /**
+   * Rendered inside a row's parsed interpretation. N10 passes the accept / correct
+   * buttons for a reply the parser was not confident enough to act on by itself.
+   */
+  parsedAction?: (event: TimelineEvent) => React.ReactNode;
 };
 
 export default function EventTimeline({
   events,
   highlightId,
+  parsedAction,
 }: EventTimelineProps) {
   if (events.length === 0) {
     return (
@@ -53,7 +73,7 @@ export default function EventTimeline({
             >
               <p className="text-[14.5px] font-semibold">{copyFor(event.type)}</p>
               <p className="text-[12px] text-[var(--ink-soft)]">
-                {formatDayTime(event.at)}
+                {whenFor(event.at)}
                 {event.actor ? ` · ${event.actor}` : ""}
               </p>
               {event.detail ? (
@@ -66,14 +86,16 @@ export default function EventTimeline({
                   direction={event.message.direction}
                   body={event.message.body}
                   who={event.message.who}
-                  at={formatDayTime(event.at)}
+                  at={whenFor(event.at)}
                 />
               ) : null}
               {event.parsed ? (
                 <ParsedInterpretation
                   line={event.parsed.line}
                   confidence={event.parsed.confidence}
-                />
+                >
+                  {parsedAction ? parsedAction(event) : null}
+                </ParsedInterpretation>
               ) : null}
             </div>
           </li>
