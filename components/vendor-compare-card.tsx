@@ -1,7 +1,7 @@
 "use client";
 
 import { AssumedLabel, SyntheticLabel } from "@/components/labels";
-import { formatTime, formatUsd, perDayCents } from "@/src/lib/domain";
+import { formatDayTime, formatUsd, perDayCents } from "@/src/lib/domain";
 
 export type VendorCompareCardProps = {
   vendorName: string;
@@ -17,7 +17,12 @@ export type VendorCompareCardProps = {
   hoursBadge?: string;
   stockLabel?: string;
   selected?: boolean;
-  onSelect?: () => void; // STUB — N7/N9 wire selection here
+  /**
+   * Tapping a card overrides the auto-selection. The compare step ranks by deadline
+   * feasibility, then the reliability score from derive.ts, then price, and pre-selects
+   * the top card — a nurse is never handed a flat list to sort herself.
+   */
+  onSelect?: () => void;
 };
 
 function Score({ value }: { value: number | "unrated" }) {
@@ -69,9 +74,11 @@ function DeadlineTrack({
           style={{ background: barColor, left: `${etaPct}%` }}
         />
       </div>
+      {/* Day included: a 28-hour lead time makes "Arrives 5:01 PM, needed by 9:00 AM"
+          read as a mistake unless the reader can see they are different days. */}
       <div className="flex justify-between text-[11.5px] text-[var(--ink-soft)]">
-        <span>Arrives {formatTime(eta)}</span>
-        <span>Needed by {formatTime(deadline)}</span>
+        <span>Arrives {formatDayTime(eta)}</span>
+        <span>Needed by {formatDayTime(deadline)}</span>
       </div>
     </div>
   );
@@ -129,7 +136,7 @@ export default function VendorCompareCard({
       {deadline ? (
         <DeadlineTrack eta={eta} deadline={deadline} meetsDeadline={meetsDeadline} />
       ) : (
-        <p className="mt-2 text-[13.5px]">Arrives {formatTime(eta)}</p>
+        <p className="mt-2 text-[13.5px]">Arrives {formatDayTime(eta)}</p>
       )}
 
       <div className="mt-3 grid grid-cols-2 gap-3">
