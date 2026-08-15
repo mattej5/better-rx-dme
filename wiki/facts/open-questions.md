@@ -22,6 +22,11 @@ These were asked by other teams and the sponsor said no. Recorded so nobody re-a
 - [ ] Does the pitch happen in the bounty room only, or in front of the whole hackathon?
 - [ ] Submission mechanics: repo link, deployed URL, deck, or all three? By what time Saturday?
 
+### Vercel / provider access
+
+- [ ] Vercel environment variables must be set for SUPABASE_*/GEMINI/ANTHROPIC/RESEND in Production + Preview. This repo cannot set them from this environment. [docs/ops/VERCEL_ENV_SETUP.md] contains the exact variable names and a Slack-ready message for Vin. `[team]`
+- [ ] Confirm whether Gemini/Anthropic/Resend accounts exist for the team. If not, we need someone to create them and add the keys to Vercel. Record answers here with `[team]` tag.
+
 ## Internal, don't ask the sponsor
 
 - [ ] **GitHub remote for this repo** — Vin mentioned a repo but no URL has landed yet. Local git is initialized; remote is unset.
