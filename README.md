@@ -6,6 +6,10 @@ Closing the coordination gap between hospices and durable medical equipment vend
 
 **Team:** Vin Jones · Tony Adair · Nathaniel
 
+**Live app:** https://better-rx-dme.vercel.app (Vercel, auto-deploys from `main`)
+
+Run locally: `npm install && npm run dev`. App code is Next.js (App Router) at the repo root (`app/`). Build specs live in [specs/](specs/).
+
 ## Start here
 
 | If you are | Read |
