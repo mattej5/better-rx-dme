@@ -150,6 +150,9 @@ export type TimelineEvent = {
     line: string;
     confidence: number;
   };
+  /** Vendor-captured proof of condition on pickup or delivery, when the payload carries it. */
+  photoUrl?: string | null;
+  signatureName?: string | null;
 };
 
 // [assumed] engine.md pins settings-seeded tz America/Denver; T1 seeds it — swap to a settings read when the engine lands.

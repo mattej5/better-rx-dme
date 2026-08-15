@@ -328,6 +328,14 @@ export function toTimeline(
     const body = message?.body ?? text(p.body);
     const parsed = message ? parsedLine(message.parsed) : null;
 
+    const photoUrl =
+      event.type === "picked_up"
+        ? text(p.condition_photo_url)
+        : event.type === "delivered"
+          ? text(p.pod_photo_url)
+          : null;
+    const signatureName = event.type === "delivered" ? text(p.signature_name) : null;
+
     return {
       id: event.id,
       type: event.type,
@@ -344,6 +352,8 @@ export function toTimeline(
           }
         : {}),
       ...(parsed ? { parsed } : {}),
+      ...(photoUrl ? { photoUrl } : {}),
+      ...(signatureName ? { signatureName } : {}),
     } satisfies TimelineEvent;
   });
 }

@@ -97,6 +97,24 @@ export default function EventTimeline({
                   {parsedAction ? parsedAction(event) : null}
                 </ParsedInterpretation>
               ) : null}
+              {event.signatureName ? (
+                <p className="mt-1 text-[13px] text-[var(--ink-soft)]">
+                  Signed by {event.signatureName}
+                </p>
+              ) : null}
+              {event.photoUrl ? (
+                <div className="mt-2">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={event.photoUrl}
+                    alt="Condition photo from the vendor"
+                    className="max-h-40 rounded-[8px] object-cover"
+                  />
+                  <p className="mt-1 text-[12px] text-[var(--ink-soft)]">
+                    Condition photo from the vendor
+                  </p>
+                </div>
+              ) : null}
             </div>
           </li>
         );

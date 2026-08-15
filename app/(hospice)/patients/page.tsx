@@ -29,12 +29,29 @@ function isSegment(value: string | undefined): value is SegmentKey {
   return value === "onservice" || value === "pickups" || value === "past";
 }
 
-function inSegment(entry: RosterEntry, key: SegmentKey): boolean {
+const PICKED_UP_RECENT_MS = 7 * 24 * 60 * 60 * 1000;
+
+function inSegment(entry: RosterEntry, key: SegmentKey, at: Date): boolean {
   const care = entry.patient.care_status;
   if (key === "onservice")
     return care === "active" || care === "discharge_scheduled";
   if (key === "past") return care === "deceased" || care === "discharged";
-  return entry.orders.some((o) => o.status === "pickup_triggered");
+  return entry.orders.some((o) => {
+    if (o.status === "pickup_triggered") return true;
+    if (!o.picked_up_at) return false;
+    return at.getTime() - Date.parse(o.picked_up_at) <= PICKED_UP_RECENT_MS;
+  });
+}
+
+/** Most recent pickup completion, for a quiet "Picked up <date>" line. */
+function pickedUpAt(entry: RosterEntry): string | null {
+  let latest: string | null = null;
+  for (const order of entry.orders) {
+    const at = order.picked_up_at;
+    if (!at) continue;
+    if (!latest || Date.parse(at) > Date.parse(latest)) latest = at;
+  }
+  return latest;
 }
 
 /** Earliest still-open pickup request, so the elapsed line reports the longest wait. */
@@ -150,9 +167,17 @@ export default async function PatientsPage({
   if (result.ok) {
     for (const entry of result.data) {
       for (const segment of SEGMENTS) {
-        if (inSegment(entry, segment.key)) counts[segment.key] += 1;
+        if (inSegment(entry, segment.key, virtualNow)) counts[segment.key] += 1;
       }
-      if (inSegment(entry, active)) shown.push(entry);
+      if (inSegment(entry, active, virtualNow)) shown.push(entry);
+    }
+    if (active === "pickups") {
+      // Worked queue: longest-open pickup first.
+      shown.sort((a, b) => {
+        const openedA = pickupOpenedAt(a);
+        const openedB = pickupOpenedAt(b);
+        return (openedA ? Date.parse(openedA) : Infinity) - (openedB ? Date.parse(openedB) : Infinity);
+      });
     }
   }
 
@@ -193,6 +218,8 @@ export default async function PatientsPage({
               const openDays = openedAt
                 ? daysSince(openedAt, virtualNow)
                 : null;
+              const pickedUp =
+                active === "pickups" && !openedAt ? pickedUpAt(entry) : null;
               return (
                 <li key={entry.patient.id}>
                   <Link
@@ -216,6 +243,10 @@ export default async function PatientsPage({
                       <p className="mt-1 text-[13px] text-[var(--ink-soft)]">
                         Pickup open {openDays}{" "}
                         {openDays === 1 ? "day" : "days"}
+                      </p>
+                    ) : pickedUp ? (
+                      <p className="mt-1 text-[13px] text-[var(--ink-soft)]">
+                        Picked up {formatDate(pickedUp)}
                       </p>
                     ) : null}
                     <div className="mt-2">
