@@ -49,6 +49,7 @@ Second brain for this build. Start here. Every note carries a source tag: `[brie
 
 `sessions/` — end-of-session summaries, newest first. Append when substantial work lands.
 
+- [2026-08-14 Vin lane overnight](sessions/2026-08-14-vin-lane-overnight.md) — V1–V14 lane shipped/reviewed on main; seams for T/N lanes; Vin's two human steps
 - [2026-08-14 evening team call](sessions/2026-08-14-evening-team-call.md) — SMS decision, replacement flow, pickup no-reroute rule, demo plan, waiver terms
 
 ## External
