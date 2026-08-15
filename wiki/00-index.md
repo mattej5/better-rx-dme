@@ -49,6 +49,8 @@ Second brain for this build. Start here. Every note carries a source tag: `[brie
 
 `sessions/` — end-of-session summaries, newest first. Append when substantial work lands.
 
+- [2026-08-14 evening team call](sessions/2026-08-14-evening-team-call.md) — SMS decision, replacement flow, pickup no-reroute rule, demo plan, waiver terms
+
 ## External
 
 - Kanban: Notion "Build Tasks" under *AI Builder Day — Hackathon Tracker*

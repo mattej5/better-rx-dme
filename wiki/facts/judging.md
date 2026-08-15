@@ -51,6 +51,13 @@ None need to be polished. They need to be **true, specific, and real**.
 
 Loose eligibility is deliberate: it's a genuine discovery exercise, not a recruiting funnel. *"The naive-but-good idea is sometimes the one an experienced team filters out."*
 
+## Winner terms and team read `[team]` (evening call 8/14)
+
+- **Waiver**: winner hands off all code to BetterRX — it becomes their property in exchange for the $10,000. Vin signed; Tony and Nathaniel were not yet on the sponsor's email list (Slack invites + waivers pending — chase this before judging).
+- Vin's read on how they'll judge: **the winner is whichever submission is most ready to be implemented now.** Optimize for "this could ship" over cleverness.
+- Nathaniel's principle (via Claude): **built for the sponsor, not a generic judge** — it should feel like a fleshed-out product where the complications were thought through.
+- Watch the naming: sponsor Slack is "BetterRxDME"; our team Slack is "Better Rx DME" (with spaces). Vin nearly cross-posted.
+
 ## Post-hackathon `[faq]`
 
 BetterRX will review winning submissions for production quality and **intends to use the work, in part or in whole, as the foundation for a future DME product.** Real roadmap influence, not just an exercise.
