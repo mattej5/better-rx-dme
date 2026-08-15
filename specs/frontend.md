@@ -25,7 +25,7 @@ Priorities are the handoff prompt's: **P0** = demo spine, **P1** = supporting, *
 | 9b | Status-change receipt (2:14 AM screen) | `/patients/[patientId]/status-change/receipt?event=[eventId]` | **P0** |
 | 10 | Pickup tracker | `/pickups` | P1 |
 | 11 | DON approvals queue | `/approvals` | P1 |
-| 12 | DON reports | `/reports?tab=cost\|vendors\|saved` | P1 |
+| 12 | DON reports | `/reports?tab=ppd\|vendors\|saved` | P1 — **cost tab header is "DME PPD"**: headline number = DME spend ÷ census-days, rendered beside Med PPD; per-patient table below. The buyer's metric, on screen, per `wiki/facts/ppd-answer.md`. |
 | 13 | Vendor management + invite | `/admin/vendors`, `/admin/vendors/[vendorId]`, `/admin/vendors/invite` | P2 |
 | 14 | Settings / guardrails | `/settings` | P2 |
 

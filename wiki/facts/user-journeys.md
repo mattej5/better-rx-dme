@@ -37,7 +37,7 @@ Journey: high-cost order lands in queue → sees price compare + guardrails cont
 **Dashboard artifacts:**
 - **Approvals queue** — high-cost orders with price context and one-click approve
 - **Vendor scorecards** — reliability score, on-time %, condition score, at-risk frequency ([[0004-reliability-score]])
-- **Cost of care** — DME spend beside medication spend per patient and census-wide (BetterRX-only gap #3), plus **equipment-days-after-death counter** (dollars saved by the notification clock)
+- **DME PPD** (header says exactly that — the buyer's metric, [[ppd-answer]]) — DME spend ÷ census-days as the headline number beside Med PPD, per-patient breakdown below (BetterRX-only gap #3), plus **equipment-days-after-death counter** (dollars saved by the notification clock)
 - CAHPS-risk proxy: count of late deliveries + delayed pickups this month ([[why-deliveries-fail]] — framed as "we believe these land on Q5/Q6/Q7")
 
 ## 4. Vendor dispatcher — never logs in
