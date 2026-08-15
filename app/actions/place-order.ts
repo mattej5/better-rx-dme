@@ -146,7 +146,13 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
         });
       }
 
-      await runRules(inserted.data.id);
+      // Rules are advisory. The order is already written and the vendor already
+      // told; a rules failure must not report a placed order as a failure.
+      try {
+        await runRules(inserted.data.id);
+      } catch {
+        // The next poll or clock advance re-runs them.
+      }
     }
 
     revalidatePath("/", "layout");

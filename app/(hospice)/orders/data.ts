@@ -28,6 +28,8 @@ export type OrderDetail = {
   order: OrderRow;
   patient: PatientRow | null;
   vendorName: string | null;
+  /** Dispatch number, for the "Call vendor" fallback when a parse is unclear. */
+  vendorPhone: string | null;
   events: OrderEventRow[];
   messages: MessageRow[];
   /** Cheapest contracted vendor other than the one on the order. Null when there is none. */
@@ -143,7 +145,7 @@ export async function loadOrderDetail(orderId: string): Promise<Loaded<OrderDeta
       db.from("messages").select("*").eq("order_id", orderId).order("created_at", { ascending: true }),
       db.from("patients").select("*").eq("id", row.patient_id).maybeSingle(),
       row.vendor_id
-        ? db.from("vendors").select("name").eq("id", row.vendor_id).maybeSingle()
+        ? db.from("vendors").select("name,dispatch_phone").eq("id", row.vendor_id).maybeSingle()
         : Promise.resolve({ data: null, error: null }),
     ]);
     if (events.error || messages.error) return { ok: false };
@@ -179,6 +181,7 @@ export async function loadOrderDetail(orderId: string): Promise<Loaded<OrderDeta
         order: row,
         patient: patient.data ?? null,
         vendorName: vendor.data?.name ?? null,
+        vendorPhone: vendor.data?.dispatch_phone ?? null,
         events: eventRows,
         messages: messages.data ?? [],
         backup: await pickBackupVendor(db, row),
@@ -303,7 +306,10 @@ export function toTimeline(
       const id = text(p.message_id);
       message = id ? byId.get(id) : undefined;
       if (!message) {
-        const wanted = inbound ? "inbound" : "outbound";
+        // `messages.direction` is 'in' / 'out' (schema.sql, and what sendMessage
+        // and receiveMessage write). Matching 'inbound' / 'outbound' here meant
+        // this fallback never linked a row, so a real reply lost its parse.
+        const wanted = inbound ? "in" : "out";
         message = messages
           .filter((m) => m.direction === wanted && !used.has(m.id))
           .sort(

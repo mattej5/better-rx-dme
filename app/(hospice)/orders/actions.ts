@@ -5,9 +5,9 @@ import { now } from "@/src/lib/clock";
 import { appendEvent } from "@/src/lib/events";
 import { getSession } from "@/src/lib/role";
 import { runRules } from "@/src/lib/rules";
+import { applyParsedIntent } from "@/src/lib/apply-parse";
 import {
-  canActOnParse,
-  parseWithRegex,
+  parseVendorReply,
   type OrderContext,
   type ParseResult,
 } from "@/src/lib/parse-vendor-reply";
@@ -62,21 +62,31 @@ export async function nudgeVendor(orderId: string): Promise<OrderActionState> {
       return payload?.kind === "nudge";
     }).length;
 
-    await appendEvent(
+    if (!orderRes.data.vendor_id) {
+      return { ok: false, message: "This order has no vendor yet, so there is nobody to remind." };
+    }
+
+    // sendMessage() writes the one message_sent, carrying the nudge marker so
+    // ladder state stays derivable by counting (amendment 9).
+    const { notifyVendor } = await import("@/src/lib/notify-vendor");
+    const sent = await notifyVendor({
       orderId,
-      "message_sent",
-      {
-        vendor_id: orderRes.data.vendor_id,
-        kind: "nudge",
-        ladder_step: steps + 1,
-        channel: "sms",
-        stub: "Message sending arrives with the comms lane",
-      },
+      vendorId: orderRes.data.vendor_id,
+      template: "vendor_nudge",
       actor,
-    );
+      ladderStep: steps + 1,
+    });
+    if (!sent) return { ok: false, message: "We couldn't send that reminder. Try again." };
+
     await runRulesQuietly(orderId);
     refresh(orderId);
-    return { ok: true, message: "Reminder sent to the vendor." };
+    return {
+      ok: true,
+      message:
+        sent.status === "sent"
+          ? "Reminder sent to the vendor."
+          : "Reminder recorded. Nothing was actually texted, this vendor has a sample phone number.",
+    };
   } catch {
     return { ok: false, message: "We couldn't send that reminder. Try again." };
   }
@@ -213,25 +223,20 @@ export async function reorderToBackup(
       },
       actor,
     );
-    // STUB pending src/lib/messaging.ts (comms lane) — same two events sendMessage() writes.
     await appendEvent(
       inserted.data.id,
       "vendor_notified",
       { vendor_id: newVendorId, channel: "sms", nudge: false },
       actor,
     );
-    await appendEvent(
-      inserted.data.id,
-      "message_sent",
-      {
-        vendor_id: newVendorId,
-        kind: "notify",
-        template: "vendor_notify",
-        channel: "sms",
-        stub: "Message sending arrives with the comms lane",
-      },
+    // sendMessage() writes the one message_sent; nothing is appended for it here.
+    const { notifyVendor } = await import("@/src/lib/notify-vendor");
+    await notifyVendor({
+      orderId: inserted.data.id,
+      vendorId: newVendorId,
+      template: "vendor_notify",
       actor,
-    );
+    });
 
     await runRulesQuietly(orderId);
     await runRulesQuietly(inserted.data.id);
@@ -279,44 +284,21 @@ export async function confirmParsedReply(
       urgency: order.urgency,
       vendorName: vendorRes?.data?.name ?? "the vendor",
     };
-    const result: ParseResult = parseWithRegex(messageRes.data.body, context);
+    // Re-parsed here rather than trusting anything the client sent. It uses the
+    // full seam, not the regex pass alone: the replies that reach this button are
+    // exactly the ones the regex could not read, so a regex-only re-parse would
+    // refuse every message the nurse was asked to confirm.
+    const result: ParseResult = await parseVendorReply(messageRes.data.body, context);
 
-    const shared = {
-      vendor_id: order.vendor_id,
-      message_id: messageId,
-      human_confirmed: true,
-      confirmed_by: actor.userName,
-      parse_confidence: result.confidence,
-      parse_method: result.method,
-      // True only when the parse could have acted on its own; recorded either way
-      // so the log shows which side of the gate this event came from.
-      auto_actionable: canActOnParse(result),
-    };
-
-    if (result.intent === "confirm") {
-      await appendEvent(orderId, "vendor_confirmed", {
-        ...shared,
-        ...(result.eta ? { promised_eta: result.eta } : {}),
-      }, actor);
-      if (result.eta) {
-        await appendEvent(orderId, "eta_updated", { ...shared, eta: result.eta, source: "vendor" }, actor);
-      }
-    } else if (result.intent === "eta" || result.intent === "delay") {
-      if (!result.eta) {
-        return { ok: false, message: "There is no clear time in that reply. Call the vendor." };
-      }
-      await appendEvent(orderId, "eta_updated", { ...shared, eta: result.eta, source: "vendor" }, actor);
-    } else if (result.intent === "decline") {
-      await appendEvent(orderId, "vendor_declined", {
-        ...shared,
-        reason: result.reason ?? "Vendor replied that they cannot take it",
-      }, actor);
-    } else {
-      return {
-        ok: false,
-        message: "That reply doesn't change anything on its own. Call the vendor.",
-      };
-    }
+    const applied = await applyParsedIntent({
+      orderId,
+      vendorId: order.vendor_id,
+      messageId,
+      result,
+      actor,
+      humanConfirmed: true,
+    });
+    if (!applied.applied) return { ok: false, message: applied.reason };
 
     await runRulesQuietly(orderId);
     refresh(orderId);

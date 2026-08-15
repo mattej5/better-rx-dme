@@ -257,8 +257,58 @@ export function needsLlmFallback(message: string, regexResult: ParseResult): boo
 // `parseVendorReply()` itself do not move.
 
 /** Opus-tier. §3.4 pins `claude-opus-5`, which does not exist and 404s. */
-const LLM_MODEL = 'claude-opus-4-8';
+const DEFAULT_LLM_MODEL = 'claude-opus-4-8';
 const LLM_MAX_TOKENS = 2000;
+
+/**
+ * Provider config. The seam is provider-agnostic by contract
+ * (specs/00-contracts.md, "Comms transport"), so the endpoint and the model are
+ * read from the environment and nothing above this line changes when they do.
+ *
+ * `ANTHROPIC_BASE_URL` + `PARSE_MODEL` point the same Anthropic-shaped request
+ * at an OpenAI-compatible gateway (the demo runs MiniMax M3 through OpenCode
+ * Zen). Unset, it is Anthropic proper on Opus.
+ *
+ * MEASURED, not assumed: the gateway does not reject the Claude-only fields, it
+ * ACCEPTS AND SILENTLY IGNORES them. `output_config.format.json_schema` came
+ * back as ordinary prose rather than schema-conforming JSON, which would fail
+ * `JSON.parse` and degrade every hybrid case to the regex answer with no error
+ * anywhere. So these fields are sent only to Claude, and structured output is
+ * carried by the prompt plus a tolerant extractor for everything else.
+ */
+function llmConfig(): { baseURL?: string; model: string; isClaude: boolean } {
+  const rawBase = process.env.ANTHROPIC_BASE_URL?.trim();
+  const baseURL = rawBase && !/(^|\/\/)api\.anthropic\.com/.test(rawBase) ? rawBase : undefined;
+  const model = process.env.PARSE_MODEL?.trim() || DEFAULT_LLM_MODEL;
+  return { ...(baseURL ? { baseURL } : {}), model, isClaude: model.startsWith('claude-') };
+}
+
+/**
+ * Models without enforced structured output wrap JSON in prose or a fence.
+ * Take the first balanced object rather than trusting the whole body.
+ */
+function extractJsonObject(text: string): string | null {
+  const unfenced = text.replace(/^\s*```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim();
+  if (unfenced.startsWith('{')) return unfenced;
+  const start = unfenced.indexOf('{');
+  if (start === -1) return null;
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+  for (let i = start; i < unfenced.length; i += 1) {
+    const ch = unfenced[i];
+    if (escaped) { escaped = false; continue; }
+    if (ch === '\\') { escaped = true; continue; }
+    if (ch === '"') { inString = !inString; continue; }
+    if (inString) continue;
+    if (ch === '{') depth += 1;
+    else if (ch === '}') {
+      depth -= 1;
+      if (depth === 0) return unfenced.slice(start, i + 1);
+    }
+  }
+  return null;
+}
 
 /**
  * Opus 4.8 list pricing, USD per million tokens. Cache reads are ~0.1x input
@@ -416,10 +466,17 @@ async function callAnthropic(
 
   try {
     const { default: Anthropic } = await import('@anthropic-ai/sdk');
-    const client = new Anthropic();
+    const cfg = llmConfig();
+    // Passed explicitly rather than left to the SDK's own env reading: an
+    // ambient ANTHROPIC_BASE_URL in the shell otherwise shadows .env.local and
+    // sends the gateway key to api.anthropic.com, which 401s.
+    const client = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+      ...(cfg.baseURL ? { baseURL: cfg.baseURL } : {}),
+    });
 
     const response = await client.messages.create({
-      model: LLM_MODEL,
+      model: cfg.model,
       max_tokens: LLM_MAX_TOKENS,
       // Stable content first, volatile content after — caching is a prefix match.
       // The breakpoint sits on the system block; nothing above it varies per call.
@@ -430,19 +487,23 @@ async function callAnthropic(
       // PARSE_SYSTEM is written long enough to clear it; verify with
       // `npm run tokens:parse-system`, and confirm the hit by reading
       // cache_read_input_tokens off the second call.
-      system: [
-        { type: 'text', text: PARSE_SYSTEM, cache_control: { type: 'ephemeral' } },
-      ],
+      system: cfg.isClaude
+        ? [{ type: 'text', text: PARSE_SYSTEM, cache_control: { type: 'ephemeral' } }]
+        : PARSE_SYSTEM,
       // Adaptive thinking, set explicitly. Omitting the field runs with no
       // thinking at all, and with thinking off Opus 4.8 can write its reasoning
       // into the visible response — which would corrupt the JSON body. Note that
       // `thinking: {type:'enabled', budget_tokens}` and temperature/top_p/top_k
       // are all removed on this model and return 400.
-      thinking: { type: 'adaptive' },
-      output_config: {
-        effort: 'low',
-        format: { type: 'json_schema', schema: PARSE_SCHEMA },
-      },
+      ...(cfg.isClaude
+        ? {
+            thinking: { type: 'adaptive' as const },
+            output_config: {
+              effort: 'low' as const,
+              format: { type: 'json_schema' as const, schema: PARSE_SCHEMA },
+            },
+          }
+        : {}),
       messages: [{ role: 'user', content: buildUserBlock(message, orderContext) }],
     });
 
@@ -457,7 +518,9 @@ async function callAnthropic(
     const text = body.trim();
     if (text === '') return null;
 
-    const parsed: unknown = JSON.parse(text);
+    const json = extractJsonObject(text);
+    if (json === null) return null;
+    const parsed: unknown = JSON.parse(json);
     if (typeof parsed !== 'object' || parsed === null) return null;
     const candidate = parsed as Record<string, unknown>;
     if (!isParseIntent(candidate.intent)) return null;
@@ -477,7 +540,10 @@ async function callAnthropic(
         eta: typeof candidate.eta === 'string' ? candidate.eta : undefined,
         reason: typeof candidate.reason === 'string' ? candidate.reason : undefined,
       },
-      usage: { ...counts, costUsd: costOf(counts) },
+      // USD_PER_MTOK is Anthropic Opus list pricing. Applying it to a model
+      // billed under a flat subscription would invent a number, so the marginal
+      // cost of a gateway call is reported as the zero it actually is.
+      usage: { ...counts, costUsd: cfg.isClaude ? costOf(counts) : 0 },
     };
   } catch {
     // Graceful absence is the contract: a parse failure must never break the

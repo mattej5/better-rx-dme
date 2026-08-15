@@ -7,7 +7,8 @@ import StatusChip from "@/components/status-chip";
 import { SyntheticLabel } from "@/components/labels";
 import { now } from "@/src/lib/clock";
 import { atRiskReason, awaitingApproval, deriveBadges } from "@/src/lib/derive";
-import { URGENCY_LABEL, formatUsd } from "@/src/lib/domain";
+import { URGENCY_LABEL, formatUsd, perDayCents } from "@/src/lib/domain";
+import { ACTION_CONFIDENCE_GATE } from "@/src/lib/parse-vendor-reply";
 import RetryCard from "../../patients/retry-card";
 import { orderItems } from "../../patients/data";
 import {
@@ -17,6 +18,8 @@ import {
   toTimeline,
 } from "../data";
 import EscalationSheet from "./escalation-sheet";
+import OrderActions from "./order-actions";
+import ParseConfirm from "./parse-confirm";
 import ReplacementButton from "./replacement-button";
 
 export const dynamic = "force-dynamic";
@@ -72,7 +75,7 @@ export default async function OrderDetailPage({
     );
   }
 
-  const { order, patient, vendorName, events, messages, backup, replacesOrder, replacedByOrder } =
+  const { order, patient, vendorName, vendorPhone, events, messages, backup, replacesOrder, replacedByOrder } =
     result.data;
 
   const badge = deriveBadges(events, { now: virtualNow })[0];
@@ -113,6 +116,26 @@ export default async function OrderDetailPage({
       : (conditionIssue?.payload as Record<string, unknown> | null)?.issue === "damaged"
         ? "damaged"
         : "not working";
+
+  // The nurse half of the confidence gate. An inbound reply the parser could not
+  // act on stays here until a person accepts it. Anything already applied carries
+  // its message_id on the resulting event, so it drops out.
+  const appliedMessageIds = new Set(
+    events
+      .map((event) => (event.payload as Record<string, unknown> | null)?.message_id)
+      .filter((id): id is string => typeof id === "string"),
+  );
+  const pendingParse = [...messages]
+    .reverse()
+    .map((message) => {
+      if (message.direction !== "in" || appliedMessageIds.has(message.id)) return null;
+      const parsed = message.parsed as Record<string, unknown> | null;
+      if (!parsed || typeof parsed.intent !== "string") return null;
+      const confidence = typeof parsed.confidence === "number" ? parsed.confidence : 0;
+      if (confidence >= ACTION_CONFIDENCE_GATE && parsed.intent !== "unknown") return null;
+      return { messageId: message.id, body: message.body, intent: parsed.intent };
+    })
+    .find((candidate) => candidate !== null);
 
   const timeline = toTimeline(events, messages, vendorName, replacedByOrder?.orderNo ?? null);
   const patientName = patient ? `${patient.first_name} ${patient.last_name}` : "Patient";
@@ -156,7 +179,7 @@ export default async function OrderDetailPage({
             <p className="text-[14px] font-semibold">{vendorName ?? "No vendor chosen yet"}</p>
             {order.price_cents !== null ? (
               <p className="text-[12px] text-[var(--ink-soft)]">
-                {formatUsd(order.price_cents)}/month
+                {formatUsd(perDayCents(order.price_cents))}/day
               </p>
             ) : null}
           </div>
@@ -204,6 +227,14 @@ export default async function OrderDetailPage({
         </div>
       ) : null}
 
+      <div className="mt-4">
+        <OrderActions
+          orderId={order.id}
+          vendorPhone={vendorPhone}
+          closed={order.status === "delivered" || order.status === "picked_up"}
+        />
+      </div>
+
       {replaceable ? (
         <ReplacementButton
           orderId={order.id}
@@ -220,7 +251,20 @@ export default async function OrderDetailPage({
           What has happened
         </h2>
         <div className="mt-3">
-          <EventTimeline events={timeline} highlightId={trigger?.id} />
+          <EventTimeline
+            events={timeline}
+            highlightId={trigger?.id}
+            parsedAction={(event) =>
+              pendingParse && event.message?.body === pendingParse.body ? (
+                <ParseConfirm
+                  orderId={order.id}
+                  messageId={pendingParse.messageId}
+                  intent={pendingParse.intent}
+                  vendorPhone={vendorPhone}
+                />
+              ) : null
+            }
+          />
         </div>
       </div>
 

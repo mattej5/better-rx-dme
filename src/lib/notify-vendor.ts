@@ -19,6 +19,7 @@
 
 import { formatDayTime } from "./domain.ts";
 import { issueMagicLink } from "./magic-link.ts";
+import { nudgeTimeVars } from "./nudge-ladder.ts";
 import { sendMessage, type Actor, type SendResult } from "./messaging.ts";
 import type { Database } from "@/src/types/db";
 
@@ -84,11 +85,19 @@ function recipient(vendor: VendorRow): { channel: "sms" | "email"; address: stri
 export type NotifyVendorInput = {
   orderId: string;
   vendorId: string;
-  /** `vendor_notify` for a new order, `vendor_pickup` after a death or discharge. */
-  template: "vendor_notify" | "vendor_pickup";
+  /**
+   * `vendor_notify` for a new order, `vendor_pickup` after a death or
+   * discharge, `vendor_nudge` to chase silence.
+   */
+  template: "vendor_notify" | "vendor_pickup" | "vendor_nudge";
   actor: Actor;
   /** Defaults to the order's `pickup_requested_at`, then to now. Pickup copy only. */
   notifiedAt?: string;
+  /**
+   * Rungs 1 to 3 (amendment 9). Steps 4 and 5 send the vendor nothing, so the
+   * ladder marker is clamped rather than passed through and thrown on.
+   */
+  ladderStep?: number;
 };
 
 /**
@@ -129,8 +138,21 @@ export async function notifyVendor(input: NotifyVendorInput): Promise<SendResult
     );
     const url = `${appBaseUrl()}${link.path}`;
 
+    const step = Math.min(3, Math.max(1, Math.trunc(input.ladderStep ?? 1))) as 1 | 2 | 3;
+    const neededBy = order.target_at ? formatDayTime(order.target_at) : "as soon as you can";
+
     const vars: Record<string, string> =
-      input.template === "vendor_pickup"
+      input.template === "vendor_nudge"
+        ? {
+            ladder_step: String(step),
+            hospice: patient?.hospice_name ?? "the hospice",
+            item_short: itemSummary(order.items),
+            area: areaOf(patient?.address),
+            needed_by: neededBy,
+            link: url,
+            ...nudgeTimeVars(order.target_at ?? issuedAt.toISOString(), issuedAt),
+          }
+        : input.template === "vendor_pickup"
         ? {
             address: fullAddress(patient?.address),
             items: itemSummary(order.items),
@@ -146,7 +168,7 @@ export async function notifyVendor(input: NotifyVendorInput): Promise<SendResult
             hospice: patient?.hospice_name ?? "the hospice",
             item_summary: itemSummary(order.items),
             area: areaOf(patient?.address),
-            needed_by: order.target_at ? formatDayTime(order.target_at) : "as soon as you can",
+            needed_by: neededBy,
             link: url,
           };
 
@@ -154,7 +176,13 @@ export async function notifyVendor(input: NotifyVendorInput): Promise<SendResult
     // vendor numbers degrade to a logged message there; a real number sends.
     return await sendMessage(
       { orderId: input.orderId, to, template: input.template, vars },
-      { actor: input.actor, vendorId: input.vendorId },
+      {
+        actor: input.actor,
+        vendorId: input.vendorId,
+        ...(input.template === "vendor_nudge"
+          ? { marker: { kind: "nudge" as const, ladder_step: step } }
+          : {}),
+      },
     );
   } catch (error) {
     console.error(

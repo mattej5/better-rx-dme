@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { escalateOrder, reorderToBackup, type OrderActionState } from "@/app/actions/orders";
 import { AssumedLabel } from "@/components/labels";
-import { formatUsd } from "@/src/lib/domain";
+import { formatUsd, perDayCents } from "@/src/lib/domain";
 
 export type EscalationSheetProps = {
   orderId: string;
@@ -18,11 +18,12 @@ export type EscalationSheetProps = {
   currentPriceCents: number | null;
 };
 
+/** Prices are always shown per day. Stored values are the monthly rental. */
 function priceDelta(backupCents: number, currentCents: number | null): string {
-  if (currentCents === null) return `${formatUsd(backupCents)}/month`;
-  const difference = backupCents - currentCents;
-  if (difference === 0) return "Same monthly price";
-  return `${difference > 0 ? "+" : "-"}${formatUsd(Math.abs(difference))}/month`;
+  if (currentCents === null) return `${formatUsd(perDayCents(backupCents))}/day`;
+  const difference = perDayCents(backupCents) - perDayCents(currentCents);
+  if (difference === 0) return "Same daily price";
+  return `${difference > 0 ? "+" : "-"}${formatUsd(Math.abs(difference))}/day`;
 }
 
 function ActionRow({

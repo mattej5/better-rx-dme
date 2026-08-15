@@ -54,12 +54,18 @@ who is this
 **We report both numbers.** `npm run eval:parse` runs 24 fixtures (8 structured, 10 messy, 6 adversarial) through regex-only and through the hybrid, and prints:
 
 ```
-Regex baseline   14/24 (58%)   |  cost $0.00   |  0.4 ms total
-Hybrid           22/24 (92%)   |  cost $0.031  |  4.1 s total
-LLM invoked on 11/24; 2 correctly returned low confidence -> human confirm
+Regex baseline   11/24 (46%)   |  cost $0.00     |  0.8 ms total
+Hybrid           21/24 (88%)   |  cost $0.0000   |  30.7 s total
+LLM invoked on 14/24
 ```
 
-The last line is the safety story with a number on it. The two the hybrid "fails" are cases where it declined to guess and handed off to a nurse. The runner exits 1 if the hybrid drops below 20/24, so a prompt edit cannot silently regress during the build.
+Measured on 2026-08-15 against the demo provider described below. The whole gain is in the messy bucket, which is the point: structured replies go 7/8 either way, and messy replies go from 0/10 on regex alone to 10/10 with the hybrid.
+
+The runner exits 1 if the hybrid drops below 20/24, so a prompt edit cannot silently regress during the build.
+
+**Two adversarial cases still fail, and they fail on the regex side.** `"ok"` alone parses as confirm at 0.99 and `"no problem"` parses as decline at 0.95, both above the 0.75 action gate, so both would change order state on their own. The LLM never sees either one: `needsLlmFallback()` short-circuits on a confident short regex match, so pass 2 cannot correct pass 1 here. `"no problem"` is the one that bites, because a vendor agreeing reads as a decline, and a decline is what unlocks the backup-vendor offer. This is a property of the deterministic baseline, not of the model, and it is the strongest argument in the deck for why the regex tier alone is not a safe product.
+
+**The eval measures generalization less than the score implies.** The few-shot examples in `PARSE_SYSTEM` teach the same rules the fixtures in `evals/vendor-replies.json` test. The rules were taught rather than the fixtures pasted, and the wording was varied deliberately, but the two were written by the same author in the same session and the overlap is real `[team]`.
 
 ---
 
@@ -78,6 +84,8 @@ Reproduced from `specs/engine.md` §3.5. Assume roughly 2.2 vendor replies per o
 At 20 DME orders per week for a 100-patient hospice `[assumed, open question]` that is **under $5 per year in inference**. Cache-read pricing at roughly 0.1x does the heavy lifting: the ~700-token system prefix sits above the 512-token cache minimum, so every parse after the first is a cache read, and the first request of each cold window pays a 1.25x write.
 
 **Model choice is deliberate, not a default.** `claude-haiku-4-5` ($1/$5) would drop this roughly 5x. We ship Opus 5 because at $5 per year the cost is not the constraint, and we say so out loud rather than quietly picking the cheap model and calling it engineering.
+
+**What the demo actually runs.** The numbers in the table above are Anthropic Opus list pricing, and they stand as the production design. The demo itself parses with MiniMax M3 through OpenCode Zen, a flat-subscription gateway, so the measured marginal cost of a parse during the demo is zero rather than $0.0043. That is not a cheaper answer to the same question, it is a different billing model, so the two figures are reported separately instead of being blended. The swap was a configuration change and nothing above the seam moved: `ANTHROPIC_BASE_URL` and `PARSE_MODEL` point the same Anthropic-shaped request at a different endpoint, and `parseVendorReply()` is the only file that knows either exists. That is the whole argument for the seam. One thing the swap did surface: the gateway accepts the Claude-only fields (`thinking`, `output_config` structured output, `cache_control`) and silently ignores them rather than rejecting them, so on an open model the schema is carried by the prompt and a tolerant JSON extractor. Structured output that is quietly not enforced is worse than structured output that errors, and it is worth knowing before anyone points this seam at a third provider.
 
 **SMS is the real line item, not tokens.** Twilio runs about **$0.0087 per message** `[team]`. A typical order sends one notify plus up to two nudges, so roughly $0.026 per order in SMS, which is **six times the inference cost**. Any honest cost slide leads with that number, not with the model.
 
