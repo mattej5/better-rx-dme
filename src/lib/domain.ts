@@ -152,13 +152,14 @@ export type TimelineEvent = {
   };
 };
 
-const TZ = 'America/New_York';
+// [assumed] engine.md pins settings-seeded tz America/Denver; T1 seeds it — swap to a settings read when the engine lands.
+export const HOSPICE_TIMEZONE = 'America/Denver';
 
 export function formatTime(iso: string): string {
   return new Intl.DateTimeFormat('en-US', {
     hour: 'numeric',
     minute: '2-digit',
-    timeZone: TZ,
+    timeZone: HOSPICE_TIMEZONE,
   }).format(new Date(iso));
 }
 
@@ -167,7 +168,7 @@ export function formatDayTime(iso: string): string {
     weekday: 'short',
     hour: 'numeric',
     minute: '2-digit',
-    timeZone: TZ,
+    timeZone: HOSPICE_TIMEZONE,
   }).format(new Date(iso));
 }
 

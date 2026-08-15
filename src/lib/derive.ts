@@ -1,6 +1,7 @@
 // STUB — T3 (Tony) owns this file; replace wholesale when the real derive.ts lands.
 // Contract: pure functions over order_events rows. No score math lives here.
 // Only awaitingApproval() is real — contracts amendment 1 pins it and it is trivial.
+// T3: expose the at_risk_flagged reason to consumers — pages currently read payload.reason off the raw event log directly.
 
 import type { Badge } from "@/src/lib/domain";
 

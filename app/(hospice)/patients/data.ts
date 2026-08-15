@@ -1,7 +1,7 @@
 import "server-only";
 import type { Database } from "@/src/types/db";
 import type { OrderStatus } from "@/src/lib/domain";
-import { ORDER_STATUSES } from "@/src/lib/domain";
+import { HOSPICE_TIMEZONE, ORDER_STATUSES } from "@/src/lib/domain";
 import type { DerivableEvent } from "@/src/lib/derive";
 
 type Tables = Database["public"]["Tables"];
@@ -192,7 +192,7 @@ const DATE_FMT = new Intl.DateTimeFormat("en-US", {
   weekday: "short",
   month: "short",
   day: "numeric",
-  timeZone: "America/New_York",
+  timeZone: HOSPICE_TIMEZONE,
 });
 
 export function formatDate(iso: string): string {

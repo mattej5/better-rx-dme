@@ -48,7 +48,7 @@ async function loadDemoData(): Promise<DemoData> {
     const hasData = Boolean(stateResult.data || linkResult.data)
     return {
       configurationMessage: null,
-      dataMessage: hasData ? null : 'No data yet — run seed (T1)',
+      dataMessage: hasData ? null : 'No data yet. Run seed (T1).',
       magicLink: linkResult.data ? `/v/${linkResult.data.token}` : null,
       offsetSeconds: stateResult.data?.clock_offset_seconds ?? 0,
     }
