@@ -38,7 +38,7 @@ Priorities are the handoff prompt's: **P0** = demo spine, **P1** = supporting, *
 | 15 | Onboarding accept page | `/v/[token]/welcome` | P1 |
 | 19 | Vendor report card | `/v/[token]/scorecard` | P1 |
 
-One `[token]` param, one lookup, four pages. `/v/[token]/welcome` is where an `invite`-purpose token lands; a `run`-purpose token lands on `/v/[token]`. Redirect is decided in `app/v/[token]/layout.tsx` from `magic_links.purpose`.
+One `[token]` param, one lookup, four pages. `/v/[token]/welcome` is where an `invite`-purpose token lands; a `run`-purpose token lands on `/v/[token]`. Redirect is decided in `app/v/[token]/layout.tsx` from `magic_links.scope` (canonical values `run_list|onboarding|report_card|stop` — contracts amendment 6/11; `onboarding`→welcome, `run_list`→run list, `report_card`→scorecard, `stop`→stop card).
 
 ### Shared / meta
 
@@ -186,7 +186,7 @@ The designed canvas is the visual source of truth: **https://claude.ai/code/arti
 
 1. **Order-by-order vendor choice.** The storyboard flags this as unresolved and the demo assumes yes, labeled. If the answer is no, `VendorCompareCard` becomes read-only context rather than a selector. Frontend assumes **yes**.
 2. **DON threshold default.** `$500` is `[assumed]` in the storyboard. Frontend reads it from settings and tags it `AssumedLabel`; the data lane owns the actual default.
-3. **`orders` shape for multi-item orders.** The bundle preset implies one order with many items, but the sample orders (DME-10231 etc.) are one item each. Frontend renders one card per order line either way; needs the data lane to pin whether the bundle creates 5 orders or 1 order with 5 lines. **Assumed: 5 orders sharing a `bundle_id`,** so status chips stay per-item.
+3. ~~Bundle shape~~ RESOLVED by contracts amendment 3: bundle preset creates **one order per item, NO bundle_id column**; group visually by shared placement time. (Earlier assumption struck — do not add the column.)
 4. **`derive.ts` ownership.** Frontend imports pure functions; contract says the derivation rules are single-source. Assumed the engine lane exports them and frontend only reads.
 5. **Signature capture.** Canvas signature pad vs. typed-name fallback on the vendor stop card. Canvas is ~30 lines; typed name is 5. Defaulting to canvas, dropping to typed name if the P0 spine is behind schedule.
 6. **Time-left-to-fix countdown.** Requires a "needed by" timestamp on the order. Assumed present; if not, the escalation sheet shows the ETA-vs-deadline delta only.

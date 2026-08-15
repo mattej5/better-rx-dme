@@ -32,9 +32,11 @@ type EventType =
   | 'message_sent' | 'message_received' | 'resupply_due';
 ```
 
-## Tables (names pinned; columns per data spec)
+## Tables (names pinned; columns per specs/schema.sql — THE canonical schema)
 
-`patients` · `vendors` · `equipment_catalog` (from wiki/facts/dme-catalog.md) · `vendor_prices` (vendor × HCPCS) · `orders` · `order_events` (append-only, jsonb payload — the heart) · `messages` · `resupply_schedules` · `magic_links`
+`patients` · `vendors` · `equipment_catalog` (from wiki/facts/dme-catalog.md) · `vendor_prices` (vendor × HCPCS) · `orders` · `order_events` (append-only, jsonb payload — the heart) · `messages` · `resupply_schedules` · `magic_links` · `settings` (guardrail values — engine/UI READ these, never hardcode) · `demo_state` (virtual clock)
+
+**Ratified amendment 11 (8/14 late, from the task-clarity audit):** schema patched to close spec drift — `order_events.external_id` (idempotency), `orders.hospice_account`, `equipment_catalog.time_critical`, `patients.admitted_at` (census-days for DME PPD), `vendors.inventory/pricing_model/service_center_zip/service_radius_miles`, plus the two new tables above. `vendor_prices.price_cents` is the **monthly rental** price; daily rate = `/30`, labeled ASSUMED. `magic_links.scope` canonical values: `run_list | onboarding | report_card | stop`. File ownership: `rules.ts` decides and appends `at_risk_flagged`; `derive.ts` only reads the log for badges/scores.
 
 ## Derivation rules (single source of truth)
 

@@ -1,7 +1,9 @@
 # specs/data.md — DATA lane
 
-Conforms to `specs/00-contracts.md` (pinned). 9 tables, exact enum strings, no renames.
-Canonical artifacts this spec generates: `specs/schema.sql`, `src/types/db.ts`, `src/lib/score.ts`, `supabase/seed.ts`.
+Conforms to `specs/00-contracts.md` (pinned).
+Canonical artifacts this spec generates: `specs/schema.sql`, `src/types/db.ts`, `src/lib/derive.ts` (NOT score.ts — contracts amendment 8), `supabase/seed.ts`.
+
+> **SCHEMA AUTHORITY (8/14 late-night audit): `specs/schema.sql` is now the canonical schema — it is this file's §1 plus the ratified patch** (external_id, hospice_account, time_critical, admitted_at, vendor onboarding-v2 columns, settings + demo_state tables → 11 tables). Where §1 below and schema.sql differ, **schema.sql wins**.
 
 ## 1. schema.sql (Postgres / Supabase)
 
