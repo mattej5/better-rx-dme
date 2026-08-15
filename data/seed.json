@@ -3,13 +3,22 @@
   "vendors": [],
   "equipment_catalog": [],
   "vendor_prices": [],
-  "orders": [],
+  "orders": [
+    { "order_id": "order-1001", "patient_id": "patient-1000", "vendor_id": "vendor-1", "hcpcs": "E0431", "rental": "serialized", "target_at": "2026-08-15T14:00:00Z", "urgency": "admission" },
+    { "order_id": "order-1002", "patient_id": "patient-1001", "vendor_id": "vendor-2", "hcpcs": "E1390", "rental": "serialized", "target_at": "2026-08-16T10:00:00Z", "urgency": "routine" },
+    { "order_id": "order-1003", "patient_id": "patient-1002", "vendor_id": "vendor-2", "hcpcs": "R0892", "rental": "one_time", "target_at": "2026-08-17T09:00:00Z", "urgency": "routine" }
+  ],
   "order_events": [],
+  "resupply_schedules": [
+    { "id": "resupply-1", "patient_id": "patient-1003", "hcpcs": "A9270", "next_due_at": "2026-09-01T00:00:00Z" },
+    { "id": "resupply-2", "patient_id": "patient-1004", "hcpcs": "A9270", "next_due_at": "2026-08-20T00:00:00Z" }
+  ],
   "settings": {
     "don_threshold_cents": 50000,
     "baseline_notify_lag_h": 26,
     "pickup_amber_h": 24,
-    "pickup_red_h": 48
+    "pickup_red_h": 48,
+    "silence_minutes": 60
   },
   "demo_state": {
     "now": "2026-08-14T04:00:00Z"
