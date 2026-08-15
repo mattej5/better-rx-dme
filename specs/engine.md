@@ -373,3 +373,14 @@ Every event this spec emits, checked against the pinned `EventType` union. Nothi
 `order_placed` ✓ · `approval_requested` ✓ · `approved` ✓ · `denied` ✓ · `vendor_notified` ✓ · `vendor_confirmed` ✓ · `vendor_declined` ✓ · `dispatched` ✓ · `gps_opted_in` ✓ · `eta_updated` ✓ · `at_risk_flagged` ✓ · `at_risk_cleared` ✓ · `escalated` ✓ · `reordered` ✓ · `delivered` ✓ · `condition_reported` ✓ · `patient_status_changed` ✓ · `pickup_requested` ✓ · `pickup_scheduled` ✓ · `picked_up` ✓ · `message_sent` ✓ · `message_received` ✓ · `resupply_due` ✓
 
 **Deliberately not events** (would have required union changes we are not authorized to make): magic-link issue (row in `magic_links` only), nudge (`message_sent` with `kind:'nudge'`), POD capture (payload on `delivered`), pickup-delayed (derived badge), clock advance (demo state, not domain).
+
+---
+
+## Addendum (orchestrator, 8/14 PM — team call decisions)
+
+1. **eRx/EMR ingress**: implement `POST /api/erx/events` per contracts (envelope mapping, `external_id` idempotency, `account.identifiers` tenancy). Demo panel's "simulate EMR death event" MUST call this route, not a shortcut.
+2. **Twilio SMS replaces Resend as vendor transport** (Nathaniel: account + `TWILIO_*` env vars in Vercel). Keep `sendMessage()` seam; Resend stays for family notices + fallback. Cost note for deliverable B: ~$0.0087/SMS.
+3. **Staged status model** (Amazon pattern): vendor_confirmed → out_for_delivery ("on my way" reply or magic-link tap) → arriving (GPS opt-in refines ETA). GPS never primary; it can't reveal route position.
+4. **Replacement-request flow** (new): nurse taps "Request replacement" on a condition_reported issue → `reordered` event with reason `defect` → same-vendor redelivery request first (they eat the trip — the incentive), backup vendor offered if declined/late. Feeds condition score.
+5. **Vendor SLA terms**: `vendors.sla jsonb` (delivery window hours by urgency, pickup window) — per-vendor terms tracked against actual performance on the scorecard. Defaults from Settings, labeled assumed.
+6. **Family call logging**: "family called" pressure flag needs provenance — `message_received` with `payload.from='family'` via a one-tap "Log family call" on the pickup tracker row.

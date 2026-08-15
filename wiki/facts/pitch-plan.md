@@ -2,6 +2,8 @@
 
 `[team]` 2026-08-14. 5 minutes + Q&A, 3 BetterRX judges, 2:00 PM Saturday. 55% of score = differentiation + real-problem grounding — the pitch carries as much weight as the build.
 
+**Format decided (team call 8/14 PM):** slides for storytelling + three-finger swipe to the live app and back. Two invented families (AI-generated portraits): family A suffers today's process, swipe → family B in the same scenario with our app. ~1-min story / 1-min demo alternation. **Lead scenarios: post-death pickup and service-failure prevention** (discharge readiness covered by the readiness board if asked). Show don't tell; integration story lives in the repo docs + one diagram slide, not airtime. Be ready for "why SMS not GPS?" — answer: location without route position is meaningless; SMS is how vendors already work; GPS refines after opt-in.
+
 ## Narrative arc (5 min)
 
 1. **Cold open (30s) — the 2:14 AM story.** A patient dies on a Sunday night. Today: the vendor finds out from Monday's batch list; the bed sits for four days; the family calls twice; the hospice pays for every one of those equipment-days and eats the CAHPS hit. In our demo: the nurse taps one button at the bedside, the vendor is notified with a timestamp at 2:14 AM, the billing clock stops, pickup is scheduled with the family by an agent, and the driver's photo proves clean removal.

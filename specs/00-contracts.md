@@ -56,6 +56,20 @@ type EventType =
 9. **Nudges** are `message_sent` events with `payload.kind='nudge'` + `ladder_step`; ladder state is derived by counting them (idempotent under clock jumps).
 10. **DON threshold default $500** `[assumed]`, read from settings; all thresholds live in Settings (view 14) = the assumptions ledger surface.
 
+## Integration ingress (added 8/14 PM — closes the integration-readiness gap)
+
+- **`POST /api/erx/events`** is the single inbound seam for BetterRX eRx / EMR traffic. Accepts the real envelope (`meta.eventType`: `newOrUpdatePatient` | `newDmeOrder` | `dmeStatusUpdate` | ADT-derived `patientStatusChanged`), maps to our `order_events` / patient updates.
+- **Idempotency**: `order_events.external_id text unique nullable` — ingested events carry the source event id; replayed webhooks no-op. Internal events leave it null.
+- **Tenancy**: `account.identifiers[0].id` from the envelope maps to a `hospice_account` field (demo: single account seeded; multi-tenant is a stated assumption, not a silent one).
+- **The demo control panel feeds this same webhook** when simulating EMR events (death, admission). Pitch line: "our demo traffic enters through the same endpoint HCHB would."
+
+## Comms transport (amended 8/14 PM team call — supersedes Resend-as-SMS)
+
+- **Real SMS via Twilio is the vendor channel** (Nathaniel owns account + env vars). Telegram rejected (requires vendor app install). Resend email remains for family notices and as demo fallback if Twilio blocks.
+- `sendMessage()` seam unchanged — transport is a config, not an architecture.
+- GPS is a **supporting signal**, not the primary status source: Amazon-style staged statuses (confirmed → out for delivery → N stops away → arriving) driven by SMS confirmations; GPS opt-in refines ETA after "on my way." A vendor's location alone is meaningless without route position — never claim otherwise.
+- The SMS agent is **strictly tool-choice constrained**: read reply → pick from {update_status, set_eta, flag_at_risk, ask_clarification, escalate_to_human}. No open conversation, no research. LLM provider behind `parseVendorReply()` is swappable (Gemini key available; keep the seam provider-agnostic).
+
 ## Spec files
 
 - `specs/data.md` — schema.sql, TS types, seed plan, score functions
