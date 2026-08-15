@@ -15,7 +15,8 @@ Second brain for this build. Start here. Every note carries a source tag: `[brie
 - [views-storyboard.md](facts/views-storyboard.md) — all 22 screens incl. the boring ones; input for Claude Design
 - [user-scenarios.md](facts/user-scenarios.md) — Tony's concrete scenario walkthroughs (ordering, at-risk, pickup)
 - [vendor-scoring.md](facts/vendor-scoring.md) — the definitive variable list for both vendor scores + capture UX
-- [last-30-days-2026-08.md](facts/last-30-days-2026-08.md) — window sweep: CMS FY2027 rule, DMEPOS moratorium (careful framing), A2A verdict, BetterRX newsroom silent
+- [last-30-days-2026-08.md](facts/last-30-days-2026-08.md) — window sweep: CMS FY2027 rule, DMEPOS moratorium (careful framing), A2A verdict, Kitesurf/agent-readiness, BetterRX newsroom silent
+- [ppd-answer.md](facts/ppd-answer.md) — **Todd told us the buyer question: "how do you decrease my DME PPD?" Prepared answer inside**
 - [personas.md](facts/personas.md) — admissions nurse, case manager, DON, vendor dispatcher
 - [constraints-and-assumptions.md](facts/constraints-and-assumptions.md) — hard rules, and what we're assuming with no data
 - [integration-and-data.md](facts/integration-and-data.md) — eRx event payloads, EMRs, HCPCS codes, public datasets

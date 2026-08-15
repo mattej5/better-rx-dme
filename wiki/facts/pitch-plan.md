@@ -11,7 +11,8 @@
 5. **AI honesty + close (30s)** — [[0003-ai-scope]]: rules where rules win (cite JAMIA regex≈LLM), LLM only for messy free text; cost per order in cents; CAHPS Q6 slide — CMS already scores "did they let you know when they would arrive."
 
 **Q&A ammunition from the last-30-days sweep ([[last-30-days-2026-08]]):**
-- "What if the vendor has an AI agent?" → the architecture-slide line: same JSON contract behind the magic link; human by SMS today, agent by POST tomorrow. The human is the reference implementation of the machine interface.
+- "What if the vendor has an AI agent?" → the architecture-slide line: same JSON contract behind the magic link; human by SMS today, agent by POST tomorrow. The human is the reference implementation of the machine interface. Of-the-moment kicker: Cloudflare shipped an agent-first browser (Kitesurf) eight days ago — an agent browser can already operate our no-login magic-link page with zero work from us; the roadmap seam for full agent callability is an MCP server, the protocol our research shows actually consolidating.
+- **The PPD question (Todd told us it's coming — [[ppd-answer]]):** "Three ways down: pay less per order (price compare), pay for fewer days (the 2:14 AM billing clock), and default cheap-but-right (guardrails) — and the DON watches DME PPD live on one screen." Mechanisms + synthetic counters only; never claim a % reduction.
 - Protocol judgment: "we watched the July 28 MCP revision and the A2A adoption data — the interop layer actually consolidating is MCP, and no DME counterparty speaks either yet."
 - Market context: DMEPOS new-supplier enrollment moratorium through Aug 27 → vendor market thinning further (careful: it does NOT mean hospices can't switch among existing vendors).
 - Compliance angle: DOJ's 2026 takedown included billing for deceased patients — our timestamped death→notification chain doubles as an audit artifact.
