@@ -37,3 +37,7 @@ Framing for the pitch: *"Reaching an unregistered vendor by SMS requires a 10–
 - [[vendor-value-prop]] — the vendor who never logs in
 - `specs/engine.md` §3 — comms loop, templates, ladder
 - `wiki/decisions/0003-ai-scope.md` — magic link as the GPS opt-in mechanic
+
+## Observed live, 8/15 pre-judging [team]
+
+Test send to the verified caller ID: Twilio accepted (SID SMb28c6a67d7a73d8543332a056393f290), carrier returned undelivered with error 30032 (unverified toll-free sender). Exactly the failure mode predicted above; the status-polling script caught it where "queued" would have lied. Demo channel remains the magic link, per the FAQ's own baseline vendor. Transport stays a config behind sendMessage(); a verified number sends with zero code change.
