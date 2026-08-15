@@ -62,6 +62,11 @@ const SAMPLES: Record<TemplateId, TemplateVars[]> = {
       link: 'https://dme.demo/v/8Kq2',
     },
   ],
+  vendor_ack: [
+    { outcome: 'applied', detail: 'New ETA 4:30 PM is on the order.' },
+    { outcome: 'held' },
+    { outcome: 'unreadable' },
+  ],
   family_delivery: [{ item: 'hospital bed', window_start: '2:00 PM', window_end: '4:00 PM' }],
   family_pickup: [{ item: 'hospital bed' }],
   family_failure_recovery: [

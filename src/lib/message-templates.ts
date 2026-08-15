@@ -24,6 +24,7 @@ export type TemplateId =
   | 'vendor_notify'
   | 'vendor_nudge'
   | 'vendor_pickup'
+  | 'vendor_ack'
   | 'family_delivery'
   | 'family_pickup'
   | 'family_failure_recovery';
@@ -32,6 +33,7 @@ export const TEMPLATE_IDS = [
   'vendor_notify',
   'vendor_nudge',
   'vendor_pickup',
+  'vendor_ack',
   'family_delivery',
   'family_pickup',
   'family_failure_recovery',
@@ -241,6 +243,40 @@ const REGISTRY: Record<TemplateId, TemplateDef> = {
         subject: `Pickup needed - ${v.address}`,
         body: parts.join(' '),
         cta: 'See the stop',
+      };
+    },
+  },
+
+  /**
+   * The reply the vendor gets back after we read their message. Closes the loop
+   * on the vendor's phone: what we understood, or that a person is taking it.
+   * `outcome` names which of the three endings the inbound path reached, so the
+   * words still live here rather than in the call site. `detail` is the one
+   * plain sentence naming what was recorded, required only when we acted.
+   */
+  vendor_ack: {
+    id: 'vendor_ack',
+    audience: 'vendor',
+    primaryChannel: 'sms',
+    wiredInV1: true,
+    requiredVars: ['outcome'],
+    optionalVars: ['detail'],
+    conditionalRequired: (v) => (v.outcome === 'applied' ? ['detail'] : []),
+    render: (v) => {
+      if (v.outcome === 'applied') {
+        return { subject: 'Got it', body: `Understood. ${v.detail}`, cta: '' };
+      }
+      if (v.outcome === 'held') {
+        return {
+          subject: 'Got it',
+          body: 'Thanks. A nurse will confirm before anything changes on the order.',
+          cta: '',
+        };
+      }
+      return {
+        subject: 'Got it',
+        body: 'We could not read a time in that. A nurse will follow up.',
+        cta: '',
       };
     },
   },

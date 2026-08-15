@@ -194,6 +194,22 @@ export async function loadOrderDetail(orderId: string): Promise<Loaded<OrderDeta
   }
 }
 
+/**
+ * A parsed ETA is either an ISO timestamp or a relative marker ("+45m" / "+2h")
+ * when the vendor stated a duration rather than a clock time — see
+ * parse-vendor-reply.ts. `formatDayTime` throws RangeError on the relative form,
+ * which took the whole order page down with a 500, so the shape is checked here.
+ */
+function etaLabel(eta: string): string {
+  const relative = /^\+(\d+)([mh])$/.exec(eta);
+  if (relative) {
+    const amount = Number(relative[1]);
+    const unit = relative[2] === "h" ? "hour" : "minute";
+    return `about ${amount} ${unit}${amount === 1 ? "" : "s"} out`;
+  }
+  return Number.isNaN(Date.parse(eta)) ? eta : formatDayTime(eta);
+}
+
 const STATUS_CHANGE_COPY: Record<string, string> = {
   deceased: "Patient is deceased",
   discharged: "Patient discharged",
@@ -232,11 +248,11 @@ function detailFor(event: OrderEventRow, replacedNo: string | null): string | nu
         .join(" · ") || null;
     case "eta_updated": {
       const eta = text(p.eta_iso) ?? text(p.eta);
-      return eta ? `ETA ${formatDayTime(eta)}` : null;
+      return eta ? `ETA ${etaLabel(eta)}` : null;
     }
     case "vendor_confirmed": {
       const eta = text(p.promised_eta);
-      return eta ? `Promised ${formatDayTime(eta)}` : null;
+      return eta ? `Promised ${etaLabel(eta)}` : null;
     }
     case "approval_requested":
     case "approved": {
@@ -273,7 +289,7 @@ function parsedLine(parsed: unknown): { line: string; confidence: number } | nul
   const intent = text(p.intent);
   if (intent) parts.push(intent.replace(/_/g, " "));
   const eta = text(p.eta_iso) ?? text(p.eta);
-  if (eta) parts.push(`ETA ${formatDayTime(eta)}`);
+  if (eta) parts.push(`ETA ${etaLabel(eta)}`);
   const delay = typeof p.delay_minutes === "number" ? p.delay_minutes : null;
   if (delay !== null) parts.push(`delayed about ${Math.round(delay)} minutes`);
   const reason = text(p.reason);
