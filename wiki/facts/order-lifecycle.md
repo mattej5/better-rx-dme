@@ -32,6 +32,8 @@ Six states, from the brief's Required Features tab. `[brief]`
 
 > Note the tension: the brief lists vendor recruitment as a required feature, but the FAQ later says network-building is **out of scope** and vendor participation should be treated as given. **The FAQ is newer and more specific — follow the FAQ.** `[faq]`
 
+> **Serialized inventory answer (2026-08-14):** we don't manage the vendor's warehouse — we **derive the circulating-asset ledger from order events** (out / due back / overdue / returning) and show it on the vendor report card. Pickup delay = the vendor's own idle inventory. Kanban P2 card exists. Fleet/route capacity is deliberately ceded per ADR 0002. `[team]`
+
 ### Shared / notification layer — where the "Differentiator" tags are
 - **Real-time status visible to both sides**, not just inside the vendor's system — *Differentiator*
 - **Service-failure risk scoring**, surfacing an at-risk order **before** it's late — *Differentiator*
