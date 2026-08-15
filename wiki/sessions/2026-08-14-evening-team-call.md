@@ -9,7 +9,7 @@ Full Wispr note: "Better Rx DME App Design". Decisions ingested across two passe
 - **Replacement-request flow** for dirty/damaged deliveries (Nathaniel) — vendor eats the second trip; stronger incentive than the score. → kanban P1.
 - **Vendor onboarding v2**: equipment + quantities + pricing model + city/zip + radius service area (vendor chooses own radius); uncovered-zip opportunity view as stretch. → kanban P1.
 - **Pickups cannot reroute to a backup vendor** — owning vendor retrieves its own equipment. Escalation = nudge cadence (window start / halfway / near deadline) + score + idle-inventory incentive. → engine addendum #7.
-- **Family notified on time changes only** (vendor identity irrelevant to them). → engine addendum #8.
+- Family time-change notices: discussed, then **cut** — no family-facing comms in v1.
 - **Demo scenarios: post-death pickup + service-failure prevention.** Pitch = slides + app swipes, two invented families, ~1-min story/demo alternation; integration lives in repo docs + one diagram.
 - eRx/EMR integration = per-system `adapter.ts` pattern; ingress webhook closes the readiness gap (prior turn).
 

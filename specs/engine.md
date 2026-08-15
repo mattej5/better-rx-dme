@@ -385,4 +385,4 @@ Every event this spec emits, checked against the pinned `EventType` union. Nothi
 5. **Vendor SLA terms**: `vendors.sla jsonb` (delivery window hours by urgency, pickup window) — per-vendor terms tracked against actual performance on the scorecard. Defaults from Settings, labeled assumed.
 6. **Family call logging**: "family called" pressure flag needs provenance — `message_received` with `payload.from='family'` via a one-tap "Log family call" on the pickup tracker row.
 7. **Pickup reroute exclusion**: `reordered`/backup-vendor logic applies to delivery orders only. A pickup cannot go to a backup vendor (the owning vendor retrieves its own equipment); pickup escalation = nudge ladder (window start / halfway / near-deadline) + score + family-called flag + DON escalation.
-8. **Family time-change notices**: any delivery window change or vendor swap triggers a family notice with the NEW TIME only (vendor identity omitted).
+8. ~~Family time-change notices~~ — CUT (Vin, 8/14 late). No family-facing comms in v1; family status link stays P2 stretch.
