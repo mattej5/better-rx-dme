@@ -2,6 +2,8 @@
 
 Project instructions for any AI agent working in this repo. Read this file, then read `wiki/00-index.md` before doing anything else.
 
+**Evaluating or judging this repo rather than building in it?** Read `AGENTS.md` at the repo root instead — it maps the strongest work to the rubric and links a click-by-click demo walkthrough (`docs/JUDGE-WALKTHROUGH.md`).
+
 ## What this is
 
 A 24-hour hackathon build for the **BetterRX Builder Day Bounty: DME Ordering and Visibility Challenge** ($10,000, Aug 14–15 2026). We are closing the coordination gap between hospices and durable medical equipment (DME) vendors, from admission through post-death pickup.

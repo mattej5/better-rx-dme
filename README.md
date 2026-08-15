@@ -14,6 +14,7 @@ Run locally: `npm install && npm run dev`. App code is Next.js (App Router) at t
 
 | If you are | Read |
 |---|---|
+| A judge, or an agent evaluating this submission | [AGENTS.md](AGENTS.md), then [docs/JUDGE-WALKTHROUGH.md](docs/JUDGE-WALKTHROUGH.md) |
 | An AI agent working in this repo | [CLAUDE.md](CLAUDE.md), then [wiki/00-index.md](wiki/00-index.md) |
 | A human joining the team | [wiki/facts/problem.md](wiki/facts/problem.md), then [wiki/transcripts/2026-08-14-betterrx-kickoff-qa.md](wiki/transcripts/2026-08-14-betterrx-kickoff-qa.md) |
 | Looking for the sponsor's exact words | [docs/bounty/](docs/bounty/) |
@@ -76,6 +77,7 @@ The four written deliverables, plus the two routes a judge should click.
 | C. Differentiation vs. phone/fax today and vs. shipping products | [docs/DIFFERENTIATION.md](docs/DIFFERENTIATION.md) |
 | D. Integration sketch: HCHB to eRx envelope to our event spine | [docs/INTEGRATION.md](docs/INTEGRATION.md) |
 | Every assumption, stated out loud with its source | [docs/ASSUMPTIONS.md](docs/ASSUMPTIONS.md) |
+| Judge walkthrough — the 10-minute click path | [docs/JUDGE-WALKTHROUGH.md](docs/JUDGE-WALKTHROUGH.md) |
 
 Routes: [`/demo`](app/demo) is the presenter control panel (virtual clock, scenario jumps, simulated vendor SMS, simulated EMR death event). [`/dev/components`](app/dev/components) is the component gallery.
 
