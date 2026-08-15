@@ -3,7 +3,7 @@ import EmptyState from "@/components/empty-state";
 import PollRefresh from "@/components/poll-refresh";
 import { AssumedLabel, SyntheticLabel } from "@/components/labels";
 import { now } from "@/src/lib/clock";
-import type { ScoreBreakdown } from "@/src/lib/derive";
+import type { ScoreBreakdown, ScoreResult } from "@/src/lib/derive";
 import { ASSUMED_DAYS_PER_MONTH, formatUsd } from "@/src/lib/domain";
 import WideColumn from "../wide-column";
 import { loadReports, type ReportsData, type VendorScorecard } from "./data";
@@ -188,18 +188,14 @@ function VendorRow({ vendor }: { vendor: VendorScorecard }) {
         {vendor.name}
       </p>
       <p className="mt-0.5 text-[13px] text-[var(--ink-soft)]">
-        {vendor.orders} {vendor.orders === 1 ? "order" : "orders"}
+        {vendor.orders} {vendor.orders === 1 ? "order" : "orders"} all time · {vendor.orders30} in the last 30 days
       </p>
-      <div className="mt-3 flex gap-6">
+      <div className="mt-3 flex items-start gap-6">
         <div>
           <p className="text-[12px] font-bold uppercase tracking-[0.05em] text-[var(--ink-soft)]">
-            On time
+            Reliability
           </p>
-          <p className="text-[15px] font-semibold text-[var(--ink)]">
-            {vendor.reliability.score === null
-              ? vendor.reliability.label
-              : `${vendor.reliability.score}%`}
-          </p>
+          <ReliabilityBadge result={vendor.reliability} />
         </div>
         <div>
           <p className="text-[12px] font-bold uppercase tracking-[0.05em] text-[var(--ink-soft)]">
@@ -213,13 +209,38 @@ function VendorRow({ vendor }: { vendor: VendorScorecard }) {
         </div>
       </div>
       <div className="mt-4 hidden border-t border-[var(--line)] pt-3 lg:flex lg:flex-col lg:gap-4">
-        <Breakdown title="On time, by variable" rows={vendor.reliability.breakdown} />
+        <Breakdown title="Reliability, by variable" rows={vendor.reliability.breakdown} />
         <Breakdown title="Condition, by variable" rows={vendor.condition.breakdown} />
       </div>
-      <p className="mt-2">
-        <SyntheticLabel>Sample data</SyntheticLabel>
-      </p>
     </div>
+  );
+}
+
+/** Composite reliability with a traffic-light tone. Thresholds are defaults, not published SLAs. */
+function ReliabilityBadge({ result }: { result: ScoreResult }) {
+  if (result.score === null) {
+    return (
+      <span
+        className="mt-0.5 inline-flex items-center rounded-[var(--radius-badge)] px-2.5 py-1 text-[15px] font-bold"
+        style={{ background: "var(--paper-alt)", color: "var(--ink-soft)" }}
+      >
+        {result.label}
+      </span>
+    );
+  }
+  const tone =
+    result.score >= 85
+      ? { bg: "var(--green-tint)", fg: "#4A7D33" }
+      : result.score >= 65
+        ? { bg: "var(--burnt-tint)", fg: "var(--burnt-dark)" }
+        : { bg: "var(--red-tint)", fg: "#B4322A" };
+  return (
+    <span
+      className="mt-0.5 inline-flex items-center rounded-[var(--radius-badge)] px-2.5 py-1 text-[15px] font-bold"
+      style={{ background: tone.bg, color: tone.fg }}
+    >
+      {result.score}%
+    </span>
   );
 }
 
@@ -247,17 +268,32 @@ function SavedTab({ data }: { data: ReportsData }) {
 
   return (
     <>
-      <section className="mt-5 flex gap-3">
-        <Tile
-          label="Rental days after death avoided"
-          value={noQualifyingOrders ? "0" : saved.daysSaved.toFixed(1)}
-          sub={`${saved.n_orders} ${saved.n_orders === 1 ? "order" : "orders"} counted`}
-        />
-        <Tile
-          label="Not billed"
-          value={noQualifyingOrders ? "$0" : formatUsd(saved.dollarsSavedCents)}
-          sub={`${saved.n_orders} ${saved.n_orders === 1 ? "order" : "orders"} counted`}
-        />
+      <section className="mt-5 flex flex-col gap-3">
+        {(
+          [
+            { label: "Last 30 days", s: data.saved30 },
+            { label: "This year", s: data.savedYear },
+            { label: "All time", s: saved },
+          ] as const
+        ).map(({ label, s }) => (
+          <div key={label}>
+            <p className="text-[11px] font-bold uppercase tracking-[0.06em] text-[var(--ink-soft)]">
+              {label}
+            </p>
+            <div className="mt-1 flex gap-3">
+              <Tile
+                label="Rental days after death avoided"
+                value={s.n_orders === 0 ? "0" : s.daysSaved.toFixed(1)}
+                sub={`${s.n_orders} ${s.n_orders === 1 ? "order" : "orders"} counted`}
+              />
+              <Tile
+                label="Not billed"
+                value={s.n_orders === 0 ? "$0" : formatUsd(s.dollarsSavedCents)}
+                sub={`${s.n_orders} ${s.n_orders === 1 ? "order" : "orders"} counted`}
+              />
+            </div>
+          </div>
+        ))}
       </section>
       {noQualifyingOrders ? (
         <p className="mt-2 text-[13px] text-[var(--ink-soft)]">

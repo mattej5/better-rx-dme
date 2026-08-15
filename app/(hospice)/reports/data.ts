@@ -31,6 +31,7 @@ export type VendorScorecard = {
   vendorId: string;
   name: string;
   orders: number;
+  orders30: number;
   reliability: ScoreResult;
   condition: ScoreResult;
 };
@@ -47,6 +48,8 @@ export type ReportsData = {
   baselineNotifyLagH: number;
   ordersExcludedNoPrice: number;
   saved: EquipmentSavedResult;
+  saved30: EquipmentSavedResult;
+  savedYear: EquipmentSavedResult;
 };
 
 const DAY_KEY = new Intl.DateTimeFormat("en-CA", {
@@ -217,6 +220,8 @@ export async function loadReports(now: Date): Promise<ReportsLoaded<ReportsData>
 
     const vendors: VendorScorecard[] = (vendorsRes.data ?? []).map((v) => {
       const mine = orderRows.filter((o) => o.vendor_id === v.id);
+      const cutoff30 = now.getTime() - 30 * 24 * 3_600_000;
+      const mine30 = mine.filter((o) => Date.parse(o.ordered_at) >= cutoff30);
       const vendorEvents: DerivableEvent[] = mine.flatMap(
         (o) => byOrder.get(o.id) ?? [],
       );
@@ -224,17 +229,28 @@ export async function loadReports(now: Date): Promise<ReportsLoaded<ReportsData>
         vendorId: v.id,
         name: v.name,
         orders: mine.length,
+        orders30: mine30.length,
         reliability: reliabilityScore(vendorEvents, { now }),
         condition: conditionScore(vendorEvents, { now }),
       };
     });
 
-    const saved = equipmentDaysSaved(
-      orderRows.map((o) => ({
+    const toSavedInput = (rows: OrderRow[]) =>
+      rows.map((o) => ({
         id: o.id,
         price_cents: o.price_cents,
         events: byOrder.get(o.id) ?? [],
-      })),
+      }));
+    const cutoff30saved = now.getTime() - 30 * 24 * 3_600_000;
+    const yearStart = new Date(now.getFullYear(), 0, 1).getTime();
+    const pickupAfter = (cutoff: number) =>
+      orderRows.filter(
+        (o) => o.pickup_requested_at && Date.parse(o.pickup_requested_at) >= cutoff,
+      );
+    const saved30 = equipmentDaysSaved(toSavedInput(pickupAfter(cutoff30saved)), { baselineNotifyLagH });
+    const savedYear = equipmentDaysSaved(toSavedInput(pickupAfter(yearStart)), { baselineNotifyLagH });
+    const saved = equipmentDaysSaved(
+      toSavedInput(orderRows),
       { baselineNotifyLagH },
     );
 
@@ -252,6 +268,8 @@ export async function loadReports(now: Date): Promise<ReportsLoaded<ReportsData>
         baselineNotifyLagH,
         ordersExcludedNoPrice,
         saved,
+        saved30,
+        savedYear,
       },
     };
   } catch {
