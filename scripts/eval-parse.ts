@@ -2,8 +2,13 @@
  * npm run eval:parse — the AI ROI evidence for deliverable B (specs/engine.md §6).
  *
  * Runs all 24 fixtures twice: regex-only (the baseline) and the hybrid parser.
- * The hybrid LLM pass is N4 part 2 and does not exist yet, so the HYBRID column
- * reads n/a and no hybrid number is printed. The regex baseline is real.
+ * The hybrid pass makes one real API call per fall-through case, so it only runs
+ * when ANTHROPIC_API_KEY is set. Without a key the HYBRID column reads n/a and
+ * no hybrid score, cost, or timing is printed — an unmeasured number is worse
+ * than no number. The regex baseline is real either way.
+ *
+ * Every hybrid cost figure here is summed from token counts read off the API
+ * responses. Nothing is taken from the specs/engine.md 3.5 table.
  *
  * No test framework, no network mocking. Plain ASCII output — it gets pasted
  * into a slide.
@@ -44,8 +49,8 @@ const cases = fixtureFile.cases;
 
 // --- Hybrid availability -----------------------------------------------------
 
-/** Flip to true when the LLM pass lands (N4 part 2). Nothing else changes. */
-const HYBRID_IMPLEMENTED = false;
+/** The LLM pass landed (N4 part 2). It still only runs with a key. */
+const HYBRID_IMPLEMENTED = true;
 const HAS_API_KEY = Boolean(process.env.ANTHROPIC_API_KEY);
 const HYBRID_ACTIVE: boolean = HYBRID_IMPLEMENTED && HAS_API_KEY;
 
@@ -125,13 +130,30 @@ function row(caseId: string, regex: string, hybrid: string, expected: string): s
 
 /**
  * Marginal inference cost of one parse. A regex parse costs nothing, and that
- * is a fact, not an estimate. N4 part 2: read real token usage off the LLM
- * response here rather than assuming the §3.5 table.
+ * is a fact, not an estimate. An LLM parse costs whatever its measured token
+ * counts cost — `result.usage.costUsd` is computed from the four counts read
+ * off the response, not from the §3.5 table's assumed mix.
  */
 function costUsd(result: ParseResult): number {
   if (result.method === 'regex') return 0;
-  // N4 part 2: read real token usage off the LLM response here.
-  return 0;
+  return result.usage?.costUsd ?? 0;
+}
+
+type TokenTotals = {
+  input: number;
+  cachedInput: number;
+  cacheWrite: number;
+  output: number;
+  llmCalls: number;
+};
+
+function addUsage(totals: TokenTotals, result: ParseResult): void {
+  if (result.method !== 'llm' || !result.usage) return;
+  totals.llmCalls += 1;
+  totals.input += result.usage.inputTokens;
+  totals.cachedInput += result.usage.cachedInputTokens;
+  totals.cacheWrite += result.usage.cacheWriteTokens;
+  totals.output += result.usage.outputTokens;
 }
 
 function verdict(ok: boolean): string {
@@ -161,11 +183,21 @@ async function run(): Promise<void> {
 
   let hybridMs = 0;
   let hybridCostUsd = 0;
+  const tokens: TokenTotals = {
+    input: 0,
+    cachedInput: 0,
+    cacheWrite: 0,
+    output: 0,
+    llmCalls: 0,
+  };
   const hybridStart = performance.now();
   for (let i = 0; i < cases.length; i++) {
     const c = cases[i];
     const hybridResult = HYBRID_ACTIVE ? await parseVendorReply(c.message, c.orderContext) : null;
-    hybridCostUsd += hybridResult ? costUsd(hybridResult) : 0;
+    if (hybridResult) {
+      hybridCostUsd += costUsd(hybridResult);
+      addUsage(tokens, hybridResult);
+    }
     outcomes.push({
       fixture: c,
       regexResult: regexResults[i],
@@ -183,12 +215,16 @@ async function run(): Promise<void> {
   console.log('');
 
   if (!HYBRID_ACTIVE) {
-    console.log('NOTE: the hybrid column is NOT YET IMPLEMENTED (N4 part 2).');
-    console.log('      The LLM pass has not been written, so no hybrid score, cost,');
-    console.log('      or timing is reported here. Nothing below is estimated.');
+    console.log('NOTE: the hybrid column is NOT MEASURED in this run.');
     if (!HAS_API_KEY) {
-      console.log('      ANTHROPIC_API_KEY is not set in this environment.');
+      console.log('      ANTHROPIC_API_KEY is not set, so the LLM pass did not run.');
+      console.log('      The LLM pass IS implemented (src/lib/parse-vendor-reply.ts);');
+      console.log('      it needs a key. Set one and re-run for the real number.');
+    } else {
+      console.log('      The LLM pass is switched off in this script.');
     }
+    console.log('      No hybrid score, cost, or timing is reported here.');
+    console.log('      Nothing below is estimated.');
     console.log('      The 20/24 exit gate is not applied until the hybrid runs.');
     console.log('');
   }
@@ -245,10 +281,30 @@ async function run(): Promise<void> {
   if (HYBRID_ACTIVE) {
     console.log(
       `Hybrid           ${hybridTotal}/${cases.length} (${pct(hybridTotal, cases.length)})` +
-        `   |  cost $${hybridCostUsd.toFixed(3)}   |  ${(hybridMs / 1000).toFixed(1)} s total`,
+        `   |  cost $${hybridCostUsd.toFixed(4)}   |  ${(hybridMs / 1000).toFixed(1)} s total`,
     );
+    console.log(RULE);
+    console.log('');
+    console.log(`Measured token usage across ${tokens.llmCalls} LLM call(s):`);
+    console.log(`  input, fresh        ${tokens.input}      @ $5.00/MTok`);
+    console.log(`  input, cache read   ${tokens.cachedInput}      @ $0.50/MTok`);
+    console.log(`  input, cache write  ${tokens.cacheWrite}      @ $6.25/MTok (1.25x)`);
+    console.log(`  output              ${tokens.output}      @ $25.00/MTok`);
+    if (tokens.llmCalls > 0) {
+      console.log(
+        `  cost per LLM call   $${(hybridCostUsd / tokens.llmCalls).toFixed(5)} average`,
+      );
+      if (tokens.cachedInput === 0) {
+        console.log('');
+        console.log('  WARNING: cache read tokens are 0. PARSE_SYSTEM is not caching.');
+        console.log('  Check its size with `npm run tokens:parse-system` - the minimum');
+        console.log('  cacheable prefix on Opus 4.8 is 4096 tokens, and a short prompt');
+        console.log('  fails silently. The specs/engine.md 3.5 cached-input line is void');
+        console.log('  until this is non-zero.');
+      }
+    }
   } else {
-    console.log('Hybrid           not implemented (N4 part 2) - no number to report');
+    console.log('Hybrid           not measured (no ANTHROPIC_API_KEY) - no number to report');
   }
   console.log(RULE);
 
