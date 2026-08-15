@@ -121,23 +121,27 @@ function PpdTab({ data }: { data: ReportsData }) {
         </p>
       ) : null}
 
-      <div className="mt-5 overflow-x-auto">
+      <div className="mt-5 overflow-x-auto rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface)]" style={{ boxShadow: "var(--shadow)" }}>
         <table className="w-full min-w-[420px] border-collapse text-[14px]">
           <thead>
-            <tr className="text-left text-[12px] font-bold uppercase tracking-[0.05em] text-[var(--ink-soft)]">
-              <th className="py-2 pr-3">Patient</th>
-              <th className="py-2 pr-3">Days</th>
-              <th className="py-2 pr-3">DME spend</th>
-              <th className="py-2">PPD</th>
+            <tr className="text-left text-[11px] font-bold uppercase tracking-[0.06em] text-[var(--ink-soft)]">
+              <th scope="col" className="border-b border-[var(--line)] bg-[var(--paper-alt)] px-4 py-2.5">Patient</th>
+              <th scope="col" className="border-b border-[var(--line)] bg-[var(--paper-alt)] px-3 py-2.5 text-right">Days</th>
+              <th scope="col" className="border-b border-[var(--line)] bg-[var(--paper-alt)] px-3 py-2.5 text-right">DME spend</th>
+              <th scope="col" className="border-b border-[var(--line)] bg-[var(--paper-alt)] px-4 py-2.5 text-right">PPD</th>
             </tr>
           </thead>
           <tbody>
-            {data.patients.map((row) => (
-              <tr key={row.patientId} className="border-t border-[var(--line)]">
-                <td className="py-2 pr-3 text-[var(--ink)]">{row.name}</td>
-                <td className="py-2 pr-3 text-[var(--ink-soft)]">{row.censusDays}</td>
-                <td className="py-2 pr-3 text-[var(--ink)]">{formatUsd(row.spendCents)}</td>
-                <td className="py-2 text-[var(--ink)]">
+            {data.patients.map((row, i) => (
+              <tr
+                key={row.patientId}
+                className={i > 0 ? "border-t border-[var(--line)]" : undefined}
+                style={i % 2 === 1 ? { background: "var(--paper)" } : undefined}
+              >
+                <td className="px-4 py-2.5 font-medium text-[var(--ink)]">{row.name}</td>
+                <td className="px-3 py-2.5 text-right tabular-nums text-[var(--ink-soft)]">{row.censusDays}</td>
+                <td className="px-3 py-2.5 text-right tabular-nums text-[var(--ink)]">{formatUsd(row.spendCents)}</td>
+                <td className="px-4 py-2.5 text-right tabular-nums font-semibold text-[var(--ink)]">
                   {row.ppdCents === null ? "No data" : formatUsd(row.ppdCents)}
                 </td>
               </tr>
