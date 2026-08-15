@@ -3,7 +3,9 @@ import EmptyState from "@/components/empty-state";
 import PollRefresh from "@/components/poll-refresh";
 import { AssumedLabel, SyntheticLabel } from "@/components/labels";
 import { now } from "@/src/lib/clock";
+import type { ScoreBreakdown } from "@/src/lib/derive";
 import { ASSUMED_DAYS_PER_MONTH, formatUsd } from "@/src/lib/domain";
+import WideColumn from "../wide-column";
 import { loadReports, type ReportsData, type VendorScorecard } from "./data";
 
 export const dynamic = "force-dynamic";
@@ -86,7 +88,7 @@ function PpdTab({ data }: { data: ReportsData }) {
 
   return (
     <>
-      <section className="mt-5 flex gap-3">
+      <section className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-3">
         <Tile
           label="DME PPD"
           value={data.ppdCents === null ? "No data" : formatUsd(data.ppdCents)}
@@ -98,6 +100,13 @@ function PpdTab({ data }: { data: ReportsData }) {
           sub={data.medPpdFromSettings ? "From settings" : "Seeded constant"}
           note={<SyntheticLabel>Sample comparison</SyntheticLabel>}
         />
+        <div className="hidden lg:flex">
+          <Tile
+            label="Month spend"
+            value={formatUsd(data.spendCents)}
+            sub={`${data.patients.length} ${data.patients.length === 1 ? "patient" : "patients"} on service`}
+          />
+        </div>
       </section>
 
       <p className="mt-2 text-[13px] text-[var(--ink-soft)]">
@@ -143,6 +152,31 @@ function PpdTab({ data }: { data: ReportsData }) {
   );
 }
 
+function Breakdown({ title, rows }: { title: string; rows: ScoreBreakdown[] }) {
+  return (
+    <div className="min-w-0 flex-1">
+      <p className="text-[12px] font-bold uppercase tracking-[0.05em] text-[var(--ink-soft)]">
+        {title}
+      </p>
+      <table className="mt-2 w-full border-collapse text-[13px]">
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.key} className="border-t border-[var(--line)]">
+              <td className="py-1.5 pr-3 text-[var(--ink)]">{row.label}</td>
+              <td className="py-1.5 pr-3 text-right tabular-nums text-[var(--ink)]">
+                {row.value === null ? "No data" : row.value}
+              </td>
+              <td className="py-1.5 text-right tabular-nums text-[var(--ink-soft)]">
+                {Math.round(row.weight * 100)}% weight, {row.n} counted
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 function VendorRow({ vendor }: { vendor: VendorScorecard }) {
   return (
     <div className="rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface)] p-4">
@@ -174,6 +208,10 @@ function VendorRow({ vendor }: { vendor: VendorScorecard }) {
           </p>
         </div>
       </div>
+      <div className="mt-4 hidden border-t border-[var(--line)] pt-3 lg:flex lg:flex-col lg:gap-4">
+        <Breakdown title="On time, by variable" rows={vendor.reliability.breakdown} />
+        <Breakdown title="Condition, by variable" rows={vendor.condition.breakdown} />
+      </div>
       <p className="mt-2">
         <SyntheticLabel>Sample data</SyntheticLabel>
       </p>
@@ -190,7 +228,7 @@ function VendorsTab({ data }: { data: ReportsData }) {
     );
   }
   return (
-    <div className="mt-5 flex flex-col gap-3">
+    <div className="mt-5 grid gap-3 lg:grid-cols-2">
       {data.vendors.map((vendor) => (
         <VendorRow key={vendor.vendorId} vendor={vendor} />
       ))}
@@ -240,6 +278,7 @@ export default async function ReportsPage({
   const result = await loadReports(at);
 
   return (
+    <WideColumn>
     <section>
       <PollRefresh intervalMs={5000} />
       <h1
@@ -276,5 +315,6 @@ export default async function ReportsPage({
         <PpdTab data={result.data} />
       )}
     </section>
+    </WideColumn>
   );
 }

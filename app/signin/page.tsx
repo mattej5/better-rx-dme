@@ -1,7 +1,6 @@
-import { existsSync } from "node:fs";
-import { join } from "node:path";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { avatarSrc, initials, nameSlug } from "@/src/lib/persona";
 import { isRole, ROLE_FOCUS, ROLE_LABELS, setSession, type Role } from "@/src/lib/role";
 
 const PERSONAS: { role: Role; userName: string; avatar: string }[] = [
@@ -11,26 +10,6 @@ const PERSONAS: { role: Role; userName: string; avatar: string }[] = [
   { role: "case_manager", userName: "Marcus Webb", avatar: "marcus-w" },
   { role: "don", userName: "Ellen T.", avatar: "ellen-t" },
 ];
-
-/** Drop square headshots into public/personas/<slug>.jpg and they appear; missing files fall back to initials. */
-function avatarSrc(slug: string): string | null {
-  for (const ext of ["jpg", "jpeg", "png", "webp"]) {
-    if (existsSync(join(process.cwd(), "public", "personas", `${slug}.${ext}`))) {
-      return `/personas/${slug}.${ext}`;
-    }
-  }
-  return null;
-}
-
-function initials(name: string): string {
-  return name
-    .split(/\s+/)
-    .map((w) => w[0])
-    .filter(Boolean)
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-}
 
 function Avatar({ name, slug }: { name: string; slug: string }) {
   const src = avatarSrc(slug);
@@ -54,10 +33,7 @@ function Avatar({ name, slug }: { name: string; slug: string }) {
   );
 }
 
-function dispatcherSlug(name: string): string {
-  const [first, last] = name.split(/\s+/);
-  return `${first ?? "x"}-${(last ?? "x")[0]}`.toLowerCase();
-}
+const dispatcherSlug = nameSlug;
 
 const ROLE_ORDER: Role[] = ["nurse", "case_manager", "don"];
 
