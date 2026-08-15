@@ -198,28 +198,33 @@ function VendorsTab({ data }: { data: ReportsData }) {
   );
 }
 
-// STUB — T5 owns the billing clock (specs/engine.md §4). Expected seam:
-//   import { equipmentDaysSaved } from "@/src/lib/billing-clock";
-//   const { daysSaved, dollarsSavedCents } = equipmentDaysSaved(events, baselineNotifyLagH);
-// Wire it into the two values below; the layout does not change.
+// Billing clock: src/lib/billing.ts, equipmentDaysSaved() (specs/engine.md §4).
 function SavedTab({ data }: { data: ReportsData }) {
+  const { saved, baselineNotifyLagH } = data;
+  const noQualifyingOrders = saved.n_orders === 0;
+
   return (
     <>
       <section className="mt-5 flex gap-3">
         <Tile
-          label="Rental days avoided"
-          value="No data"
-          sub="Appears when pickup data lands."
+          label="Rental days after death avoided"
+          value={noQualifyingOrders ? "0" : saved.daysSaved.toFixed(1)}
+          sub={`${saved.n_orders} ${saved.n_orders === 1 ? "order" : "orders"} counted`}
         />
         <Tile
           label="Not billed"
-          value="No data"
-          sub="Appears when pickup data lands."
+          value={noQualifyingOrders ? "$0" : formatUsd(saved.dollarsSavedCents)}
+          sub={`${saved.n_orders} ${saved.n_orders === 1 ? "order" : "orders"} counted`}
         />
       </section>
+      {noQualifyingOrders ? (
+        <p className="mt-2 text-[13px] text-[var(--ink-soft)]">
+          No qualifying orders yet. This fills in once a patient status change is
+          followed by a pickup request.
+        </p>
+      ) : null}
       <p className="mt-2 text-[13px] text-[var(--ink-soft)]">
-        Counted against a {data.baselineNotifyLagH}-hour baseline notification lag, the
-        business-day batch list in the model hospice agreement. <AssumedLabel />
+        Compared to a {baselineNotifyLagH}-hour phone-and-fax baseline. Default estimate.
       </p>
     </>
   );

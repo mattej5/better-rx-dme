@@ -106,7 +106,7 @@ Single route, `?step=` search param so browser Back works and the demo can deep-
 ### 2.5 `/patients/[patientId]/status-change` — Bedside flow
 
 - **Purpose.** The pitch cold-open. Works at 2 AM, gloves on, in a home where someone just died.
-- **Components.** Full-screen, no nav chrome, `--paper` background. Two `BigActionButton`s stacked: **Patient died** / **Patient discharged**. Tap → `ConfirmStep` (one line, patient name, Confirm / Go back). No third tap. Copy is calm; no emoji, no color celebration.
+- **Components.** Full-screen, no nav chrome, `--paper` background. Two `BigActionButton`s stacked: **Patient is deceased** / **Patient discharged** (wording per Vin, 8/15 — "died" is not appropriate register; use "deceased" everywhere user-facing). Tap → `ConfirmStep` (one line, patient name, Confirm / Go back). No third tap. Copy is calm; no emoji, no color celebration.
 - **Writes.** Server action → `patient_status_changed` event (payload `'deceased' | 'discharged'`) then `pickup_requested` per open serialized order. Consumables get no pickup.
 - **Receipt** (`/status-change/receipt`): timestamp is the hero (`Poppins`, huge). "All 4 vendors notified at 2:14 AM · Equipment rental billing stopped · Pickup being scheduled with family." Then a link to `/pickups`.
 - **States.** Error = "We couldn't notify the vendors. Try again." with retry — this write must never fail silently, the billing clock depends on it.

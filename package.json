@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "seed": "node scripts/seed.mjs",
-    "test:derive": "tsx --test src/lib/derive.test.ts"
+    "test:derive": "tsx --test src/lib/derive.test.ts",
+    "test:billing": "tsx --test src/lib/billing.test.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.3",

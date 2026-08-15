@@ -3,6 +3,7 @@ import { conditionScore, reliabilityScore, type ScoreResult } from "@/src/lib/de
 import type { DerivableEvent } from "@/src/lib/derive";
 import { HOSPICE_TIMEZONE, perDayCents } from "@/src/lib/domain";
 import { SETTING_DEFAULTS } from "@/src/lib/settings-defaults";
+import { equipmentDaysSaved, type EquipmentSavedResult } from "@/src/lib/billing";
 import {
   eventsByOrder,
   hasSupabaseEnv,
@@ -45,6 +46,7 @@ export type ReportsData = {
   vendors: VendorScorecard[];
   baselineNotifyLagH: number;
   ordersExcludedNoPrice: number;
+  saved: EquipmentSavedResult;
 };
 
 const DAY_KEY = new Intl.DateTimeFormat("en-CA", {
@@ -227,6 +229,15 @@ export async function loadReports(now: Date): Promise<ReportsLoaded<ReportsData>
       };
     });
 
+    const saved = equipmentDaysSaved(
+      orderRows.map((o) => ({
+        id: o.id,
+        price_cents: o.price_cents,
+        events: byOrder.get(o.id) ?? [],
+      })),
+      { baselineNotifyLagH },
+    );
+
     return {
       ok: true,
       data: {
@@ -240,6 +251,7 @@ export async function loadReports(now: Date): Promise<ReportsLoaded<ReportsData>
         vendors,
         baselineNotifyLagH,
         ordersExcludedNoPrice,
+        saved,
       },
     };
   } catch {

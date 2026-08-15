@@ -53,7 +53,7 @@ function pickupOpenedAt(entry: RosterEntry): string | null {
 function careStatusLine(entry: RosterEntry): string | null {
   const { care_status, status_changed_at, discharge_at } = entry.patient;
   if (care_status === "deceased")
-    return status_changed_at ? `Died ${formatDate(status_changed_at)}` : "Died";
+    return status_changed_at ? `Deceased ${formatDate(status_changed_at)}` : "Deceased";
   if (care_status === "discharged") {
     const at = discharge_at ?? status_changed_at;
     return at ? `Discharged ${formatDate(at)}` : "Discharged";
