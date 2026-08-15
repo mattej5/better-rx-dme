@@ -9,7 +9,8 @@
     "lint": "eslint",
     "seed": "node scripts/seed.mjs",
     "test:derive": "tsx --test src/lib/derive.test.ts",
-    "test:billing": "tsx --test src/lib/billing.test.ts"
+    "test:billing": "tsx --test src/lib/billing.test.ts",
+    "eval:parse": "node scripts/eval-parse.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.3",
