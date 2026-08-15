@@ -54,6 +54,14 @@ function HazmatChip() {
   );
 }
 
+function BackupChip() {
+  return (
+    <Chip bg="var(--burnt-tint)" fg="var(--burnt-dark)">
+      Backup request
+    </Chip>
+  );
+}
+
 function windowLine(stop: VendorStop): string {
   if (!stop.windowStart) return "No time set yet";
   if (stop.windowKind === "pickup_window") {
@@ -132,6 +140,7 @@ function StopRow({
         {/* Badges are derived upstream by derive.ts and passed in, never inferred here. */}
         <StatusChip status={stop.status} badge={stop.badges[0]} />
         {stop.hazmat ? <HazmatChip /> : null}
+        {stop.isReplacement ? <BackupChip /> : null}
       </div>
 
       {stop.variant === "pickup" && stop.familyNote ? (
@@ -212,7 +221,7 @@ export default async function VendorRunListPage({
         Your stops
       </h1>
       <p className="mt-1 text-[14px] text-[var(--ink-soft)]">
-        {DATE_FMT.format(clock)} · earliest first
+        {DATE_FMT.format(clock)} · needs attention first, then by time
       </p>
 
       <div className="mt-4">

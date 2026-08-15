@@ -241,8 +241,9 @@ export default async function PatientsPage({
                     ) : null}
                     {openDays !== null ? (
                       <p className="mt-1 text-[13px] text-[var(--ink-soft)]">
-                        Pickup open {openDays}{" "}
-                        {openDays === 1 ? "day" : "days"}
+                        {openDays === 0
+                          ? "Pickup requested today"
+                          : `Pickup open ${openDays} ${openDays === 1 ? "day" : "days"}`}
                       </p>
                     ) : pickedUp ? (
                       <p className="mt-1 text-[13px] text-[var(--ink-soft)]">

@@ -8,6 +8,7 @@ import "server-only";
 import { conditionScore, deriveBadges, reliabilityScore } from "@/src/lib/derive";
 import type { DerivableEvent, ScoreResult } from "@/src/lib/derive";
 import type { Badge, StopVariant } from "@/src/lib/domain";
+import { isReplacementOrder } from "@/src/lib/replacement";
 import type { Database, Json } from "@/src/types/db";
 
 type Tables = Database["public"]["Tables"];
@@ -196,6 +197,8 @@ export type VendorStop = {
   windowKind: "eta" | "needed_by" | "pickup_window" | "pickup_requested" | "none";
   items: StopItem[];
   familyNote: string | null;
+  /** N11: this stop exists because the first delivery arrived defective, or is a backup redelivery. */
+  isReplacement: boolean;
 };
 
 export type RunList = { stops: VendorStop[]; source: LinkSource };
@@ -297,8 +300,18 @@ function stopWindow(
   return { windowStart: null, windowEnd: null, windowKind: "none" };
 }
 
-function sortStops(stops: VendorStop[]): VendorStop[] {
+/** Needs attention first: an AT_RISK badge, a backup/replacement order, or a window already past. */
+function needsAttention(stop: VendorStop, now: Date): boolean {
+  if (stop.badges.includes("AT_RISK")) return true;
+  if (stop.isReplacement) return true;
+  return stop.windowStart !== null && Date.parse(stop.windowStart) < now.getTime();
+}
+
+function sortStops(stops: VendorStop[], now: Date): VendorStop[] {
   return [...stops].sort((a, b) => {
+    const urgentA = needsAttention(a, now) ? 0 : 1;
+    const urgentB = needsAttention(b, now) ? 0 : 1;
+    if (urgentA !== urgentB) return urgentA - urgentB;
     if (a.windowStart === null) return b.windowStart === null ? 0 : 1;
     if (b.windowStart === null) return -1;
     return Date.parse(a.windowStart) - Date.parse(b.windowStart);
@@ -310,7 +323,7 @@ export async function loadRunList(
   now: Date,
 ): Promise<{ ok: true; data: RunList } | { ok: false }> {
   if (link.source === "fixture") {
-    return { ok: true, data: { stops: sortStops(fixtureStops(now)), source: "fixture" } };
+    return { ok: true, data: { stops: sortStops(fixtureStops(now), now), source: "fixture" } };
   }
   try {
     const db = await client();
@@ -379,12 +392,13 @@ export async function loadRunList(
           addressNote: text(record(patient.address).note),
           items,
           familyNote: text(record(lastEvent(events, "pickup_requested")?.payload).family_note),
+          isReplacement: isReplacementOrder(order.items),
           ...stopWindow(order, events),
         } satisfies VendorStop,
       ];
     });
 
-    return { ok: true, data: { stops: sortStops(stops), source: "db" } };
+    return { ok: true, data: { stops: sortStops(stops, now), source: "db" } };
   } catch {
     return { ok: false };
   }
@@ -739,6 +753,7 @@ function fixtureStops(now: Date): VendorStop[] {
       windowKind: "needed_by",
       items: [{ hcpcs: "E0600", plainName: "Suction machine", qty: 1 }],
       familyNote: null,
+      isReplacement: false,
     },
     {
       orderId: "fixture-09911",
@@ -759,6 +774,7 @@ function fixtureStops(now: Date): VendorStop[] {
         { hcpcs: "E0601", plainName: "CPAP", qty: 1 },
       ],
       familyNote: "Family asks for after 2 PM on Tuesday.",
+      isReplacement: false,
     },
     {
       orderId: "fixture-10412",
@@ -776,6 +792,7 @@ function fixtureStops(now: Date): VendorStop[] {
       windowKind: "eta",
       items: [{ hcpcs: "E0431", plainName: "Portable oxygen (gas cylinder)", qty: 4 }],
       familyNote: null,
+      isReplacement: false,
     },
   ];
 }

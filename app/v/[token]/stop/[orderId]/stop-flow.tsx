@@ -29,6 +29,17 @@ const DECLINE_REASONS = [
   "Address or access problem",
 ];
 
+function BackupChip() {
+  return (
+    <span
+      className="inline-flex items-center rounded-[var(--radius-badge)] px-2 py-[2px] text-[10.8px] font-bold uppercase tracking-[0.05em]"
+      style={{ background: "var(--burnt-tint)", color: "var(--burnt-dark)" }}
+    >
+      Backup request
+    </span>
+  );
+}
+
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
@@ -252,10 +263,13 @@ export default function StopFlow({ stop }: { stop: StopDetail }) {
           className="mb-3 rounded-[8px] border-l-4 px-3 py-2"
           style={{ borderColor: "var(--burnt-dark)", background: "var(--burnt-tint)" }}
         >
-          <p className="text-[11px] font-bold uppercase tracking-[0.06em]" style={{ color: "var(--burnt-dark)" }}>
-            Replacement
-          </p>
-          <p className="text-[13.5px]">
+          <div className="flex items-center gap-2">
+            <p className="text-[11px] font-bold uppercase tracking-[0.06em]" style={{ color: "var(--burnt-dark)" }}>
+              Replacement
+            </p>
+            <BackupChip />
+          </div>
+          <p className="mt-1 text-[13.5px]">
             The first one arrived faulty. This redelivery is on your account
             {stop.replacementNoCharge ? " at no charge to the hospice" : ""}.
           </p>

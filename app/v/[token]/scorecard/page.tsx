@@ -20,9 +20,11 @@ const TIPS: Record<string, string> = {
   on_time: "Deliver before the hospice's needed-by time, not before your own ETA.",
   pickup_timeliness:
     "Collect within 24 hours of the pickup text. Batching a run inside that window does not count against you.",
-  confirmation: "Reply to the first text with YES or a time. Median reply time is what counts.",
+  confirmation:
+    "Reply to the first text within 15 minutes with YES or a time. Median reply time is what counts.",
   at_risk_freq: "Send an ETA early. An order goes at risk when nobody has heard from you.",
-  eta_accuracy: "Give the time you can hit, not the time you hope for.",
+  eta_accuracy:
+    "Give the time you can hit. An ETA off by 3 hours or more scores zero on accuracy.",
   decline_behavior:
     "If you can't take a job, say so in the first hour. An early no costs a quarter of a late one.",
   functional: "Test every unit before it leaves the warehouse.",

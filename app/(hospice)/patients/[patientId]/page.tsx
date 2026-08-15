@@ -29,6 +29,7 @@ type Line = {
   badge?: Badge;
   awaiting: boolean;
   resupplyDue?: string;
+  resupplyScheduleId?: string;
   pickupElapsedDays?: number;
 };
 
@@ -85,7 +86,7 @@ export default async function PatientCardPage({
     );
   }
 
-  const dueByHcpcs = new Map(resupply.map((r) => [r.hcpcs, r.next_due_at]));
+  const scheduleByHcpcs = new Map(resupply.map((r) => [r.hcpcs, r]));
 
   const lines: Line[] = [];
   const atRisk: { order: OrderRow; reason: string }[] = [];
@@ -113,7 +114,7 @@ export default async function PatientCardPage({
         : undefined;
 
     for (const item of orderItems(order.items)) {
-      const due = dueByHcpcs.get(item.hcpcs);
+      const schedule = scheduleByHcpcs.get(item.hcpcs);
       lines.push({
         key: `${order.id}:${item.hcpcs}`,
         orderId: order.id,
@@ -123,7 +124,8 @@ export default async function PatientCardPage({
         status: order.status,
         badge,
         awaiting,
-        resupplyDue: due ? formatDate(due) : undefined,
+        resupplyDue: schedule ? formatDate(schedule.next_due_at) : undefined,
+        resupplyScheduleId: schedule?.id,
         pickupElapsedDays,
       });
     }
@@ -183,6 +185,7 @@ export default async function PatientCardPage({
                   badge={line.badge}
                   awaitingApproval={line.awaiting}
                   resupplyDue={line.resupplyDue}
+                  resupplyScheduleId={line.resupplyScheduleId}
                   pickupElapsedDays={line.pickupElapsedDays}
                 />
               </li>
