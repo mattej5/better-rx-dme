@@ -60,7 +60,7 @@ export default function ApprovalCard({ card, canAct }: { card: ApprovalCardData;
           <div>
             <p className="text-[14px] font-semibold">{card.vendorName}</p>
             <p className="mt-1 text-[12px] text-ink-soft">
-              Approval limit {formatUsd(card.thresholdCents)}/month <AssumedLabel />
+              Approval limit {formatUsd(perDayCents(card.thresholdCents))}/day <AssumedLabel />
             </p>
           </div>
           <div className="text-right">
@@ -69,10 +69,7 @@ export default function ApprovalCard({ card, canAct }: { card: ApprovalCardData;
             ) : (
               <>
                 <p className="text-[20px] font-bold" style={{ fontFamily: "var(--font-display)" }}>
-                  {formatUsd(card.monthlyPriceCents)}<span className="text-[13px] font-medium">/month total</span>
-                </p>
-                <p className="text-[13px] text-ink-soft">
-                  {formatUsd(perDayCents(card.monthlyPriceCents))}/day
+                  {formatUsd(perDayCents(card.monthlyPriceCents))}<span className="text-[13px] font-medium">/day total</span>
                 </p>
               </>
             )}
