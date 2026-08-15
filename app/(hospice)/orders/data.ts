@@ -363,7 +363,9 @@ export function toTimeline(
             message: {
               direction: (inbound ? "inbound" : "outbound") as "inbound" | "outbound",
               body,
-              who: inbound ? (vendorName ?? "Vendor") : "BetterRX DME",
+              who: inbound
+                ? (isFamilyMessage(message) ? "Family, by phone" : (vendorName ?? "Vendor"))
+                : "BetterRX DME",
             },
           }
         : {}),
@@ -387,4 +389,10 @@ export function timeLeftLabel(targetAt: string | null, now: Date): string | null
   if (minutes < 90) return `${Math.round(minutes)} minutes to fix`;
   const hours = Math.round(minutes / 60);
   return `${hours} ${hours === 1 ? "hour" : "hours"} to fix`;
+}
+
+/** Seeded family phone calls are inbound rows tagged parsed.from === "family". */
+function isFamilyMessage(m: { parsed: unknown } | undefined): boolean {
+  if (!m || !m.parsed || typeof m.parsed !== "object" || Array.isArray(m.parsed)) return false;
+  return (m.parsed as Record<string, unknown>).from === "family";
 }

@@ -8,6 +8,7 @@ import StatusChip from "@/components/status-chip";
 import { SyntheticLabel } from "@/components/labels";
 import { now } from "@/src/lib/clock";
 import { atRiskReason, awaitingApproval, deriveBadges } from "@/src/lib/derive";
+import { legalNextSteps } from "@/src/lib/manual-status";
 import { URGENCY_LABEL, formatUsd, perDayCents } from "@/src/lib/domain";
 import { ACTION_CONFIDENCE_GATE } from "@/src/lib/parse-vendor-reply";
 import RetryCard from "../../patients/retry-card";
@@ -20,6 +21,7 @@ import {
 } from "../data";
 import EscalationSheet from "./escalation-sheet";
 import OrderActions from "./order-actions";
+import StatusSheet from "./status-sheet";
 import ParseConfirm from "./parse-confirm";
 import ReplacementButton from "./replacement-button";
 
@@ -139,6 +141,11 @@ export default async function OrderDetailPage({
     })
     .find((candidate) => candidate !== null);
 
+  // What a nurse may record from a phone call, given where the order actually is.
+  const manualSteps = legalNextSteps(order.status, {
+    confirmed: events.some((event) => event.type === "vendor_confirmed"),
+  });
+
   const timeline = toTimeline(events, messages, vendorName, replacedByOrder?.orderNo ?? null);
   const patientName = patient ? `${patient.first_name} ${patient.last_name}` : "Patient";
 
@@ -204,14 +211,13 @@ export default async function OrderDetailPage({
         ) : null}
       </header>
 
+      {/* On this page the banner explains only. "More options" below is the one opener. */}
       {badge === "AT_RISK" ? (
         <div className="mt-4">
           <RiskBanner
             reason={reason ?? "This order is at risk of missing its needed-by time."}
             timeLeft={timeLeft ?? undefined}
             updatedJustNow={justFlagged}
-            actionLabel="See options"
-            actionHref={`/orders/${order.id}?sheet=escalate`}
           />
         </div>
       ) : null}
@@ -223,8 +229,6 @@ export default async function OrderDetailPage({
             reason={
               reason ?? "Pickup was requested and the equipment is still in the home."
             }
-            actionLabel="See options"
-            actionHref={`/orders/${order.id}?sheet=escalate`}
           />
         </div>
       ) : null}
@@ -234,6 +238,7 @@ export default async function OrderDetailPage({
           orderId={order.id}
           vendorPhone={vendorPhone}
           closed={order.status === "delivered" || order.status === "picked_up"}
+          canUpdateStatus={manualSteps.length > 0}
         />
       </div>
 
@@ -284,6 +289,14 @@ export default async function OrderDetailPage({
           viewerIsDon={session?.role === "don"}
           backup={backup}
           currentPriceCents={order.price_cents}
+        />
+      ) : null}
+
+      {sheet === "status" && manualSteps.length > 0 ? (
+        <StatusSheet
+          orderId={order.id}
+          closeHref={`/orders/${order.id}`}
+          steps={manualSteps}
         />
       ) : null}
     </section>

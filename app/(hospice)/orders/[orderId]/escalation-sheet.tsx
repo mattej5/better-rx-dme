@@ -60,7 +60,8 @@ function ActionRow({
     "block w-full rounded-[var(--radius-btn)] px-4 py-3 text-left disabled:opacity-50";
   if (href) {
     return (
-      <Link href={href} className={className} style={palette}>
+      // Closing replaces the sheet URL so Back leaves the order, not reopens the sheet.
+      <Link href={href} replace scroll={false} className={className} style={palette}>
         {inner}
       </Link>
     );
@@ -103,6 +104,8 @@ export default function EscalationSheet({
     <div className="fixed inset-0 z-20 flex items-end justify-center">
       <Link
         href={closeHref}
+        replace
+        scroll={false}
         aria-label="Close options"
         className="absolute inset-0"
         style={{ background: "rgba(36, 51, 63, 0.45)" }}

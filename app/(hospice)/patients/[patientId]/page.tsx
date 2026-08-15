@@ -4,6 +4,7 @@ import EmptyState from "@/components/empty-state";
 import PollRefresh from "@/components/poll-refresh";
 import RiskBanner from "@/components/risk-banner";
 import { SyntheticLabel } from "@/components/labels";
+import { groupAtRisk, type AtRiskItem } from "@/src/lib/at-risk-groups";
 import { deriveBadges, awaitingApproval } from "@/src/lib/derive";
 import { now } from "@/src/lib/clock";
 import type { Badge, OrderStatus } from "@/src/lib/domain";
@@ -14,7 +15,6 @@ import {
   formatDate,
   loadPatientCard,
   orderItems,
-  type OrderRow,
 } from "../data";
 
 export const dynamic = "force-dynamic";
@@ -33,10 +33,10 @@ type Line = {
   pickupElapsedDays?: number;
 };
 
-function reasonOf(payload: unknown): string | null {
+function stringField(payload: unknown, field: string): string | null {
   if (!payload || typeof payload !== "object") return null;
-  const reason = (payload as Record<string, unknown>).reason;
-  return typeof reason === "string" && reason.length > 0 ? reason : null;
+  const value = (payload as Record<string, unknown>)[field];
+  return typeof value === "string" && value.length > 0 ? value : null;
 }
 
 export default async function PatientCardPage({
@@ -89,7 +89,7 @@ export default async function PatientCardPage({
   const scheduleByHcpcs = new Map(resupply.map((r) => [r.hcpcs, r]));
 
   const lines: Line[] = [];
-  const atRisk: { order: OrderRow; reason: string }[] = [];
+  const atRisk: AtRiskItem[] = [];
 
   for (const order of orders) {
     const orderEvents = events.get(order.id) ?? [];
@@ -101,10 +101,11 @@ export default async function PatientCardPage({
         .reverse()
         .find((e) => e.type === "at_risk_flagged");
       atRisk.push({
-        order,
+        orderId: order.id,
         reason:
-          reasonOf(flagged?.payload) ??
+          stringField(flagged?.payload, "reason") ??
           "This order is at risk of missing its needed-by time.",
+        rule: stringField(flagged?.payload, "rule"),
       });
     }
 
@@ -131,6 +132,8 @@ export default async function PatientCardPage({
     }
   }
 
+  const atRiskGroups = groupAtRisk(atRisk);
+
   return (
     <section>
       <PollRefresh intervalMs={5000} />
@@ -152,14 +155,14 @@ export default async function PatientCardPage({
         </p>
       </header>
 
-      {atRisk.length > 0 ? (
+      {atRiskGroups.length > 0 ? (
         <div className="mt-4 flex flex-col gap-3">
-          {atRisk.map(({ order, reason }) => (
+          {atRiskGroups.map((group) => (
             <RiskBanner
-              key={order.id}
-              reason={reason}
+              key={group.key}
+              reason={group.label}
               actionLabel="See options"
-              actionHref={`/orders/${order.id}?sheet=escalate`}
+              actionHref={`/orders/${group.orderId}?sheet=escalate`}
             />
           ))}
         </div>

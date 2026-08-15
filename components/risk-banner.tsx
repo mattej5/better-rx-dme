@@ -7,9 +7,10 @@ export type RiskBannerProps = {
   /** Plain-English explanation. Always visible — never a tooltip. */
   reason: string;
   timeLeft?: string;
-  actionLabel: string;
+  /** Omit on a page that already carries the opener; the reason still shows. */
+  actionLabel?: string;
   actionHref?: string;
-  onAction?: () => void; // STUB — N7/N9 wire the action here
+  onAction?: () => void;
   updatedJustNow?: boolean;
 };
 
@@ -46,17 +47,19 @@ export default function RiskBanner({
       {updatedJustNow ? (
         <p className="mt-1 text-[12px] text-[var(--ink-soft)]">Updated just now</p>
       ) : null}
-      <div className="mt-3">
-        {actionHref ? (
-          <Link href={actionHref} className={actionClass}>
-            {actionLabel}
-          </Link>
-        ) : (
-          <button type="button" onClick={onAction} className={actionClass}>
-            {actionLabel}
-          </button>
-        )}
-      </div>
+      {actionLabel ? (
+        <div className="mt-3">
+          {actionHref ? (
+            <Link href={actionHref} className={actionClass}>
+              {actionLabel}
+            </Link>
+          ) : (
+            <button type="button" onClick={onAction} className={actionClass}>
+              {actionLabel}
+            </button>
+          )}
+        </div>
+      ) : null}
     </div>
   );
 }

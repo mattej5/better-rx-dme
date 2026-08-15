@@ -120,7 +120,7 @@ export const EVENT_COPY: Record<EventType, string> = {
   pickup_scheduled: 'Pickup scheduled',
   picked_up: 'Picked up',
   message_sent: 'Message sent to vendor',
-  message_received: 'Vendor replied',
+  message_received: 'Reply received',
   resupply_due: 'Resupply due',
 };
 

@@ -12,11 +12,14 @@ export default function OrderActions({
   orderId,
   vendorPhone,
   closed,
+  canUpdateStatus,
 }: {
   orderId: string;
   vendorPhone: string | null;
   /** Delivered or picked up — there is nothing left to chase. */
   closed: boolean;
+  /** False when no step can legally come next, so the button would open an empty sheet. */
+  canUpdateStatus: boolean;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -50,11 +53,24 @@ export default function OrderActions({
         <Link
           href={`/orders/${orderId}?sheet=escalate`}
           className={`${btn} border border-[var(--line)]`}
+          replace
           scroll={false}
         >
           More options
         </Link>
       </div>
+      {canUpdateStatus ? (
+        <div className="mt-2 flex">
+          <Link
+            href={`/orders/${orderId}?sheet=status`}
+            className={`${btn} border border-[var(--line)]`}
+            replace
+            scroll={false}
+          >
+            Update status
+          </Link>
+        </div>
+      ) : null}
       {message ? (
         <p role="status" className="mt-2 text-[13px] text-[var(--ink-soft)]">
           {message}

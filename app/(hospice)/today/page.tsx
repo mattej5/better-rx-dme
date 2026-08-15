@@ -206,7 +206,7 @@ function NurseStack({ cards, patients, at }: StackProps) {
 
       <Section title="New admissions">
         {newAdmissions.length === 0 ? (
-          <EmptyState message="No admissions in the last two days." />
+          <EmptyState message="No new admissions in the last two days." />
         ) : (
           newAdmissions.map((p) => (
             <Link

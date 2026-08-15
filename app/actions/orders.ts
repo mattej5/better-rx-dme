@@ -2,7 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import type { EventType } from "@/src/lib/domain";
 import { appendEvent } from "@/src/lib/events";
+import { isLegalNextStep } from "@/src/lib/manual-status";
 import { getSession } from "@/src/lib/role";
 import { runRules } from "@/src/lib/rules";
 import { isPickupOrder, pickBackupVendor } from "../(hospice)/orders/data";
@@ -74,6 +76,45 @@ export async function requestReplacementOrder(
   } catch {
     return { ok: false, message: "We couldn't request a replacement. Try again." };
   }
+}
+
+/**
+ * The nurse half of the phone call. Engine §1.1 already lets her record a pickup
+ * window the vendor gave her by voice; this generalises that to every step the
+ * vendor may report the same way. Only the legal next step for the order's
+ * current state is offered, and `deriveStatus` recomputes the status from the
+ * appended event.
+ */
+export async function recordManualStatus(
+  orderId: string,
+  event: EventType,
+): Promise<OrderActionState> {
+  const actor = await getSession();
+  if (!actor) return { ok: false, message: "Choose who you are first." };
+  if (!orderId.trim()) return { ok: false, message: NOT_FOUND };
+  if (!configured()) return { ok: false, message: NO_ENV };
+
+  try {
+    const { supabase } = await import("@/src/lib/supabase");
+    const order = await supabase.from("orders").select("status").eq("id", orderId).maybeSingle();
+    if (order.error || !order.data) return { ok: false, message: NOT_FOUND };
+
+    const events = await supabase.from("order_events").select("type").eq("order_id", orderId);
+    if (events.error) return { ok: false, message: "We couldn't read this order. Try again." };
+    const confirmed = (events.data ?? []).some((e) => e.type === "vendor_confirmed");
+
+    if (!isLegalNextStep(order.data.status, { confirmed }, event)) {
+      return { ok: false, message: "That step no longer applies to this order." };
+    }
+
+    await appendEvent(orderId, event, { manual: true, recorded_by_phone: true }, actor);
+  } catch {
+    return { ok: false, message: "We couldn't record that update. Try again." };
+  }
+
+  await rerunRules(orderId);
+  refresh(orderId);
+  return { ok: true, message: "Recorded. The order is up to date." };
 }
 
 export async function escalateOrder(

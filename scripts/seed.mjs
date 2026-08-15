@@ -109,14 +109,22 @@ const patientDefinitions = [
   ['PT-88044','Lucille','Garcia','1936-06-30','female','J44.9','80016','active',83],
   ['PT-87889','Henry','Jackson','1942-10-14','male','I50.9','80230','active',58],
 ];
-const patients = patientDefinitions.map(([external_id, first_name, last_name, dob, gender, primary_dx, zip, care_status, admitted], i) => ({
+// Henry Jackson is admitted this morning so the nurse "New admissions" section is
+// never empty after a reseed. He carries no demo order, so nothing else shifts.
+const FRESH_ADMISSION = 'PT-87889';
+const patients = patientDefinitions.map(([external_id, first_name, last_name, dob, gender, primary_dx, zip, care_status, admitted], i) => {
+  const admittedAt = external_id === FRESH_ADMISSION ? plus(now, { h: -6 }) : plus(now, { d: -admitted });
+  return {
   id: randomUUID(), external_id, med_rec_no: `MRN-${61000 + i}`, first_name, last_name, dob, gender,
   phone: `+13035552${String(i).padStart(3, '0')}`, address: { street1: `${120 + i * 17} Juniper Way`, city: 'Aurora', state: 'CO', zip, country: 'US' },
   primary_dx, hospice_name: 'Desert Valley Hospice', emr_source: 'HCHB', care_status,
-  admitted_at: iso(plus(now, { d: -admitted })), discharge_at: care_status === 'discharge_scheduled' ? iso(plus(now, { d: 2, h: 3 })) : null,
+  admitted_at: iso(admittedAt), discharge_at: care_status === 'discharge_scheduled' ? iso(plus(now, { d: 2, h: 3 })) : null,
   status_changed_at: external_id === 'PT-87602' ? iso(plus(now, { h: -7, m: -5 })) : external_id === 'PT-87411' ? iso(plus(now, { d: -4 })) : null,
-  created_at: iso(plus(now, { d: -admitted })),
-}));
+  created_at: iso(admittedAt),
+  };
+});
+// Months of history under a patient admitted this morning would read as a bug.
+const historyPatients = patients.filter((p) => p.external_id !== FRESH_ADMISSION);
 const V = Object.fromEntries(vendors.map((x) => [x.key, x]));
 const P = Object.fromEntries(patients.map((x) => [x.external_id, x]));
 const ev = (order_id, type, when, payload = {}, actor = 'system', actor_role = 'system') => ({ order_id, type, payload, external_id: null, actor, actor_role, created_at: iso(when) });
@@ -156,7 +164,7 @@ function historyOrder(v, vendorIndex, index) {
   if (bad && index === 6) events.push(ev(id,'condition_reported',plus(delivered,{d:1}),{phase:'post_delivery',functional:false,clean:true,repair:'poor',issue:'not_working'},'Synthetic nurse','nurse'), ev(id,'reordered',plus(delivered,{d:1,m:10}),{from_vendor_id:v.id,to_vendor_id:v.id,reason:'defect'}));
   if (pickup) events.push(ev(id,'pickup_requested',pickupRequested,{notified_vendor_ids:[v.id]},'Synthetic case manager','case_manager'), ev(id,'pickup_scheduled',plus(pickupRequested,{m:45}),{window_start:iso(plus(pickupRequested,{h:Math.max(2,pickupH-2)})),window_end:iso(pickedUp),batched:pickupH<=24},`${v.name} dispatch`,'vendor'), ev(id,'picked_up',pickedUp,{condition_photo_url:`https://placehold.co/800x600?text=Pickup+${v.key}-${index+1}`},`${v.name} driver`,'vendor'));
   events.sort((a,b) => Date.parse(a.created_at)-Date.parse(b.created_at));
-  return { order:{ id,order_no:`HIST-${vendorIndex+1}-${String(index+1).padStart(3,'0')}`,patient_id:patients[(index+vendorIndex)%patients.length].id,vendor_id:v.id,hospice_account:'ACCT-001',status:pickup?'picked_up':'delivered',urgency:'routine',items:[item(code)],price_cents:cost(v,[code]),ordered_at:iso(placed),target_at:iso(promised),promised_eta:iso(promised),current_eta:iso(promised),delivered_at:iso(delivered),pickup_requested_at:pickup?iso(pickupRequested):null,pickup_scheduled_at:pickup?iso(plus(pickupRequested,{m:45})):null,picked_up_at:pickup?iso(pickedUp):null,ordered_by:'Synthetic history',ordered_by_role:'case_manager',created_at:iso(placed)}, events };
+  return { order:{ id,order_no:`HIST-${vendorIndex+1}-${String(index+1).padStart(3,'0')}`,patient_id:historyPatients[(index+vendorIndex)%historyPatients.length].id,vendor_id:v.id,hospice_account:'ACCT-001',status:pickup?'picked_up':'delivered',urgency:'routine',items:[item(code)],price_cents:cost(v,[code]),ordered_at:iso(placed),target_at:iso(promised),promised_eta:iso(promised),current_eta:iso(promised),delivered_at:iso(delivered),pickup_requested_at:pickup?iso(pickupRequested):null,pickup_scheduled_at:pickup?iso(plus(pickupRequested,{m:45})):null,picked_up_at:pickup?iso(pickedUp):null,ordered_by:'Synthetic history',ordered_by_role:'case_manager',created_at:iso(placed)}, events };
 }
 
 const demos = [];
@@ -205,8 +213,8 @@ async function main() {
   await batches('order_events',[...history,...demos].flatMap(x=>x.events));
   const delayed=demos.find(x=>x.order.order_no==='DME-09803').order;
   const messages=[
-    {id:randomUUID(),order_id:delayed.id,vendor_id:V.V3.id,direction:'inbound',channel:'sms',to_addr:V.V3.dispatch_phone,body:'Family called: equipment is still at the home. When is pickup?',parsed:{intent:'question',confidence:1,parser:'deterministic'},created_at:iso(plus(now,{d:-2}))},
-    {id:randomUUID(),order_id:delayed.id,vendor_id:V.V3.id,direction:'inbound',channel:'sms',to_addr:V.V3.dispatch_phone,body:'Second family call: bed still has not been collected.',parsed:{intent:'question',confidence:1,parser:'deterministic'},created_at:iso(plus(now,{h:-18}))},
+    {id:randomUUID(),order_id:delayed.id,vendor_id:V.V3.id,direction:'inbound',channel:'sms',to_addr:V.V3.dispatch_phone,body:'Family called: equipment is still at the home. When is pickup?',parsed:{intent:'question',confidence:1,parser:'deterministic',from:'family'},created_at:iso(plus(now,{d:-2}))},
+    {id:randomUUID(),order_id:delayed.id,vendor_id:V.V3.id,direction:'inbound',channel:'sms',to_addr:V.V3.dispatch_phone,body:'Second family call: bed still has not been collected.',parsed:{intent:'question',confidence:1,parser:'deterministic',from:'family'},created_at:iso(plus(now,{h:-18}))},
   ];
   await insert('messages',messages); await insert('order_events',messages.map(x=>ev(delayed.id,'message_received',new Date(x.created_at),{message_id:x.id},'Family caregiver','system')));
   await insert('resupply_schedules',[
