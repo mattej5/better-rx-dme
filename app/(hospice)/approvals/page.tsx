@@ -1,7 +1,7 @@
 import EmptyState from "@/components/empty-state";
 import PollRefresh from "@/components/poll-refresh";
 import { getSession } from "@/src/lib/role";
-import { formatUsd } from "@/src/lib/domain";
+import { formatUsd, perDayCents } from "@/src/lib/domain";
 import WideColumn from "../wide-column";
 import ApprovalCard from "./approval-card";
 import { loadApprovals } from "./data";
@@ -29,13 +29,13 @@ export default async function ApprovalsPage() {
       {loaded.ok && loaded.cards.length > 0 ? (
         <div className="mt-4 hidden rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface)] p-4 lg:block">
           <p className="text-[12px] font-bold uppercase tracking-[0.05em] text-ink-soft">
-            Pending monthly total
+            Pending, per day
           </p>
           <p
             className="mt-1 text-[30px] leading-none"
             style={{ fontFamily: "var(--font-display)", fontWeight: 700 }}
           >
-            {formatUsd(pendingTotalCents)}
+            {formatUsd(perDayCents(pendingTotalCents))}
           </p>
           <p className="mt-1 text-[13px] text-ink-soft">
             Across {loaded.cards.length} {loaded.cards.length === 1 ? "order" : "orders"} waiting on you
