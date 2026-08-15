@@ -27,10 +27,12 @@ const vendors = await db.from("vendors").select("id, name").in("name", [
 ]);
 const vid = (name) => vendors.data.find((v) => v.name === name)?.id;
 
+// Mesa Grande runs Axxess: the roster shows a second EMR source, and the
+// partner-connection pattern (not an assumed open API) is the integration story.
 const patients = [
-  { external_id: "PT-MG-70001", first_name: "Rosa", last_name: "Delgado", hospice_name: HOSPICE, care_status: "active", admitted_at: iso(-30 * 24), address: { street1: "12 Cholla Ct", city: "Mesa", state: "AZ", zip: "85201" }, med_rec_no: "MRN-72001" },
-  { external_id: "PT-MG-70002", first_name: "Earl", last_name: "Hutchins", hospice_name: HOSPICE, care_status: "active", admitted_at: iso(-70 * 24), address: { street1: "88 Saguaro Ln", city: "Mesa", state: "AZ", zip: "85203" }, med_rec_no: "MRN-72002" },
-  { external_id: "PT-MG-70003", first_name: "Gloria", last_name: "Sandoval", hospice_name: HOSPICE, care_status: "deceased", admitted_at: iso(-90 * 24), status_changed_at: iso(-20), address: { street1: "301 Ocotillo Dr", city: "Mesa", state: "AZ", zip: "85210" }, med_rec_no: "MRN-72003" },
+  { external_id: "PT-MG-70001", first_name: "Rosa", last_name: "Delgado", hospice_name: HOSPICE, emr_source: "Axxess", care_status: "active", admitted_at: iso(-30 * 24), address: { street1: "12 Cholla Ct", city: "Mesa", state: "AZ", zip: "85201" }, med_rec_no: "MRN-72001" },
+  { external_id: "PT-MG-70002", first_name: "Earl", last_name: "Hutchins", hospice_name: HOSPICE, emr_source: "Axxess", care_status: "active", admitted_at: iso(-70 * 24), address: { street1: "88 Saguaro Ln", city: "Mesa", state: "AZ", zip: "85203" }, med_rec_no: "MRN-72002" },
+  { external_id: "PT-MG-70003", first_name: "Gloria", last_name: "Sandoval", hospice_name: HOSPICE, emr_source: "Axxess", care_status: "deceased", admitted_at: iso(-90 * 24), status_changed_at: iso(-20), address: { street1: "301 Ocotillo Dr", city: "Mesa", state: "AZ", zip: "85210" }, med_rec_no: "MRN-72003" },
 ];
 const pIns = await db.from("patients").insert(patients).select("id, external_id");
 if (pIns.error) throw pIns.error;

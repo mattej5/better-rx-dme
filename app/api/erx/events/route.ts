@@ -204,6 +204,9 @@ export async function POST(request: Request) {
           last_name: lastName,
           care_status: careStatus ?? "active",
           hospice_name: "Desert Valley Hospice",
+          // The sending system names itself in meta.source (HCHB, Axxess, WellSky,
+          // MatrixCare); the roster chip renders it. Default stays HCHB.
+          ...(meta && text(meta.source) ? { emr_source: text(meta.source) as string } : {}),
         });
         if (inserted.error) throw inserted.error;
       }

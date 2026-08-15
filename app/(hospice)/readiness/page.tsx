@@ -70,6 +70,81 @@ function Legend() {
   );
 }
 
+function ToneChip({ tone, label }: { tone: CellTone; label: string }) {
+  const style = TONE_STYLE[tone];
+  return (
+    <span
+      className="inline-block rounded-[var(--radius-badge)] px-2 py-[2px] text-[10.8px] font-bold uppercase tracking-[0.05em]"
+      style={{ background: style.bg, color: style.fg }}
+    >
+      {label}
+    </span>
+  );
+}
+
+function MobileCellLine({ cell, plainName }: { cell: Cell; plainName: string }) {
+  const body = (
+    <span className="flex flex-wrap items-center gap-x-2 gap-y-1 py-2">
+      <ToneChip tone={cell.tone} label={cell.label} />
+      <span className="text-[13px] font-semibold text-[var(--ink)]">{plainName}</span>
+      {cell.when ? (
+        <span className="text-[12px] text-[var(--ink-soft)]">{cell.when}</span>
+      ) : null}
+    </span>
+  );
+  return cell.orderId ? (
+    <Link href={`/orders/${cell.orderId}`} className="block border-b border-[var(--line)]">
+      {body}
+    </Link>
+  ) : (
+    <span className="block border-b border-[var(--line)]">{body}</span>
+  );
+}
+
+function MobileRowCard({
+  row,
+  columns,
+}: {
+  row: ReadinessRow;
+  columns: { hcpcs: string; plainName: string }[];
+}) {
+  const plainNameByCode = new Map(columns.map((c) => [c.hcpcs, c.plainName]));
+  const nonEmptyCells = row.cells.filter((cell) => cell.tone !== "none");
+
+  return (
+    <div className="mt-3 rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface)] p-4 shadow-[var(--shadow)]">
+      <Link
+        href={`/patients/${row.patient.id}`}
+        className="block text-[16px] font-semibold leading-tight text-[var(--ink)]"
+      >
+        {row.patient.first_name} {row.patient.last_name}
+      </Link>
+      <span className="mt-0.5 block text-[12.5px] text-[var(--ink-soft)]">{row.note}</span>
+      <span className="block text-[12.5px] text-[var(--ink-soft)]">
+        {row.openCount} open {row.openCount === 1 ? "order" : "orders"}
+      </span>
+      <div className="mt-2">
+        <BundleButton patientId={row.patient.id} />
+      </div>
+      <div className="mt-3">
+        {nonEmptyCells.length === 0 ? (
+          <span className="block py-2 text-[13px] text-[var(--ink-soft)]">
+            Nothing ordered yet.
+          </span>
+        ) : (
+          nonEmptyCells.map((cell) => (
+            <MobileCellLine
+              key={cell.hcpcs}
+              cell={cell}
+              plainName={plainNameByCode.get(cell.hcpcs) ?? cell.hcpcs}
+            />
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
 function Row({ row }: { row: ReadinessRow }) {
   return (
     <tr className="align-top">
@@ -156,6 +231,13 @@ export default async function ReadinessPage() {
 
           <Legend />
 
+          <div className="lg:hidden">
+            {result.data.rows.map((row) => (
+              <MobileRowCard key={row.patient.id} row={row} columns={result.data.columns} />
+            ))}
+          </div>
+
+          <div className="hidden lg:block">
           <div className="mt-3 overflow-x-auto">
             <table className="w-max border-separate border-spacing-0 text-left">
               <thead>
@@ -188,6 +270,7 @@ export default async function ReadinessPage() {
                 ))}
               </tbody>
             </table>
+          </div>
           </div>
 
           <p className="mt-4 flex flex-wrap gap-x-3 gap-y-1">
