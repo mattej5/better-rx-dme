@@ -265,17 +265,22 @@ function VendorsTab({ data }: { data: ReportsData }) {
 function SavedTab({ data }: { data: ReportsData }) {
   const { saved, baselineNotifyLagH } = data;
   const noQualifyingOrders = saved.n_orders === 0;
+  // Three identical rows read as a rendering bug, not as a young data set.
+  const allWithin30 =
+    data.saved30.n_orders === saved.n_orders &&
+    data.saved30.dollarsSavedCents === saved.dollarsSavedCents;
+  const periods = allWithin30
+    ? ([{ label: "All time", s: saved }] as const)
+    : ([
+        { label: "Last 30 days", s: data.saved30 },
+        { label: "This year", s: data.savedYear },
+        { label: "All time", s: saved },
+      ] as const);
 
   return (
     <>
       <section className="mt-5 flex flex-col gap-3">
-        {(
-          [
-            { label: "Last 30 days", s: data.saved30 },
-            { label: "This year", s: data.savedYear },
-            { label: "All time", s: saved },
-          ] as const
-        ).map(({ label, s }) => (
+        {periods.map(({ label, s }) => (
           <div key={label}>
             <p className="text-[11px] font-bold uppercase tracking-[0.06em] text-[var(--ink-soft)]">
               {label}
@@ -295,6 +300,11 @@ function SavedTab({ data }: { data: ReportsData }) {
           </div>
         ))}
       </section>
+      {allWithin30 && !noQualifyingOrders ? (
+        <p className="mt-2 text-[13px] text-[var(--ink-soft)]">
+          All recorded activity is within the last 30 days.
+        </p>
+      ) : null}
       {noQualifyingOrders ? (
         <p className="mt-2 text-[13px] text-[var(--ink-soft)]">
           No qualifying orders yet. This fills in once a patient status change is

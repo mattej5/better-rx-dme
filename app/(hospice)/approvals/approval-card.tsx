@@ -20,20 +20,33 @@ function AlternativeLine({ card }: { card: ApprovalCardData }) {
   );
 }
 
-export default function ApprovalCard({ card, canAct }: { card: ApprovalCardData; canAct: boolean }) {
+export default function ApprovalCard({
+  card,
+  canAct,
+  onDecision,
+}: {
+  card: ApprovalCardData;
+  canAct: boolean;
+  onDecision?: (result: ApprovalActionState) => void;
+}) {
   const [showReason, setShowReason] = useState(false);
   const [reason, setReason] = useState("");
   const [result, setResult] = useState<ApprovalActionState | null>(null);
   const [pending, startTransition] = useTransition();
 
+  function settle(next: ApprovalActionState) {
+    setResult(next);
+    onDecision?.(next);
+  }
+
   function approve() {
     setResult(null);
-    startTransition(async () => setResult(await approveOrder(card.orderId)));
+    startTransition(async () => settle(await approveOrder(card.orderId)));
   }
 
   function deny() {
     setResult(null);
-    startTransition(async () => setResult(await denyOrder(card.orderId, reason)));
+    startTransition(async () => settle(await denyOrder(card.orderId, reason)));
   }
 
   return (
@@ -42,6 +55,9 @@ export default function ApprovalCard({ card, canAct }: { card: ApprovalCardData;
         <div>
           <p className="text-[18px] font-bold" style={{ fontFamily: "var(--font-display)" }}>{card.patientName}</p>
           <p className="mt-0.5 text-[12px] text-ink-soft">Order {card.orderNo}</p>
+          <p className="mt-1 max-w-[46ch] text-[13px] text-ink-soft">
+            Needs approval: this order came in over the {formatUsd(perDayCents(card.thresholdCents))}/day daily limit.
+          </p>
         </div>
         <StatusChip status="ordered" awaitingApproval />
       </div>
@@ -96,7 +112,7 @@ export default function ApprovalCard({ card, canAct }: { card: ApprovalCardData;
       ) : (
         <p className="mt-4 rounded-[var(--radius-card)] bg-[var(--paper-alt)] p-3 text-[13px] text-ink-soft">Only the Director of Nursing can approve or deny this order.</p>
       )}
-      {result ? <p role="status" className={`mt-3 text-[13px] font-semibold ${result.ok ? "text-[var(--green)]" : "text-[var(--red)]"}`}>{result.message}</p> : null}
+      {result && !onDecision ? <p role="status" className={`mt-3 text-[13px] font-semibold ${result.ok ? "text-[var(--green)]" : "text-[var(--red)]"}`}>{result.message}</p> : null}
     </article>
   );
 }

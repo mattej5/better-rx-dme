@@ -10,7 +10,7 @@
     "seed": "node scripts/seed.mjs",
     "test:derive": "tsx --test src/lib/derive.test.ts",
     "test:billing": "tsx --test src/lib/billing.test.ts",
-    "test:ui": "tsx --test src/lib/at-risk-groups.test.ts src/lib/manual-status.test.ts",
+    "test:ui": "tsx --test src/lib/at-risk-groups.test.ts src/lib/manual-status.test.ts src/lib/order-bundles.test.ts",
     "eval:parse": "node scripts/eval-parse.ts",
     "sms:test": "node --env-file-if-exists=.env.local scripts/send-test-sms.mts",
     "tokens:parse-system": "node scripts/count-parse-system.ts"

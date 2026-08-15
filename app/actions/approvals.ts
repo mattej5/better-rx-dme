@@ -10,7 +10,7 @@ import type { Database } from "@/src/types/db";
 
 export type ApprovalActionState = { ok: boolean; message: string };
 
-type OrderRow = Pick<Database["public"]["Tables"]["orders"]["Row"], "id" | "vendor_id" | "price_cents">;
+type OrderRow = Pick<Database["public"]["Tables"]["orders"]["Row"], "id" | "order_no" | "vendor_id" | "price_cents">;
 
 export async function getPendingApprovalCount(): Promise<number | null> {
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) return null;
@@ -59,9 +59,16 @@ function refresh(orderId: string) {
 
 async function loadOrder(orderId: string): Promise<OrderRow | null> {
   const { supabase } = await import("@/src/lib/supabase");
-  const result = await supabase.from("orders").select("id,vendor_id,price_cents").eq("id", orderId).maybeSingle();
+  const result = await supabase.from("orders").select("id,order_no,vendor_id,price_cents").eq("id", orderId).maybeSingle();
   if (result.error || !result.data) return null;
   return result.data;
+}
+
+async function vendorNameOf(vendorId: string | null): Promise<string> {
+  if (!vendorId) return "the vendor";
+  const { supabase } = await import("@/src/lib/supabase");
+  const result = await supabase.from("vendors").select("name").eq("id", vendorId).maybeSingle();
+  return result.data?.name ?? "the vendor";
 }
 
 export async function approveOrder(
@@ -85,10 +92,13 @@ export async function approveOrder(
       ...(note?.trim() ? { reason: note.trim() } : {}),
     }, actor);
 
+    const orderNo = order?.order_no ?? "This order";
+
     if (!order?.vendor_id) {
       refresh(orderId);
-      return { ok: true, message: "Order approved. A vendor still needs to be chosen before it can be sent." };
+      return { ok: true, message: `Approved. ${orderNo} still needs a vendor before it can be sent.` };
     }
+    const vendorName = await vendorNameOf(order.vendor_id);
 
     try {
       await appendEvent(orderId, "vendor_notified", {
@@ -105,11 +115,11 @@ export async function approveOrder(
       });
     } catch {
       refresh(orderId);
-      return { ok: true, message: "Approved. Vendor notification failed. Retry from the order page." };
+      return { ok: true, message: `Approved. ${orderNo} could not be sent to ${vendorName}. Retry from the order page.` };
     }
 
     refresh(orderId);
-    return { ok: true, message: "Order approved" };
+    return { ok: true, message: `Approved. ${orderNo} sent to ${vendorName}.` };
   } catch {
     return { ok: false, message: "Order could not be approved" };
   }
@@ -136,7 +146,10 @@ export async function denyOrder(
       reason: cleanReason,
     }, actor);
     refresh(orderId);
-    return { ok: true, message: "Order denied" };
+    return {
+      ok: true,
+      message: `Denied. ${order?.order_no ?? "This order"} was not sent. The nurse sees your reason.`,
+    };
   } catch {
     return { ok: false, message: "Order could not be denied" };
   }

@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 const LINKS = [
   { href: "/readiness", label: "Readiness board" },
-  { href: "/pickups", label: "Pickup tracker" },
+  { href: "/pickups", label: "Pickups" },
   { href: "/approvals", label: "Approvals" },
   { href: "/reports", label: "Reports" },
   { href: "/settings", label: "Settings" },

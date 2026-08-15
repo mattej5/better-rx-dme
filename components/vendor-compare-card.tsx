@@ -74,12 +74,13 @@ function DeadlineTrack({
           style={{ background: barColor, left: `${etaPct}%` }}
         />
       </div>
-      {/* Day included: a 28-hour lead time makes "Arrives 5:01 PM, needed by 9:00 AM"
-          read as a mistake unless the reader can see they are different days. */}
-      <div className="flex justify-between text-[11.5px] text-[var(--ink-soft)]">
-        <span>Arrives {formatDayTime(eta)}</span>
-        <span>Needed by {formatDayTime(deadline)}</span>
-      </div>
+      {/* One sentence, not two edge-justified labels: when the arrival marker sits
+          right of the deadline marker, edge-justified labels land under the wrong
+          markers. Day included, because a 28-hour lead time makes "Arrives 5:01 PM,
+          needed by 9:00 AM" read as a mistake unless the days are visible. */}
+      <p className="text-[12.5px] text-[var(--ink-soft)]">
+        Arrives {formatDayTime(eta)}. Needed by {formatDayTime(deadline)}.
+      </p>
     </div>
   );
 }

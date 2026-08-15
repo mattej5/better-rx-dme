@@ -4,7 +4,7 @@ import { getSession } from "@/src/lib/role";
 import { formatUsd, perDayCents } from "@/src/lib/domain";
 import { SyntheticLabel } from "@/components/labels";
 import WideColumn from "../wide-column";
-import ApprovalCard from "./approval-card";
+import ApprovalsGrid from "./approvals-grid";
 import { loadApprovals } from "./data";
 
 export default async function ApprovalsPage() {
@@ -44,19 +44,13 @@ export default async function ApprovalsPage() {
         </div>
       ) : null}
 
-      <div className="mt-5 grid gap-4 lg:grid-cols-2 lg:items-start">
-        {!loaded.ok ? (
-          <div className="lg:col-span-2">
-            <EmptyState message={loaded.reason === "no-env" ? "Supabase key not set. Approvals appear after setup." : "We couldn't load approvals. Try again."} />
-          </div>
-        ) : loaded.cards.length === 0 ? (
-          <div className="lg:col-span-2">
-            <EmptyState message="No orders are waiting for approval." />
-          </div>
-        ) : (
-          loaded.cards.map((card) => <ApprovalCard key={card.orderId} card={card} canAct={session?.role === "don"} />)
-        )}
-      </div>
+      {!loaded.ok ? (
+        <div className="mt-5">
+          <EmptyState message={loaded.reason === "no-env" ? "Supabase key not set. Approvals appear after setup." : "We couldn't load approvals. Try again."} />
+        </div>
+      ) : (
+        <ApprovalsGrid cards={loaded.cards} canAct={session?.role === "don"} />
+      )}
     </section>
       <p className="mt-6 text-center">
         <SyntheticLabel />

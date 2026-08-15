@@ -3,7 +3,7 @@ import { BADGE_LABEL, STATUS_LABEL } from "@/src/lib/domain";
 
 const STATUS_STYLE: Record<OrderStatus, { bg: string; fg: string }> = {
   ordered: { bg: "var(--royal-tint)", fg: "#35618A" },
-  dispatched: { bg: "var(--ocean-tint)", fg: "#1F7B92" },
+  dispatched: { bg: "var(--ocean-tint)", fg: "#186379" },
   in_transit: { bg: "var(--burnt-tint)", fg: "var(--burnt-dark)" },
   delivered: { bg: "var(--green-tint)", fg: "#4A7D33" },
   pickup_triggered: { bg: "var(--purple-tint)", fg: "var(--purple)" },

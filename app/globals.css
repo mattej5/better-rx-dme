@@ -17,6 +17,13 @@
   --font-display: var(--font-display);
 }
 
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible {
+  outline: 3px solid var(--royal);
+  outline-offset: 2px;
+}
+
 body {
   background: var(--paper);
   color: var(--ink);

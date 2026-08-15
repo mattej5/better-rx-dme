@@ -8,6 +8,7 @@ import { AssumedLabel, SyntheticLabel } from "@/components/labels";
 import { now } from "@/src/lib/clock";
 import { awaitingApproval, deriveBadges } from "@/src/lib/derive";
 import { formatDayTime, formatUsd, type Badge } from "@/src/lib/domain";
+import { groupBundles } from "@/src/lib/order-bundles";
 import { getSession, ROLE_FOCUS, type Role } from "@/src/lib/role";
 import { orderItems, statusRank } from "../patients/data";
 import OrderCard from "./order-card";
@@ -47,10 +48,22 @@ function itemLine(card: OrderCardData): string {
     : names.join(", ");
 }
 
+/** Once an order is in its pickup phase, an arrival time is stale history. */
 function whenLine(card: OrderCardData): string | undefined {
-  const at = card.order.current_eta ?? card.order.target_at;
+  const order = card.order;
+  if (order.status === "picked_up") {
+    return order.picked_up_at
+      ? `Picked up ${formatDayTime(order.picked_up_at)}`
+      : "Picked up";
+  }
+  if (order.status === "pickup_triggered") {
+    return order.pickup_requested_at
+      ? `Pickup requested ${formatDayTime(order.pickup_requested_at)}`
+      : "Pickup requested";
+  }
+  const at = order.current_eta ?? order.target_at;
   if (!at) return undefined;
-  return card.order.current_eta
+  return order.current_eta
     ? `Arrives ${formatDayTime(at)}`
     : `Needed by ${formatDayTime(at)}`;
 }
@@ -68,6 +81,45 @@ function Card({ card }: { card: Enriched }) {
       awaitingApproval={card.awaiting}
       reason={card.reason}
     />
+  );
+}
+
+/**
+ * One card per bundle. The rolled-up card links to the patient, which is the only
+ * screen that lists every item in the bundle.
+ */
+function CardList({ cards }: { cards: Enriched[] }) {
+  const bundles = groupBundles(
+    cards.map((card) => ({
+      ...card,
+      orderId: card.order.id,
+      patientId: card.order.patient_id,
+      vendorId: card.order.vendor_id,
+      orderedAt: card.order.ordered_at,
+    })),
+  );
+  return (
+    <>
+      {bundles.map((bundle) => {
+        const lead = bundle.lead;
+        if (bundle.count === 1) return <Card key={bundle.key} card={lead} />;
+        const flagged = bundle.orders.find((o) => o.badge);
+        return (
+          <OrderCard
+            key={bundle.key}
+            href={`/patients/${lead.patient.id}`}
+            patientName={`${lead.patient.first_name} ${lead.patient.last_name}`}
+            itemLine={bundle.itemsLabel}
+            whenLine={whenLine(lead)}
+            vendorName={lead.vendorName}
+            status={lead.order.status}
+            badge={flagged?.badge}
+            awaitingApproval={lead.awaiting}
+            reason={flagged?.reason}
+          />
+        );
+      })}
+    </>
   );
 }
 
@@ -114,9 +166,7 @@ function NeedsAttention({
           updatedJustNow
         />
       ) : null}
-      {cards.map((card) => (
-        <Card key={card.order.id} card={card} />
-      ))}
+      <CardList cards={cards} />
     </Section>
   );
 }
@@ -200,7 +250,7 @@ function NurseStack({ cards, patients, at }: StackProps) {
         {dueToday.length === 0 ? (
           <EmptyState message="Nothing is due today." />
         ) : (
-          dueToday.map((card) => <Card key={card.order.id} card={card} />)
+          <CardList cards={dueToday} />
         )}
       </Section>
 
@@ -289,7 +339,7 @@ function DonStack({ cards }: StackProps) {
         {waiting.length === 0 ? (
           <EmptyState message="No orders are waiting for your approval." />
         ) : (
-          waiting.map((card) => <Card key={card.order.id} card={card} />)
+          <CardList cards={waiting} />
         )}
       </Section>
 
@@ -347,7 +397,11 @@ export default async function TodayPage() {
       ) : (
         (() => {
           const cards = enrich(result.data, at);
-          const attention = cards.filter((c) => c.badge);
+          // "Waiting on you" names the DON's own action, so it wins the order.
+          // No card appears in both sections.
+          const attention = cards.filter(
+            (c) => c.badge && !(session.role === "don" && c.awaiting),
+          );
           const amberCount = attention.filter((c) =>
             result.data.recentStatusChangeOrderIds.has(c.order.id),
           ).length;
