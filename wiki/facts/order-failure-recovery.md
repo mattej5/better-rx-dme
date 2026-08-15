@@ -10,7 +10,7 @@ When a vendor cannot fulfill an order (damage, stockout, route failure), the sys
 
 **Problem today:** Hospice finds out Thursday morning or doesn't find out until discharge is delayed. Wheelchair isn't there. Patient goes home without equipment. Hospice blamed.
 
-**With app:** Sarah gets an alert within 3 minutes. She re-orders from an alternative vendor. New ETA confirmed. Family notified. Crisis averted.
+**With app:** Sarah gets an alert within 3 minutes. She re-orders from an alternative vendor. New ETA confirmed. Family notified `[cut 8/14 — family comms out of demo scope]`. Crisis averted.
 
 ---
 
@@ -71,7 +71,7 @@ When Sarah confirms the re-order:
 
 ---
 
-### 5. **Family Auto-Notify (If Enabled)**
+### 5. **Family Auto-Notify (If Enabled)** `[cut 8/14 — family comms out of demo scope]`
 Once re-order is confirmed:
 - **SMS/email to patient's family:** *"Your wheelchair order was delayed. We have rescheduled delivery for Thursday morning. Equipment will still arrive before discharge. We apologize for the inconvenience."*
 - Message is pre-written but can be edited by Sarah before sending
@@ -113,7 +113,7 @@ If **no alternative exists** and discharge is imminent:
 | **Async over sync** | SMS + email to vendor, not waiting for a phone call. No hold times. |
 | **Visibility of effort** | Show Sarah what the system did (which vendors were queried, why some didn't work, what escalation path was chosen). |
 | **Human-in-the-loop** | System recommends, Sarah decides. Don't auto-reorder without confirmation. |
-| **Turnover-friendly** | A new nurse seeing this for the first time understands the flow without training. One tap to re-order, one tap to notify family. |
+| **Turnover-friendly** | A new nurse seeing this for the first time understands the flow without training. One tap to re-order, one tap to notify family. `[cut 8/14 — family comms out of demo scope]` |
 
 ---
 

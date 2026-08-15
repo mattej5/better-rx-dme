@@ -54,7 +54,7 @@ export function ClockControls() {
         <SubmitButton name="seconds" value="3600">+1h</SubmitButton>
         <SubmitButton name="seconds" value="86400">+1d</SubmitButton>
       </div>
-      <p className="mt-2 text-xs text-slate-600">T4 rules sweep is a no-op stub.</p>
+      <p className="mt-2 text-xs text-slate-600">Advancing the clock also runs the rules sweep against every open order.</p>
       <Result state={state} />
     </form>
   )
@@ -69,8 +69,9 @@ export function ResetControl() {
         disabled={pending}
         className="rounded border border-red-400 bg-white px-3 py-2 text-sm font-semibold text-red-800"
       >
-        {pending ? 'Resetting…' : 'Reset seed (T1 stub)'}
+        {pending ? 'Resetting…' : 'Reset seed (stub)'}
       </button>
+      <p className="mt-2 text-xs text-slate-600">Not wired up yet. Run scripts/reset-demo.sql, then reseed with scripts/seed.mjs.</p>
       <Result state={state} />
     </form>
   )
@@ -86,7 +87,7 @@ export function ScenarioControls() {
         <SubmitButton name="scenario" value="DME-09803">DME-09803 delayed</SubmitButton>
         <SubmitButton name="scenario" value="urgency-cascade">Urgency cascade</SubmitButton>
       </div>
-      <p className="mt-2 text-xs text-slate-600">T2 scenario replay is not landed; buttons are honest stubs.</p>
+      <p className="mt-2 text-xs text-slate-600">Scenario replay is not landed yet; these buttons are honest stubs.</p>
       <Result state={state} />
     </form>
   )
@@ -110,8 +111,9 @@ export function InboundSmsControl() {
         disabled={pending}
         className="mt-2 rounded border border-slate-400 bg-white px-3 py-2 text-sm font-semibold"
       >
-        {pending ? 'Recording…' : 'Simulate inbound SMS (N4 stub)'}
+        {pending ? 'Recording…' : 'Simulate inbound SMS (stub)'}
       </button>
+      <p className="mt-2 text-xs text-slate-600">Parsing isn't landed yet; it arrives with the comms lane.</p>
       <Result state={state} />
     </form>
   )
@@ -136,7 +138,7 @@ export function DeathSimulationControl() {
       >
         {pending ? 'Posting…' : 'Simulate EMR death via eRx ingress'}
       </button>
-      <p className="mt-2 text-xs text-slate-600">Posts to /api/erx/events. A 404 is expected until T10 lands.</p>
+      <p className="mt-2 text-xs text-slate-600">Posts to /api/erx/events, the live eRx ingress endpoint. Press again to demonstrate the replay no-op.</p>
       <Result state={state} />
     </form>
   )

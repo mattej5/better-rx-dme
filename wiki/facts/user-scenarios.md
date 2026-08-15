@@ -21,7 +21,7 @@ Real-world flows that illustrate how our product solves the core problems. These
    - Vendor B: $180, in stock, 48-hr delivery (misses deadline)
    - Vendor C: $210, out of stock, 5-day backorder
 6. **Choose Vendor A** (best price + meets deadline) → Tap "Confirm"
-7. **Receive SMS confirmation** with tracking link (can forward to family)
+7. **Receive SMS confirmation** with tracking link (can forward to family) `[cut 8/14 — family comms out of demo scope]`
 8. **Watch real-time status bar:** Ordered → Dispatched → In Transit (ETA 2:15 PM Wed) → Delivered
 
 ### Why this beats today:
@@ -45,7 +45,7 @@ Real-world flows that illustrate how our product solves the core problems. These
 ### What Sarah can do right now:
 - **Tap "Call Vendor"** → Phone number + quick note attached to the order ("Patient discharge 4:30 PM — can you pick up from warehouse?")
 - **See alternatives** → "Vendor B has E0601 in stock, 24-hr delivery" — can reorder with them
-- **Notify family proactively** → "Equipment may arrive slightly late; here's what we're doing" (message template in-app)
+- **Notify family proactively** → "Equipment may arrive slightly late; here's what we're doing" (message template in-app) `[cut 8/14 — family comms out of demo scope]`
 - **Escalate to DON** → One tap flags it for approver ("High-cost order at risk")
 
 ### Why this is the product:
@@ -66,12 +66,12 @@ Real-world flows that illustrate how our product solves the core problems. These
 1. **EMR status change → System detects "Deceased"**
 2. **Both orders auto-triggered for "Pickup Requested"**
 3. **Vendor notified via SMS + email:** "Patient PT-88502 status changed to deceased. Equipment [list] ready for retrieval. Please schedule pickup by end of business Wednesday."
-4. **Family notified via SMS:** "Your equipment will be picked up by end of business tomorrow."
+4. **Family notified via SMS:** "Your equipment will be picked up by end of business tomorrow." `[cut 8/14 — family comms out of demo scope]`
 5. **Sarah's app shows:** "Pickup Triggered" status on both orders, ETA for pickup, vendor contact if she needs to follow up.
 
 ### Why this solves the problem:
 - **Today:** A nurse manually calls the vendor. Vendor voice line has a 30-minute hold. Gets through Friday. Equipment sits in grieving family's home 3+ days. Family calls hospice asking "when is this being removed?" Hospice blamed. Hospice pays additional rental day(s). Bad CAHPS score.
-- **With app:** Pickup triggers automatically on EMR change. Vendor has 24–36 hours to pick up. Family knows pickup is scheduled. Equipment gone by Wednesday. Family's pain minimized. Hospice cost controlled. Reputation protected.
+- **With app:** Pickup triggers automatically on EMR change. Vendor has 24–36 hours to pick up. Family knows pickup is scheduled `[cut 8/14 — family comms out of demo scope]`. Equipment gone by Wednesday. Family's pain minimized. Hospice cost controlled. Reputation protected.
 
 **This scenario appears in the brief as DME-09911 (Pickup Triggered) and DME-09803 (Pickup Delayed).** Handling both states is required. `[order-lifecycle]`
 

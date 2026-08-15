@@ -193,8 +193,15 @@ function riskDecisions(
   const deadline = targetAt(order, events);
   const eta = latestEta(events);
   const delivered = latestEvent(events, "delivered");
+  // Pickup-phase orders are past the delivery lifecycle: delivery rules
+  // (deadline, ETA, silence, lead-time) must not fire on them. pickup_delayed
+  // is the only rule that applies once pickup_requested exists.
+  const pickupPhase =
+    latestEvent(events, "pickup_requested") !== undefined ||
+    latestEvent(events, "picked_up") !== undefined;
+  const pastDelivery = Boolean(delivered) || pickupPhase;
 
-  const missesDeadline = !delivered && deadline && eta && eta.at.getTime() > deadline.getTime();
+  const missesDeadline = !pastDelivery && deadline && eta && eta.at.getTime() > deadline.getTime();
   const lateMinutes = missesDeadline && deadline && eta
     ? Math.max(1, Math.round((eta.at.getTime() - deadline.getTime()) / 60_000))
     : 0;
@@ -203,11 +210,11 @@ function riskDecisions(
       ? {
         rule: "eta_misses_deadline",
         severity: "red",
-        reason: `Delivery ETA ${formatTime(eta.iso)}, discharge ${formatTime(deadline.toISOString())} — misses by ${lateMinutes} minutes.`,
+        reason: `Delivery ETA ${formatTime(eta.iso)}, discharge ${formatTime(deadline.toISOString())}. Misses by ${lateMinutes} minutes.`,
       }
       : undefined,
-    clearReason: delivered
-      ? "The order was delivered, so the delivery deadline risk is resolved."
+    clearReason: pastDelivery
+      ? "The order is past delivery, so the delivery deadline risk is resolved."
       : eta && deadline && eta.at.getTime() <= deadline.getTime()
         ? `Latest ETA ${formatTime(eta.iso)} is before the ${formatTime(deadline.toISOString())} discharge deadline.`
         : "The order no longer has an ETA past its discharge deadline.",
@@ -216,7 +223,7 @@ function riskDecisions(
   const etaMarginMinutes = deadline && eta
     ? (deadline.getTime() - eta.at.getTime()) / 60_000
     : null;
-  const etaTight = !delivered && etaMarginMinutes !== null && etaMarginMinutes >= 0
+  const etaTight = !pastDelivery && etaMarginMinutes !== null && etaMarginMinutes >= 0
     && etaMarginMinutes <= settings.eta_amber_margin_min;
   const tightMinutes = etaMarginMinutes === null ? 0 : Math.max(0, Math.round(etaMarginMinutes));
   decisions.set("eta_tight", {
@@ -224,11 +231,11 @@ function riskDecisions(
       ? {
         rule: "eta_tight",
         severity: "amber",
-        reason: `ETA ${formatTime(eta.iso)} leaves ${tightMinutes} minutes before the ${formatTime(deadline.toISOString())} discharge — no room for traffic.`,
+        reason: `ETA ${formatTime(eta.iso)} leaves ${tightMinutes} minutes before the ${formatTime(deadline.toISOString())} discharge. No room for traffic.`,
       }
       : undefined,
-    clearReason: delivered
-      ? "The order was delivered, so the tight ETA risk is resolved."
+    clearReason: pastDelivery
+      ? "The order is past delivery, so the tight ETA risk is resolved."
       : eta && deadline && etaMarginMinutes !== null && etaMarginMinutes > settings.eta_amber_margin_min
         ? `Latest ETA ${formatTime(eta.iso)} leaves ${Math.round(etaMarginMinutes)} minutes before the ${formatTime(deadline.toISOString())} discharge deadline.`
         : "The latest ETA no longer falls inside the configured amber margin.",
@@ -241,7 +248,7 @@ function riskDecisions(
   const silenceElapsedMinutes = notifiedAt
     ? (current.getTime() - notifiedAt.getTime()) / 60_000
     : 0;
-  const silenceFired = !delivered && Boolean(notifiedAt) && !confirmed && silenceElapsedMinutes > silenceMinutes;
+  const silenceFired = !pastDelivery && Boolean(notifiedAt) && !confirmed && silenceElapsedMinutes > silenceMinutes;
   const silenceSeverity = silenceElapsedMinutes > silenceMinutes * 2 ? "red" : "amber";
   decisions.set("confirmation_silence", {
     flag: silenceFired && notifiedAt
@@ -264,7 +271,7 @@ function riskDecisions(
   const hoursToDeadline = deadline
     ? (deadline.getTime() - current.getTime()) / 3_600_000
     : null;
-  const leadTimeFired = !delivered && !eta && hoursToDeadline !== null && hoursToDeadline < requiredHours;
+  const leadTimeFired = !pastDelivery && !eta && hoursToDeadline !== null && hoursToDeadline < requiredHours;
   decisions.set("lead_time_buffer", {
     flag: leadTimeFired && deadline && hoursToDeadline !== null
       ? {
@@ -275,8 +282,8 @@ function riskDecisions(
           : `${label}, no ETA yet. ${hoursToDeadline >= 0 ? `${formatNumber(hoursToDeadline)} hours to the ${formatTime(deadline.toISOString())} discharge` : `The ${formatTime(deadline.toISOString())} discharge deadline was ${formatNumber(Math.abs(hoursToDeadline))} hours ago`}; this vendor typically needs ${formatNumber(leadHours)} hours for a ${urgency} order.`,
       }
       : undefined,
-    clearReason: delivered
-      ? "The order was delivered, so the lead-time buffer risk is resolved."
+    clearReason: pastDelivery
+      ? "The order is past delivery, so the lead-time buffer risk is resolved."
       : eta
         ? `Vendor provided an ETA of ${formatTime(eta.iso)}; the ${formatNumber(requiredHours)}-hour lead-time buffer no longer applies.`
         : "The order has enough time remaining for its configured lead-time buffer.",

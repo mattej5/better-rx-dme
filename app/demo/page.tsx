@@ -48,7 +48,7 @@ async function loadDemoData(): Promise<DemoData> {
     const hasData = Boolean(stateResult.data || linkResult.data)
     return {
       configurationMessage: null,
-      dataMessage: hasData ? null : 'No data yet. Run seed (T1).',
+      dataMessage: hasData ? null : 'No data yet. Run the seed script.',
       magicLink: linkResult.data ? `/v/${linkResult.data.token}` : null,
       offsetSeconds: stateResult.data?.clock_offset_seconds ?? 0,
     }
@@ -125,7 +125,7 @@ export default async function DemoPage() {
           <ResetControl />
         </Card>
 
-        <Card title="Scenario jumps (T2 stubs)">
+        <Card title="Scenario jumps (stub)">
           <ScenarioControls />
         </Card>
 
@@ -138,7 +138,7 @@ export default async function DemoPage() {
         </Card>
 
         <Card title="Vendor run-list link">
-          {demoData.magicLink ? <QrPlaceholder link={demoData.magicLink} /> : <p className="text-sm">No magic links yet (N6)</p>}
+          {demoData.magicLink ? <QrPlaceholder link={demoData.magicLink} /> : <p className="text-sm">No magic links yet</p>}
         </Card>
       </div>
     </main>

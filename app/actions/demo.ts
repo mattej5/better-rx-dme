@@ -87,8 +87,8 @@ export async function resetSeed(
   void _formData
   const state = {
     ok: false,
-    message: 'Seed script not landed',
-    detail: 'Reset seed is a T1 stub; no database changes were made.',
+    message: 'Reset not wired up in this panel',
+    detail: 'Run scripts/reset-demo.sql, then reseed with scripts/seed.mjs. No database changes were made.',
   }
   revalidatePath('/', 'layout')
   return state
@@ -103,7 +103,7 @@ export async function jumpScenario(
   const state = allowed.has(scenario)
     ? {
         ok: false,
-        message: `Scenario jump not landed (T2): ${scenario}`,
+        message: `Scenario jump not landed: ${scenario}`,
         detail: 'No events or database rows were changed.',
       }
     : { ok: false, message: 'Unknown scenario' }
@@ -120,7 +120,7 @@ export async function simulateInboundSms(
   const state = body
     ? {
         ok: false,
-        message: 'Parse loop not landed (N4)',
+        message: 'Parse loop not landed; arrives with the comms lane',
         detail: `Recorded in this panel only: “${body}”`,
       }
     : { ok: false, message: 'Enter a simulated vendor reply' }
