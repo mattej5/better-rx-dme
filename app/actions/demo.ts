@@ -15,8 +15,9 @@ function missingSupabaseConfiguration(): string | null {
   return null
 }
 
-async function sweepAllOpenOrders(): Promise<void> {
-  // STUB — T4 runRules lands here
+async function sweepAllOpenOrders(): Promise<{ flagged: number; cleared: number }> {
+  const { runRulesSweep } = await import('@/src/lib/rules')
+  return runRulesSweep()
 }
 
 export async function advanceClock(
@@ -55,12 +56,12 @@ export async function advanceClock(
           if (writeError) {
             state = { ok: false, message: 'Clock update failed', detail: writeError.message }
           } else {
-            await sweepAllOpenOrders()
+            const sweep = await sweepAllOpenOrders()
             const virtualNow = new Date(Date.now() + nextOffset * 1000)
             state = {
               ok: true,
               message: `Clock advanced to ${virtualNow.toISOString()}`,
-              detail: 'Rules sweep not landed (T4); the local sweep stub did nothing.',
+              detail: `Rules sweep: ${sweep.flagged} flagged / ${sweep.cleared} cleared.`,
             }
           }
         }

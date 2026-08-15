@@ -2,6 +2,7 @@ import "server-only";
 
 import { now } from "@/src/lib/clock";
 import { appendEvent, type Actor } from "@/src/lib/events";
+import { runRules } from "@/src/lib/rules";
 import type { Database, Json } from "@/src/types/db";
 
 type PatientRow = Database["public"]["Tables"]["patients"]["Row"];
@@ -111,7 +112,10 @@ export async function changePatientStatus(
       (status === "deceased" || status === "discharged") &&
       order.status === "delivered" &&
       itemHcpcs(order.items).some((code) => serialized.has(code));
-    if (!needsPickup) continue;
+    if (!needsPickup) {
+      await runRules(order.id);
+      continue;
+    }
 
     await appendEvent(order.id, "pickup_requested", {
       notified_vendor_ids: order.vendor_id ? [order.vendor_id] : [],
@@ -123,6 +127,7 @@ export async function changePatientStatus(
       .eq("id", order.id);
     if (pickupUpdate.error) throw pickupUpdate.error;
     pickupOrders.push(order);
+    await runRules(order.id);
   }
 
   const vendorOrders = new Map<string, OrderRow>();

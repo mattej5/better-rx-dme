@@ -174,3 +174,9 @@ Anything editable at runtime lives in Settings (view 14), which is the in-app ve
 - **No claim that competitive bidding harmed patient access.** GAO explicitly did not find beneficiary-access harm `[research]`. Our claim is coordination fragility.
 - **No claim that CAHPS measures equipment.** The instrument contains no equipment question `[research]`. The anchor item is Q6, on whether the team let the family know when they would arrive.
 - **No use of Medicare Part B capped-rental "full month on death" rules.** They do not apply to hospice DME `[research]`. Conflating them is a checkable factual error.
+
+## Added 8/15 (product review)
+
+**Staff management is out of app scope.** Adding or removing hospice personnel is an identity-system concern (BetterRX identity, EMR roster sync), not a feature of this app. The DON is the in-app administrative persona: approvals, vendor management, guardrails. Surfaces: /signin persona roster, /approvals, /settings. [assumed]
+
+**Single-hospice seed, multi-hospice architecture.** One hospice account is seeded and labeled. Vendor magic links are vendor-scoped, orders carry hospice_account, so a vendor's run list is cross-hospice by construction; the demo simply has one tenant's data. Surfaces: vendor run list, /api/erx/events tenancy mapping. [assumed]

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { appendEvent } from "@/src/lib/events";
+import { runRules } from "@/src/lib/rules";
 import {
   changePatientStatus,
   type PatientStatus,
@@ -235,6 +236,7 @@ export async function POST(request: Request) {
         userName: "BetterRX eRx ingress",
       }, ingressOpts);
     }
+    await runRules(order.id);
     return NextResponse.json({ ok: true });
   } catch (caught) {
     const code = caught && typeof caught === "object" && "code" in caught ? (caught as { code?: string }).code : undefined;

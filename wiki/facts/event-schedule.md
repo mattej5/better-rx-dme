@@ -1,5 +1,7 @@
 # Event Schedule and Venues
 
+> **Demo-day data step (added 8/15):** ~30 min before the pitch, run `scripts/reset-demo.sql` in the Supabase SQL editor, then locally `npm run seed && node scripts/seed-patch-conditions.mjs`. This re-anchors all timestamps so DME-10305 flags live on the clock-advance beat instead of arriving pre-flagged. [team]
+
 Source: `https://luma.com/aibuilderday2?tk=jKRCw9` — **AI Builder Day**, presented by JustBuild and the Startup State Initiative. Hosts: Tyler Jennings, Jacob Wright. `[luma]`
 
 ## Venues
