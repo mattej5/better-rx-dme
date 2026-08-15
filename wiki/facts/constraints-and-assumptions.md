@@ -43,3 +43,7 @@ Nurse-initiated trigger **in the field at the time of death or discharge** is th
 ## Economics
 
 The **hospice pays a per-patient-day (PPD) fee**, bundleable with the pharmacy tech PPD BetterRX already charges. Not the vendor, not a spread. This is settled — they've already debated it internally. `[faq]`
+
+**Insurance is out of scope** — sponsor questionnaire: "we don't do anything with insurance unless it's Medicare or Medicaid." Nothing to build; at most a Medicaid mention in Q&A. `[team]` (relayed from questionnaire, 8/14 late call)
+
+**5-to-10-second rule** — team design principle: every screen must be understandable in 5–10 seconds or it's bad design. `[team]`

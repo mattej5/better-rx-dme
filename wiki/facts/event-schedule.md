@@ -50,3 +50,7 @@ Venue: **bill.com / DIBI building, Baker 915**
 - Prizes across the whole event: "$20K+ in prizes and hiring opportunities." The BetterRX bounty alone is $10,000.
 - Eligibility: engineers, designers, founders, students (high school and university), business owners, "anyone curious." No experience required.
 - Luma status showed **Event Full (waitlist)**. A prior note flagged that the page showed contradictory registration state on 2026-08-13; we attended Friday, so registration held.
+
+## Presentation slot `[team]` (Luma, announced late 8/14)
+
+- **We present at 2:50 PM Saturday.** Parallel tracks (GOED/MadeThis overlap us); a panel of judges per track, not the whole room. Rehearse to a 2:50 door, not 2:00.
