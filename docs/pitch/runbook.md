@@ -1,6 +1,6 @@
 # Pitch Runbook — Saturday Aug 15, 2:50 PM slot
 
-Deck: `docs/pitch/slideshow.html` (open directly in a browser, fully offline, no wifi needed). Keys: arrows or click to advance, `n` toggles speaker notes, Home/End jump. Script: `wiki/facts/pitch-script.md`.
+Deck: `docs/pitch/slideshow.html` — a SINGLE slide (James Wilson, today vs with-us contrast), fully offline. Press `r` to replay the reveal animation. It stays up for Vin's 90 seconds and returns for Q&A; everything else is the live app. Script: `wiki/facts/pitch-script.md`.
 
 ## T-45 min (~2:05 PM) — data reset
 
@@ -8,13 +8,12 @@ Deck: `docs/pitch/slideshow.html` (open directly in a browser, fully offline, no
 2. Locally: `npm run seed && node scripts/seed-patch-conditions.mjs`.
 3. Why: re-anchors every timestamp to now so Maria Santos's order (DME-10305) flags live on the Beat 5 clock advance instead of arriving pre-flagged. Skeptic-verified 8/15: if anyone advanced the demo clock earlier, the flag already fired and the on-stage advance shows nothing new. The reset clears that.
 
-## T-35 min — stage the approvals order (do not skip)
+## T-35 min — stage the vendor demo (do not skip)
 
-The seed does NOT create pending approvals; after reset, Ellen's queue is empty and Beat 7 shows a blank screen. Fix:
+1. Vendor pages currently show no stops (seed gap). After the reset, Vin seeds vendor stop data (his open task) and verifies the run list renders for Ridgeline or Gulf Coast.
+2. Pull one valid `/v/[token]` link from the DB AFTER the reset (tokens change on re-seed). Open it in a tab on the device Nathaniel presents from and leave it open.
+3. Approvals staging is now optional (Ellen's money view is cut from the live demo). If you want it as a Q&A backup: place one >$500 order as Diego on Lucille Garcia or Henry Jackson. NEVER Frank Davis (localhost string leak) or Walter Kim (duplicate flags).
 
-1. On the phone, signed in as Diego Ramirez (nurse), open any active patient EXCEPT Helen Price (she's the live Beat 4 order; suggest Lucille Garcia or Henry Jackson).
-2. Place one order totaling over $500 (hospital bed E0260 + low-air-loss mattress E0277 clears it easily), any urgency.
-3. Confirm it appears under Approvals when signed in as Ellen T. Leave it pending.
 
 ## T-30 min — phone setup checklist
 
@@ -27,36 +26,36 @@ The seed does NOT create pending approvals; after reset, Ellen's queue is empty 
 - [ ] Walk the four demo paths once, in order, then STOP TOUCHING:
   1. Helen Price → order → 3 steps → compare card (don't place it; back out)
   2. /demo → note the clock-advance button location
-  3. Robert Miller's chart → note the Status change button (don't tap it)
+  3. James Wilson's chart → timeline → find the death + pickup-requested events and the receipt (nothing to tap live)
   4. Ellen tab → Approvals shows the staged order → Reports → DME PPD + Days saved tabs
 
 ## T-15 min — laptop setup
 
-- [ ] `slideshow.html` open in a fullscreen browser window (F11 / ⌘⇧F). Test arrows.
-- [ ] Speaker notes rehearsed, then `n` OFF for the projector.
+- [ ] `slideshow.html` open fullscreen (F11 / ⌘⇧F). Press `r` once to confirm the reveal replays.
 - [ ] Fallback assets on the desktop (see below), ready to open instantly.
 
-## The 5:00 flow
+## The 5:00 flow (three presenters)
 
-| Clock | Beat | Screen | Cue |
+| Clock | Who | Beat | Screen |
 |---|---|---|---|
-| 0:00 | 1 · Robert, 2:14 AM | Slide 2 | Portrait up while you tell it |
-| 0:35 | 2 · Sharing gap | Slide 3 | 37% counter animates on entry |
-| 1:05 | 3 · What we built | Slide 4 | Architecture line |
-| 1:25 | 4-7 · LIVE | Slide 5 then SWITCH INPUT | Slide 5 is the CUT TO PHONE cue card; audience sees the cast while you switch |
-| 1:25 | 4 · Helen's order | PHONE | 3 steps, stop on compare card, place order |
-| 2:00 | 5 · Maria's flag | PHONE | /demo advance → /today → open flag → escalate sheet |
-| 2:35 | 6 · Robert's receipt | PHONE | Chart → status change → deceased → confirm → receipt |
-| 3:05 | 7 · Ellen's money view | PHONE (Ellen tab) | Approvals → Reports → PPD answer |
-| 3:40 | 8 · Vendor protocol | BACK TO SLIDES (6) | Say the SMS-not-wired line before a judge asks |
-| 4:05 | 9 · Differentiation | Slide 7 | Concessions box first, table second |
-| 4:35 | 10 · AI + close | Slides 8-9 | Counters animate; land on Robert |
+| 0:00 | Vin | James at 2:14 AM | THE slide |
+| 0:35 | Vin | Sharing gap | THE slide |
+| 1:05 | Vin | What we built, handoff | THE slide |
+| 1:30 | Tony | Maria's flag + nudge + timeline | TONY'S PHONE (input switch) |
+| 2:25 | Tony | James Wilson's record + receipt | PHONE |
+| 3:10 | Nathaniel | Vendor run list, live | pre-opened /v/[token] tab |
+| 3:45 | Nathaniel | AI justification | spoken (app still up) |
+| 4:15 | Nathaniel | PPD, three levers | spoken |
+| 4:40 | Nathaniel | Concessions + close | back to THE slide |
 
-Timing checkpoints: if you're past 2:10 when Maria's flag opens, or past 3:15 when Ellen's tab opens, cut per the script header (Beat 8's JSON-contract sentence first, then Beat 4's sample-scores sentence).
+Timing checkpoints: Tony should open James Wilson's chart by 2:30; Nathaniel should be off the vendor tab by 3:50. Running long: cut the escalate-sheet sentence (Tony) and the GAO/DOJ material stays Q&A-only (Nathaniel).
+
+AI wording guard (team decision, post-grill): the agent INTERPRETS replies and PROPOSES updates, human confirms below 0.75. Never say the live SMS loop runs; if asked, the parser runs on fixture replies behind a seam in this build.
+
 
 ## Failure fallbacks
 
-**Wifi/app dies mid-demo:** the deck stands alone. Say "let me show you the same thing in stills," open the `docs/pitch/fallback/` screenshots folder (capture these at the ~1:30 venue rehearsal: compare card, /today with the amber flag + reason, escalate sheet, deceased receipt, approvals, PPD report, days-saved tile). Narrate the same beats over stills; the script lines don't change.
+**Wifi/app dies mid-demo:** the deck stands alone. Say "let me show you the same thing in stills," open the `docs/pitch/fallback/` screenshots folder (capture these at the ~1:30 venue rehearsal: compare card, /today with the amber flag + reason, escalate sheet, James Wilson's timeline + receipt, PPD report, days-saved tile). Narrate the same beats over stills; the script lines don't change.
 
 **Screen-recorded demo video:** record one full pass at the 1:30 rehearsal (iPhone screen record, all four paths, ~90 seconds). Keep it on the laptop desktop as `demo-fallback.mov`. Worst case, play it muted and narrate.
 
