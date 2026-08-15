@@ -1,0 +1,17 @@
+{
+  "patients": [],
+  "vendors": [],
+  "equipment_catalog": [],
+  "vendor_prices": [],
+  "orders": [],
+  "order_events": [],
+  "settings": {
+    "don_threshold_cents": 50000,
+    "baseline_notify_lag_h": 26,
+    "pickup_amber_h": 24,
+    "pickup_red_h": 48
+  },
+  "demo_state": {
+    "now": "2026-08-14T04:00:00Z"
+  }
+}
