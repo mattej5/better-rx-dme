@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getPendingApprovalCount } from "@/app/actions/approvals";
 import { getSession, ROLE_LABELS } from "@/src/lib/role";
 import TabBar from "./tab-bar";
 
@@ -8,7 +9,10 @@ export default async function HospiceLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getSession();
+  const [session, pendingApprovals] = await Promise.all([
+    getSession(),
+    getPendingApprovalCount(),
+  ]);
   if (!session) redirect("/");
 
   return (
@@ -37,7 +41,7 @@ export default async function HospiceLayout({
 
       <main className="mx-auto max-w-[430px] px-5 pb-[84px] pt-5">{children}</main>
 
-      <TabBar />
+      <TabBar pendingApprovals={pendingApprovals} />
     </div>
   );
 }

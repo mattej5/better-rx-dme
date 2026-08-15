@@ -9,7 +9,7 @@ const TABS = [
   { href: "/more", label: "More" },
 ];
 
-export default function TabBar() {
+export default function TabBar({ pendingApprovals = null }: { pendingApprovals?: number | null }) {
   const pathname = usePathname();
 
   return (
@@ -19,7 +19,9 @@ export default function TabBar() {
     >
       <ul className="mx-auto flex max-w-[430px]">
         {TABS.map((tab) => {
-          const active = pathname === tab.href || pathname.startsWith(`${tab.href}/`);
+          const active = pathname === tab.href
+            || pathname.startsWith(`${tab.href}/`)
+            || (tab.href === "/more" && pathname === "/approvals");
           return (
             <li key={tab.href} className="flex-1">
               <Link
@@ -32,7 +34,17 @@ export default function TabBar() {
                   borderTop: `2px solid ${active ? "var(--salmon)" : "transparent"}`,
                 }}
               >
-                {tab.label}
+                <span className="relative">
+                  {tab.label}
+                  {tab.href === "/more" && pendingApprovals ? (
+                    <span
+                      aria-label={`${pendingApprovals} pending approvals`}
+                      className="absolute -right-5 -top-2 inline-flex min-h-4 min-w-4 items-center justify-center rounded-full bg-[var(--red)] px-1 text-[10px] font-extrabold leading-4 text-white"
+                    >
+                      {pendingApprovals > 99 ? "99+" : pendingApprovals}
+                    </span>
+                  ) : null}
+                </span>
               </Link>
             </li>
           );

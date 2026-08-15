@@ -44,6 +44,21 @@ Supabase Postgres, project `better-rx-dme` (ref `fwssbyjrrznzlrkswlcn`). **`spec
 
 Env vars (values in Vercel + `.env.local`, names only here): `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`, `GEMINI_API_KEY`, `ANTHROPIC_API_KEY`, `RESEND_API_KEY`.
 
+## Judging artifacts
+
+The four written deliverables, plus the two routes a judge should click.
+
+| Deliverable | Where |
+|---|---|
+| B. AI approach vs. a rules baseline, cost per order, safety | [docs/AI-APPROACH.md](docs/AI-APPROACH.md) |
+| C. Differentiation vs. phone/fax today and vs. shipping products | [docs/DIFFERENTIATION.md](docs/DIFFERENTIATION.md) |
+| D. Integration sketch: HCHB to eRx envelope to our event spine | [docs/INTEGRATION.md](docs/INTEGRATION.md) |
+| Every assumption, stated out loud with its source | [docs/ASSUMPTIONS.md](docs/ASSUMPTIONS.md) |
+
+Routes: [`/demo`](app/demo) is the presenter control panel (virtual clock, scenario jumps, simulated vendor SMS, simulated EMR death event). [`/dev/components`](app/dev/components) is the component gallery.
+
+The HCHB partner-connection adapter stub is [src/integrations/hchb/adapter.ts](src/integrations/hchb/adapter.ts).
+
 ## Non-negotiables
 
 - Synthetic data only. No real patient or hospice data, ever.
