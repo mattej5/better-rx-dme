@@ -54,3 +54,24 @@ Venue: **bill.com / DIBI building, Baker 915**
 ## Presentation slot `[team]` (Luma, announced late 8/14)
 
 - **We present at 2:50 PM Saturday.** Parallel tracks (GOED/MadeThis overlap us); a panel of judges per track, not the whole room. Rehearse to a 2:50 door, not 2:00.
+
+## Saturday morning runbook (human / human+AI, non-coding) `[team]`
+
+**9:30 AM team sync (30 min):**
+- Review overnight agent output lane by lane against DoDs; anything that failed gets reassigned to Vin (agreed fallback). Move board cards to real statuses.
+- Merge order: lanes → main via Vin's agent review; confirm Vercel deploy is green after each merge.
+
+**Parallel until ~11:30 — deck + verification:**
+- Build the pitch deck (V12): two family stories w/ generated portraits, 2:14 AM cold open, PPD answer slide, differentiation table ("no public evidence that…"), AI-honesty close, one integration diagram slide.
+- **Re-verify CAHPS Q6 verbatim wording before that slide ships** (standing item).
+- Human E2E pass of the three demo scenarios on real phones, incl. judge-QR magic link.
+
+**Human-only ops (cannot be delegated to agents):**
+- **Chase Tony + Nathaniel's sponsor Slack invites AND waivers** — prize money depends on signed waivers.
+- Confirm Twilio number sends real SMS from the deployed app (Nathaniel); simulated-inbox fallback tested too.
+- Ask in sponsor Slack EARLY (they're slow later): submission mechanics (repo link? deployed URL? deadline time?). Decide whether to ask the discharge-readiness question or keep our angle quiet.
+- Watch the sponsor Slack for other teams' Q&A — public answers are free intel.
+- Vin: sibling healthcare call feedback if it happened; fold anything real into Q&A prep.
+
+**~11:30–12:30 first full rehearsal:** 5-minute timing, slide↔app swipe choreography, presenter DECIDED (still open), Q&A drill: PPD answer, "why SMS not GPS", the Qualis phone-call-vs-protocol reframe, GAO pre-empt, A2A slide line.
+**Venue:** arrive per schedule (build day noon, Baker 915); re-rehearse once on venue wifi ~1:30; record a screen-capture fallback video of the demo in case wifi dies. **We present 2:50 PM.**
