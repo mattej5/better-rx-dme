@@ -9,8 +9,20 @@ const OPTIONS: ConditionValue[] = ["none", "dirty", "damaged", "not_working"];
 export type ConditionAckSheetProps = {
   itemLabel: string;
   defaultValue?: ConditionValue;
-  onSelect?: (value: ConditionValue) => void; // STUB — writes condition_reported
-  onDone?: () => void; // STUB
+  /** Fires on every tap. Selection only — it does not write. */
+  onSelect?: (value: ConditionValue) => void;
+  /**
+   * The write. `condition_reported` is appended here, once, with the value the
+   * person settled on. "None" commits on the single tap; anything else waits so
+   * a photo can be attached first.
+   */
+  onDone?: (value: ConditionValue) => void;
+  /** Photo capture supplied by the caller. Replaces the placeholder button. */
+  photoSlot?: React.ReactNode;
+  pending?: boolean;
+  /** Verbatim server message. Never swallowed — a failed write must be visible. */
+  error?: string | null;
+  saveLabel?: string;
 };
 
 export default function ConditionAckSheet({
@@ -18,13 +30,17 @@ export default function ConditionAckSheet({
   defaultValue,
   onSelect,
   onDone,
+  photoSlot,
+  pending = false,
+  error,
+  saveLabel,
 }: ConditionAckSheetProps) {
   const [value, setValue] = useState<ConditionValue | undefined>(defaultValue);
 
   function pick(next: ConditionValue) {
     setValue(next);
     onSelect?.(next);
-    if (next === "none") onDone?.();
+    if (next === "none") onDone?.(next);
   }
 
   return (
@@ -49,8 +65,9 @@ export default function ConditionAckSheet({
               key={option}
               type="button"
               aria-pressed={active}
+              disabled={pending}
               onClick={() => pick(option)}
-              className="min-h-[52px] rounded-[var(--radius-btn)] text-[14px] font-extrabold uppercase tracking-[0.04em]"
+              className="min-h-[52px] rounded-[var(--radius-btn)] text-[14px] font-extrabold uppercase tracking-[0.04em] disabled:opacity-60"
               style={{
                 background: active ? "var(--ink)" : "var(--surface)",
                 color: active ? "#FFFFFF" : "var(--ink)",
@@ -68,23 +85,33 @@ export default function ConditionAckSheet({
           <p className="text-[13.5px] text-[var(--ink-soft)]">
             Add a photo if you can. Optional.
           </p>
-          <button
-            type="button"
-            className="mt-2 min-h-[44px] w-full rounded-[var(--radius-btn)] border border-[var(--line)] text-[13px] font-extrabold uppercase tracking-[0.04em]"
-          >
-            Add photo
-          </button>
+          {photoSlot ?? (
+            <p className="mt-2 text-[12.5px] text-[var(--ink-soft)]">
+              Photo capture is not available on this screen.
+            </p>
+          )}
         </div>
+      ) : null}
+
+      {error ? (
+        <p
+          role="alert"
+          className="mt-3 rounded-[8px] px-3 py-2 text-[13.5px]"
+          style={{ background: "var(--red-tint)", color: "var(--ink)" }}
+        >
+          {error}
+        </p>
       ) : null}
 
       {value && value !== "none" ? (
         <button
           type="button"
-          onClick={onDone}
-          className="mt-3 min-h-[48px] w-full rounded-[var(--radius-btn)] text-[14px] font-extrabold uppercase tracking-[0.04em]"
+          onClick={() => onDone?.(value)}
+          disabled={pending}
+          className="mt-3 min-h-[48px] w-full rounded-[var(--radius-btn)] text-[14px] font-extrabold uppercase tracking-[0.04em] disabled:opacity-60"
           style={{ background: "var(--salmon)", color: "var(--ink)" }}
         >
-          Save condition
+          {pending ? "Saving" : (saveLabel ?? "Save condition")}
         </button>
       ) : null}
     </section>

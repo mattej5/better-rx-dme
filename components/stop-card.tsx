@@ -26,10 +26,22 @@ export type StopCardProps = {
   /** Pickup only. Plain sentence from the hospice, e.g. scheduling around a service. */
   familyNote?: string;
   addressNote?: string;
-  onOpen?: () => void; // STUB — navigation wired by N7/N9
-  onPrimary?: () => void; // STUB — ON MY WAY / DELIVERED / DONE
-  onDecline?: () => void; // STUB — decline with a reason
+  onOpen?: () => void;
+  /** Full mode: ON MY WAY / DELIVERED / PICKED UP. */
+  onPrimary?: () => void;
+  /** Full mode, optional: the other thing a driver might do at this stop. */
+  onSecondary?: () => void;
+  /** Full mode: opens the reason prompt. A reason is required; it feeds the score. */
+  onDecline?: () => void;
   primaryLabel?: string;
+  secondaryLabel?: string;
+  declineLabel?: string;
+  /** A write is in flight. Buttons stay visible so the driver sees what they tapped. */
+  pending?: boolean;
+  /** The stop is finished. No actions — the caller renders the captured proof. */
+  readOnly?: boolean;
+  /** Tap-to-navigate. Falls back to plain text when absent. */
+  mapHref?: string;
 };
 
 function HazmatBadge() {
@@ -59,8 +71,14 @@ export default function StopCard({
   addressNote,
   onOpen,
   onPrimary,
+  onSecondary,
   onDecline,
   primaryLabel,
+  secondaryLabel,
+  declineLabel,
+  pending = false,
+  readOnly = false,
+  mapHref,
 }: StopCardProps) {
   const full = mode === "full";
   const defaultPrimary =
@@ -96,7 +114,18 @@ export default function StopCard({
         </div>
       ) : null}
 
-      <p className="mt-2 text-[14px]">{address}</p>
+      {mapHref ? (
+        <a
+          href={mapHref}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-2 block text-[14px] underline underline-offset-2"
+        >
+          {address}
+        </a>
+      ) : (
+        <p className="mt-2 text-[14px]">{address}</p>
+      )}
       {full && addressNote ? (
         <p className="text-[13px] text-[var(--ink-soft)]">{addressNote}</p>
       ) : null}
@@ -133,35 +162,51 @@ export default function StopCard({
         </p>
       ) : null}
 
-      <div className="mt-4 flex flex-col gap-2">
-        {full ? (
-          <>
+      {full && readOnly ? null : (
+        <div className="mt-4 flex flex-col gap-2">
+          {full ? (
+            <>
+              <button
+                type="button"
+                onClick={onPrimary}
+                disabled={pending}
+                className="min-h-[56px] rounded-[var(--radius-btn)] text-[16px] font-extrabold uppercase tracking-[0.04em] disabled:opacity-60"
+                style={{ background: "var(--salmon)", color: "#24333F" }}
+              >
+                {primaryLabel ?? defaultPrimary}
+              </button>
+              {onSecondary ? (
+                <button
+                  type="button"
+                  onClick={onSecondary}
+                  disabled={pending}
+                  className="min-h-[52px] rounded-[var(--radius-btn)] border border-[var(--line)] text-[14px] font-extrabold uppercase tracking-[0.04em] text-[var(--ink)] disabled:opacity-60"
+                >
+                  {secondaryLabel ?? "Delivered"}
+                </button>
+              ) : null}
+              {onDecline ? (
+                <button
+                  type="button"
+                  onClick={onDecline}
+                  disabled={pending}
+                  className="min-h-[44px] rounded-[var(--radius-btn)] border border-[var(--line)] text-[13px] font-extrabold uppercase tracking-[0.04em] text-[var(--ink)] disabled:opacity-60"
+                >
+                  {declineLabel ?? "Decline stop"}
+                </button>
+              ) : null}
+            </>
+          ) : (
             <button
               type="button"
-              onClick={onPrimary}
-              className="min-h-[56px] rounded-[var(--radius-btn)] text-[16px] font-extrabold uppercase tracking-[0.04em]"
-              style={{ background: "var(--salmon)", color: "#24333F" }}
-            >
-              {primaryLabel ?? defaultPrimary}
-            </button>
-            <button
-              type="button"
-              onClick={onDecline}
+              onClick={onOpen}
               className="min-h-[44px] rounded-[var(--radius-btn)] border border-[var(--line)] text-[13px] font-extrabold uppercase tracking-[0.04em] text-[var(--ink)]"
             >
-              Decline stop
+              Open stop
             </button>
-          </>
-        ) : (
-          <button
-            type="button"
-            onClick={onOpen}
-            className="min-h-[44px] rounded-[var(--radius-btn)] border border-[var(--line)] text-[13px] font-extrabold uppercase tracking-[0.04em] text-[var(--ink)]"
-          >
-            Open stop
-          </button>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </article>
   );
 }
