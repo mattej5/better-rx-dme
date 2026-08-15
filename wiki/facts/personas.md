@@ -51,3 +51,7 @@ High nurse turnover in hospice. Assume every user is new. Sponsor's instruction 
 1. **On time** — is it in stock, when can it be delivered
 2. **Price** — varies by vendor, currently invisible
 3. **Selection** — today they're locked to a primary vendor and maybe a secondary; the delay problem follows from that lock-in
+
+## Bedside nurse question (resolved 8/15 walkthrough)
+
+Team asked whether we're missing a bedside-nurse persona. Checked the primary sources: the kickoff names only **field nurses (phone)** vs **admin nurse / DON (desktop)** [kickoff-qa], and the FAQ's preferred death trigger is "the nurse in the field at the time of death" [faq]. No third nurse type appears in sponsor material. Our admissions nurse and case manager ARE the field nurses; the two-tap deceased flow is the FAQ's preferred bedside trigger, built as specified. If a judge asks: the persona label differs by hospice, the capability is the bedside trigger, and we have it. [team]
