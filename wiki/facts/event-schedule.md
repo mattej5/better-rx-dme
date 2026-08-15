@@ -2,6 +2,11 @@
 
 > **Demo-day data step (added 8/15):** ~30 min before the pitch, run `scripts/reset-demo.sql` in the Supabase SQL editor, then locally `npm run seed && node scripts/seed-patch-conditions.mjs && node scripts/seed-hospice2.mjs`. This re-anchors all timestamps so DME-10305 flags live on the clock-advance beat instead of arriving pre-flagged. [team]
 >
+> **Live multi-EMR ingest for Q&A (added 8/15, verified on prod):** one command creates an Axxess-sourced patient through the same endpoint HCHB would use; the roster chip updates on the next 5s poll. Swap the id/name per run:
+> ```
+> curl -s -X POST https://better-rx-dme.vercel.app/api/erx/events -H 'content-type: application/json' -d '{"meta":{"eventType":"newOrUpdatePatient","source":"Axxess"},"account":{"identifiers":[{"id":"ACCT-001"}]},"patient":{"identifiers":[{"id":"PT-AX-70012","idType":"external_id"}]},"payload":{"patient":{"first_name":"Alma","last_name":"Reyes"}}}'
+> ```
+>
 > **Eval numbers (added 8/15):** NEVER run `npm run eval:parse` live on stage: the hybrid pass makes 16 LLM calls and takes ~95 seconds, and the script does not read `.env.local`, so a bare run silently prints "not measured" instead of erroring. To reproduce the deck numbers beforehand: `set -a; . ./.env.local; set +a; env ANTHROPIC_BASE_URL=https://opencode.ai/zen/go PARSE_MODEL=minimax-m3 npm run eval:parse` — expect regex 11/24, hybrid 23/24. Quote the saved output in the pitch. [team]
 
 Source: `https://luma.com/aibuilderday2?tk=jKRCw9` — **AI Builder Day**, presented by JustBuild and the Startup State Initiative. Hosts: Tyler Jennings, Jacob Wright. `[luma]`
