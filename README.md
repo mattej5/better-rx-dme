@@ -42,7 +42,29 @@ Task board lives in Notion: **Build Tasks**, under *AI Builder Day — Hackathon
 
 Supabase Postgres, project `better-rx-dme` (ref `fwssbyjrrznzlrkswlcn`). **`specs/schema.sql` is canonical — Supabase is made to match the repo, never the reverse** (ADR 0005). Types: `src/types/db.ts` (generated). Server client: `src/lib/supabase.ts`. RLS is intentionally skipped (demo).
 
-Env vars (values in Vercel + `.env.local`, names only here): `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`, `GEMINI_API_KEY`, `ANTHROPIC_API_KEY`, `RESEND_API_KEY`.
+Env vars (values in Vercel + `.env.local`, names only here): `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`, `GEMINI_API_KEY`, `ANTHROPIC_API_KEY`, `RESEND_API_KEY`. Full annotated list: [.env.example](.env.example).
+
+## Comms setup
+
+Every outbound message in the app goes through one function: `sendMessage()` in [src/lib/messaging.ts](src/lib/messaging.ts). Call sites say who and which template. That function picks the wire from config plus `to.channel` — transport is a config, not an architecture.
+
+| `to.channel` | First choice | Fallback | Last resort |
+|---|---|---|---|
+| `sms` | Twilio | Resend, only when the address is an email (ADR 0005) | `log_only` |
+| `email` | Resend | — | `log_only` |
+
+`log_only` still renders the message, still writes the `messages` row, and still appends `message_sent` — with `status: "logged"` in the payload, so the timeline says plainly that nothing left the building. Missing credentials degrade; they never throw mid-demo.
+
+Copy `.env.example` to `.env.local` and fill it in, or run `npx vercel env pull .env.local`. Nothing here needs credentials to typecheck or build.
+
+```
+npm run sms:test -- --dry-run        # show config and transport selection, sends nothing
+npm run sms:test -- +15551234567     # send one real SMS, print the SID and the final status
+```
+
+Twilio's first status is `queued`, which only means Twilio accepted the message. The script waits for the carrier's verdict and reports that instead. Two ways a send looks successful and is not: on a trial account only **Verified Caller IDs** receive anything, and without A2P 10DLC registration US carriers drop the message with no error path back to us. Registration takes 10–15 days — do not start it for this build. Details and the pitch framing: [wiki/facts/sms-delivery-constraints.md](wiki/facts/sms-delivery-constraints.md).
+
+Set `MESSAGING_DRY_RUN=1` to run the whole comms path — render, transport selection, logging — with no network calls, no database writes, and no spend.
 
 ## Judging artifacts
 

@@ -11,6 +11,7 @@
     "test:derive": "tsx --test src/lib/derive.test.ts",
     "test:billing": "tsx --test src/lib/billing.test.ts",
     "eval:parse": "node scripts/eval-parse.ts",
+    "sms:test": "node --env-file-if-exists=.env.local scripts/send-test-sms.ts",
     "tokens:parse-system": "node scripts/count-parse-system.ts"
   },
   "dependencies": {
